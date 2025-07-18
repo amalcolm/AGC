@@ -18,21 +18,10 @@ void CAutoPot::begin(int initialLevel) {
   reset(initialLevel);
 }
 
-void CAutoPot::reset(int level) {
-  _setLevel(level);
-}
-
-void CAutoPot::invert() {
-  _inverted = !_inverted;
-}
-
-int CAutoPot::getLevel() {
-  return _currentLevel;
-}
-
-int CAutoPot::getSensorValue() {
-  return _lastSensorValue;
-}
+void CAutoPot::reset(int level) { _setLevel(level);        }
+void CAutoPot::invert()         { _inverted = !_inverted;  }
+int  CAutoPot::getLevel()       { return _currentLevel;    }
+int  CAutoPot::getSensorValue() { return _lastSensorValue; }
 
 
 void CAutoPot::_readSensor() {
