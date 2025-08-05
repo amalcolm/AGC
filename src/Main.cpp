@@ -18,7 +18,7 @@ void setup() {
   HW.init();
 
   LED.all.deactivate();
-//  digitalWrite(33, LOW); // Example: Turn on a specific LED
+  digitalWrite(LED.RED2, LOW); // Example: Turn on a specific LED
 
   offsetPot1.begin(138);
   offsetPot2.begin(142);
@@ -37,24 +37,21 @@ void loop() {
   LED.activity.toggle();
 
 
-  if (BUT.halt.read() != 0) {
-    offsetPot1.update();
-    offsetPot2.update();
+  offsetPot1.update();
+  offsetPot2.update();
 
-//    if (offsetPot1.inZone) {
-      gainPot.update();
-//    }
-  }
+//if (offsetPot1.inZone) {
+    gainPot.update();
+//}
 
 
   // --- Serial Debugging Output ---
-  Serial.print("Sensor1:");       Serial.print(offsetPot1.getSensorValue());
-  Serial.print("\t offset1:");    Serial.print(offsetPot1.getLevel());
-  Serial.print("\t Sensor2:");    Serial.print(offsetPot2.getSensorValue());
-  Serial.print("\t offset2:");    Serial.print(offsetPot2.getLevel());
-  Serial.print("\t GainSensor:"); Serial.print(gainPot.getSensorValue());
-  Serial.print("\t GainLevel:");  Serial.print(gainPot.getLevel());
-  Serial.println("\t Min:0\t Max:1024");
+  Serial.print("\n Sensor1:");  Serial.print(offsetPot1.getSensorValue());
+  Serial.print("\t Sensor2:");  Serial.print(offsetPot2.getSensorValue());
+  Serial.print("\t offset1:");  Serial.print(offsetPot1.getLevel());
+  Serial.print("\t offset2:");  Serial.print(offsetPot2.getLevel());
+  Serial.print("\t Gain:");     Serial.print(   gainPot.getLevel());
+  Serial.print("\t Min:0\t Max:1024");
 
-  delay(1);
+  delay(5);
 }
