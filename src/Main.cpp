@@ -1,17 +1,11 @@
 #include "Setup.h"
-#include "CAutoPot.h"
+#include "Helpers.h"
+#include "DigiPots/CAutoPot.h"
 
-ChipSelectPins CS;
-ProbePointPins PP;
-ButtonPins     BUT;
-LedPins        LED;
-Timer          timer;
-
-Hardware HW(&CS, &PP, &BUT, &LED, &timer);
 
 // Parameter order; ChipSelect,ProbePoint,Window,LowThresh,HighThresh
-COffsetPot offsetPot1(CS.offset1, PP.primaryOffset,  50, 324, 700);
-COffsetPot offsetPot2(CS.offset2, PP.preGain      , 100, 324, 700);
+COffsetPot offsetPot1(CS.offset1, PP.primaryOffset,  50, 224, 800);
+COffsetPot offsetPot2(CS.offset2, PP.preGain      , 100, 224, 800);
 CGainPot   gainPot   (CS.gain,    PP.preGain      ,  10          );
 
 void setup() {
@@ -19,7 +13,7 @@ void setup() {
 
   LED.all.deactivate();
   digitalWrite(LED.RED2, LOW); // Example: Turn on a specific LED
-
+  
   offsetPot1.begin(138);
   offsetPot2.begin(142);
   gainPot.invert();
@@ -44,14 +38,17 @@ void loop() {
     gainPot.update();
 //}
 
+  auto avg1 = offsetPot1.getRunningAverage().GetAverage() - 900;
+  auto avg2 = offsetPot2.getRunningAverage().GetAverage() - 512;
 
   // --- Serial Debugging Output ---
-  Serial.print("\n Sensor1:");  Serial.print(offsetPot1.getSensorValue());
-  Serial.print("\t Sensor2:");  Serial.print(offsetPot2.getSensorValue());
-  Serial.print("\t offset1:");  Serial.print(offsetPot1.getLevel());
-  Serial.print("\t offset2:");  Serial.print(offsetPot2.getLevel());
-  Serial.print("\t Gain:");     Serial.print(   gainPot.getLevel());
-  Serial.print("\t Min:0\t Max:1024");
+  Serial.print("\n Sensor1:");  Serial.print(offsetPot1.getSensorValue()-avg1);
+  Serial.print("\t Sensor2:");  Serial.print(offsetPot2.getSensorValue()-avg2);
+//  Serial.print("\t offset1:");  Serial.print(offsetPot1.getLevel());
+//  Serial.print("\t offset2:");  Serial.print(offsetPot2.getLevel());
+//  Serial.print("\t Gain:");     Serial.print(   gainPot.getLevel());
+  Serial.print("\t Min:");      Serial.print(offsetPot2.getRunningAverage().GetMin() - avg2);
+  Serial.print("\t Max:");      Serial.print(offsetPot2.getRunningAverage().GetMax() - avg2);
 
   delay(5);
 }

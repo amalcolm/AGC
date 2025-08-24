@@ -24,12 +24,16 @@ int  CAutoPot::getLevel()       { return _currentLevel;    }
 int  CAutoPot::getSensorValue() { return _lastSensorValue; }
 
 
-void CAutoPot::_readSensor() {
+int CAutoPot::_readSensor() {
   long totalValue = 0;
   for (int i = 0; i < _samplesToAverage; i++) {
     totalValue += analogRead(_sensorPin);
   }
   _lastSensorValue = totalValue / _samplesToAverage;
+
+  _runningAverage.Add(_lastSensorValue);
+
+  return _lastSensorValue;
 }
 
 void CAutoPot::_offsetLevel(int offset) {

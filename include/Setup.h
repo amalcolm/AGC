@@ -1,7 +1,15 @@
 #pragma once
 #include "SPI.h"
-#include "Timer.h"
 #include "PinHelpers.h"
+
+extern struct ChipSelectPins CS;
+extern struct ProbePointPins PP;
+extern struct ButtonPins     BUT;
+extern struct LedPins        LED;
+extern struct Hardware       HW;
+extern class  Timer          timer;
+extern class  CA2D           A2D;
+extern class  CHead          HEAD;
 
 struct ChipSelectPins {
   const int offset1 = 23;
@@ -36,7 +44,7 @@ struct LedPins {
 	const int IR7  = 30;										//                                        RED1             RED9                       //        RED3    RED2
 	const int IR8  = 31;										//                                                                                    //            IR3
 	const int IR9  = 32;										//                               RED3              QQQQ              RED6
-																//             
+          																//             
 	const int RED1 = 33;										//                                        IR4              IR1
 	const int RED2 = 34;										//
 	const int RED3 = 35;										//                                 IR5                            IR2
@@ -62,10 +70,12 @@ struct Hardware {
   ButtonPins    * const BUT;
   LedPins       * const LED;
   Timer         * const timer;
+  CA2D          * const A2D;
+  CHead         * const Head;
 
-  Hardware(ChipSelectPins* cs, ProbePointPins *pp, ButtonPins *but, LedPins *led, Timer* timer)
-    : CS(cs), PP(pp), BUT(but), LED(led), timer(timer) {
-    };
+  Hardware(ChipSelectPins* cs, ProbePointPins *pp, ButtonPins *but, LedPins *led, Timer* timer, CA2D* a2d, CHead* head)
+    : CS(cs), PP(pp), BUT(but), LED(led), timer(timer), A2D(a2d), Head(head)
+  {};
 
   void init() const {
     Serial.begin(57600*16);
@@ -74,6 +84,9 @@ struct Hardware {
 
     BUT->init();
     LED->init();
+
+    Head->init();
+    A2D->init();
 
     Serial.printf("CPU Frequency: %.0f Mhz\n", F_CPU / 1000000.0f);
     timer->restart();

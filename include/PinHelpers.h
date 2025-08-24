@@ -1,34 +1,24 @@
 #pragma once
 #include <Arduino.h>
 
-// --- Template-based Pin Wrappers (to reduce boilerplate) ---
 
 // A wrapper for a single digital output pin
 template <int PIN>
 struct OutputPin {
-  void init() const {
-    pinMode(PIN, OUTPUT);
-  }
-  void write(int value) const {
-    digitalWrite(PIN, value);
-  }
-  void toggle() const {
-    digitalWrite(PIN, !digitalRead(PIN));
-  }
+  void init(int mode = OUTPUT) const { pinMode(PIN, OUTPUT);                 }
+  void write(int value)        const { digitalWrite(PIN, value);             }
+  void toggle()                const { digitalWrite(PIN, !digitalRead(PIN)); }
+  int  getNum()                const { return PIN;                           }
 };
 
 // A wrapper for a single digital input pin
 template <int PIN>
 struct InputPin {
-  void init(int mode = INPUT) const {
-    pinMode(PIN, mode);
-  }
-  int read() const {
-    return digitalRead(PIN);
-  }
+  void init(int mode = INPUT)  const { pinMode(PIN, mode); }
+  int read()                   const { return digitalRead(PIN); }
+  int getNum()                 const { return PIN; }
 };
 
-// --- Functional Pin Grouping Classes ---
 
 // Manages a contiguous range of LED output pins
 struct LedPinRange {

@@ -1,5 +1,6 @@
-#ifndef _CAUTOPOT
-#define _CAUTOPOT
+#pragma once
+#include "RunningAverage.h"
+
 
 class CAutoPot {
 public:
@@ -16,8 +17,11 @@ public:
   int getLevel();
   int getSensorValue();
 
+  RunningAverage& getRunningAverage() { return _runningAverage; }
+
+
 protected:
-  void _readSensor();
+  int  _readSensor();
   void _offsetLevel(int offset);
 
   int _csPin;
@@ -27,6 +31,7 @@ protected:
   int _lastSensorValue = 0;
 
   bool _inverted = false;
+  RunningAverage _runningAverage;
 
 private:
   void _setLevel(int newLevel);
@@ -50,5 +55,3 @@ public:
   CGainPot(int csPin, int sensorPin, int samples);
   void update() override;
 };
-
-#endif
