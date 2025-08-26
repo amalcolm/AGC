@@ -1,6 +1,6 @@
 #include "Setup.h"
 #include "Helpers.h"
-#include "DigiPots/CAutoPot.h"
+#include "CAutoPot.h"
 
 
 // Parameter order; ChipSelect,ProbePoint,Window,LowThresh,HighThresh

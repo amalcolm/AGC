@@ -1,4 +1,5 @@
-#include "A2D.h"
+#include "CA2D.h"
+#include "Setup.h"
 #include "helpers.h"
 
 CA2D::CA2D(ModeType mode) { 
@@ -19,7 +20,10 @@ void CA2D::setMode(CA2D::ModeType mode) {
     case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
     default: error("*** A2D Mode %d not configured ***");  break;
   }
+}
 
+void CA2D::init() {
+  m_pinDataReady.init();
 }
 
 CA2D::DataType CA2D::readData() {

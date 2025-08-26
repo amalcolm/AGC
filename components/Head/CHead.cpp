@@ -1,13 +1,20 @@
 #include "pins_arduino.h"
 #include "core_pins.h"
-#include "Head.h"
-#include "A2D/A2D.h"
-#include "Helpers.h"
+#include "CHead.h"
+#include "CA2D.h"
+#include "Setup.h"
 
-CHead::CHead() : m_State(0)
-{}
+CHead::CHead() : m_State(0) {}
 
 CHead::~CHead() { if (m_pSequence) delete[] m_pSequence; }
+
+void CHead::init() {
+  LED.all.deactivate();
+  m_sequencePosition = -1;
+  m_State = UNSET;
+  
+  //setPortAndMasks();
+}
 
 void CHead::setSequence( std::initializer_list<uint8_t> data ) {
 

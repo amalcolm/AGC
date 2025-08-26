@@ -1,6 +1,4 @@
-#include "core_pins.h"
-#include "A2D.h"
-#include "Head/Head.h"
+#include "Setup.h"
 
 void CA2D::setMode_Triggered() {
   // initalize the pins:

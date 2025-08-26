@@ -1,6 +1,5 @@
-#include <vector>
-#include "core_pins.h"
-#include "A2D.h"
+#include "CA2D.h"
+#include "Setup.h"
 
 // only visible inside Continuous codebase
 static CA2D* Singleton = NULL;

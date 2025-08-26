@@ -1,6 +1,7 @@
 #pragma once
-#include "SPI.h"
-#include "PinHelpers.h"
+
+constexpr double VERSION = 0.1;
+
 
 extern struct ChipSelectPins CS;
 extern struct ProbePointPins PP;
@@ -10,6 +11,17 @@ extern struct Hardware       HW;
 extern class  Timer          timer;
 extern class  CA2D           A2D;
 extern class  CHead          HEAD;
+extern class  CUSB           USB;
+
+#include "SPI.h"
+#include "core_pins.h"
+
+#include "PinHelpers.h"
+#include "Timer.h"
+#include "CA2D.h"
+#include "CHead.h"
+#include "CUSB.h"
+
 
 struct ChipSelectPins {
   const int offset1 = 23;
@@ -72,13 +84,14 @@ struct Hardware {
   Timer         * const timer;
   CA2D          * const A2D;
   CHead         * const Head;
-
-  Hardware(ChipSelectPins* cs, ProbePointPins *pp, ButtonPins *but, LedPins *led, Timer* timer, CA2D* a2d, CHead* head)
-    : CS(cs), PP(pp), BUT(but), LED(led), timer(timer), A2D(a2d), Head(head)
+  CUSB          * const USB;
+  
+  Hardware(ChipSelectPins* cs, ProbePointPins *pp, ButtonPins *but, LedPins *led, Timer* timer, CA2D* a2d, CHead* head, CUSB* usb)
+    : CS(cs), PP(pp), BUT(but), LED(led), timer(timer), A2D(a2d), Head(head), USB(usb)
   {};
 
   void init() const {
-    Serial.begin(57600*16);
+    USB->init();
 
     SPI.begin();
 

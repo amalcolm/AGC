@@ -1,19 +1,20 @@
 #pragma once
 #include <SPI.h>
-#include "Head/Head.h"
-#include "Setup.h"
+#include "CHead.h"
+#include "PinHelpers.h"
 #include <vector>
 
 class CA2D {
   public:
     enum ModeType { UNSET, CONTINUOUS, TRIGGERED };
 
-    #include "A2D_DataTypes.h"
+    #include "CA2D_DataTypes.h"
 
   public:
     CA2D(ModeType mode);
     CA2D(CA2D::CallbackType callback);
     
+    void      init();
     void      setHead    (CHead*             pHead   ) { m_pHead = pHead;         }
     void      setCallback(CA2D::CallbackType callback) { m_fnCallback = callback; }
 
@@ -27,7 +28,7 @@ class CA2D {
     static void         ISR_Data();
     volatile BlockType* getBlockToSend();
     void                releaseBlockToSend();
-    volatile bool      isBlockReadyToSend = false;
+    volatile bool       isBlockReadyToSend = false;
 
   private:
     void      setMode(CA2D::ModeType mode);
@@ -46,7 +47,7 @@ class CA2D {
     CallbackType        m_fnCallback = NULL;
     CHead*              m_pHead      = NULL;
 
-    // Continious
+    // Continuous
     CHead::StateType    m_State;
 
     BlockType           m_BlockA;

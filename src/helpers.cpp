@@ -2,7 +2,6 @@
 #include <Arduino.h>
 #include "helpers.h"
 #include "Setup.h"
-#include "A2D/A2D.h"
 
 const char* getSketch() {
   static String result; // Static to ensure it lives beyond function return
@@ -50,7 +49,9 @@ ButtonPins     BUT;
 LedPins        LED;
 Timer          timer;
 CA2D           A2D(CA2D::ModeType::CONTINUOUS);
+CHead          HEAD;
+CUSB           USB;
 
-Hardware        HW(&CS, &PP, &BUT, &LED, &timer, &A2D);
+Hardware        HW(&CS, &PP, &BUT, &LED, &timer, &A2D, &HEAD, &USB);
 
 
