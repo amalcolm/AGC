@@ -60,7 +60,7 @@ constexpr uint TEXTOUT_INTERVAL = 1000; // ms
         if (millis() - lastOutTime > TEXTOUT_INTERVAL) {
           lastOutTime = millis();
 
-          printf("Amb:%d\tRED:%d\tIR:%d\n", lastReading[CHead::LEDS_OFF], lastReading[CHead::LED_RED], lastReading[CHead::LED_IR]);
+          printf("Amb:%d\tRED:%d\tIR:%d\n", lastReading[CHead::ALL_OFF], lastReading[CHead::RED1], lastReading[CHead::IR1]);
         }
 
         break;

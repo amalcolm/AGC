@@ -3,23 +3,28 @@
 
 class CHead {
   public:
-    typedef uint StateType;
+    typedef uint32_t StateType;
     static const StateType DIRTY = 0xFFFFFFFF;
 
-    static const uint8_t LEDS_OFF = 0x00;     static const uint8_t GPIO_OFF = 0xF0;
-    static const uint8_t LED_RED  = 0x01;     static const uint8_t GPIO_RED = 0xE0;
-    static const uint8_t LED_IR   = 0x02;     static const uint8_t GPIO_IR  = 0xD0;
+    //                                    3         2         1         0
+    //                                   10987654321098765432109876543210
 
-    static const uint8_t UNSET    = LEDS_OFF;
+    //                                             IR             RED
+    //                                          987654321       987654321
 
+    static const StateType VALID     = 0b00000001111111110000000111111111; 
 
-    static constexpr uint8_t dLookupIO[8] { GPIO_RED, GPIO_IR, 0,0, 0,0,0,0 };
+    static const StateType ALL_OFF   = 0b00000000000000000000000000000000;
+    static const StateType ALL_ON    = 0b00000001111111110000000111111111;
 
+    static const StateType RED1      = 0b00000000000000000000000000000001;
+    static const StateType IR1       = 0b00000000000000010000000000000000;
 
+    static const StateType UNSET     = 0b10000000000000000000000000000000;
 
 
   private:
-    uint8_t* m_pSequence;
+    uint32_t* m_pSequence;
 
     int   m_sequenceLength   = -1;
     int   m_sequencePosition = -1;
@@ -31,7 +36,7 @@ class CHead {
    ~CHead();
    
     void init();
-    void setSequence( std::initializer_list<uint8_t> data );
+    void setSequence( std::initializer_list<uint32_t> data );
 
     StateType getState() { return m_State; };
     StateType setNextState();

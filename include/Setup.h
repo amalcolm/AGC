@@ -1,4 +1,6 @@
 #pragma once
+#include <Arduino.h>
+#include <SPI.h>
 
 constexpr double VERSION = 0.1;
 
@@ -12,9 +14,6 @@ extern class  Timer          timer;
 extern class  CA2D           A2D;
 extern class  CHead          HEAD;
 extern class  CUSB           USB;
-
-#include "SPI.h"
-#include "core_pins.h"
 
 #include "PinHelpers.h"
 #include "Timer.h"

@@ -1,7 +1,5 @@
-#include "core_pins.h"
-#include <Arduino.h>
-#include "helpers.h"
 #include "Setup.h"
+#include "Helpers.h"
 
 const char* getSketch() {
   static String result; // Static to ensure it lives beyond function return

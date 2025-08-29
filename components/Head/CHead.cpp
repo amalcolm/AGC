@@ -11,26 +11,41 @@ CHead::~CHead() { if (m_pSequence) delete[] m_pSequence; }
 void CHead::init() {
   LED.all.deactivate();
   m_sequencePosition = -1;
-  m_State = UNSET;
+  m_State = DIRTY;
   
   //setPortAndMasks();
 }
 
-void CHead::setSequence( std::initializer_list<uint8_t> data ) {
+void CHead::setSequence( std::initializer_list<uint32_t> data ) {
 
   m_sequenceLength = data.size();
-  m_pSequence = new uint8_t[m_sequenceLength];
+  m_pSequence = new uint32_t[m_sequenceLength];
 
-  uint8_t *pW = m_pSequence;
-  for ( uint8_t b : data )
+  uint32_t *pW = m_pSequence;
+  for ( uint32_t b : data )
     *pW++ = b;
 }
 
 CHead::StateType CHead::setNextState() {
   m_sequencePosition = (m_sequencePosition + 1) % m_sequenceLength;
 
-  m_State = m_pSequence[m_sequencePosition];
+const StateType oldState = m_State;
+const StateType newState = m_pSequence[m_sequencePosition];
 
+StateType diff = (newState ^ oldState) & VALID;
+if (!diff) return m_State;
+m_State = newState;
+
+while (diff) {
+    const int  i  = __builtin_ctz(diff);          // index of lowest set bit (GCC/Clang)
+    const bool on = (newState >> i) & 1u;
+
+    if (i < 9) 
+        digitalWriteFast(LED.RED1 + i      , on ? HIGH : LOW);
+    else // i in [16..24]
+        digitalWriteFast(LED.IR1 + (i - 16), on ? HIGH : LOW);
+    diff &= diff - 1;                             // clear that bit using magic
+}
   return m_State;
 }
 
@@ -39,8 +54,8 @@ CHead::StateType CHead::setNextState() {
 inline CHead::StateType CHead::getActiveState() {
   CHead::StateType state = 0x00;
   
-  if (digitalReadFast(LED.RED1)) state |= LED_RED;
-  if (digitalReadFast(LED.IR1 )) state |= LED_IR;
+  if (digitalReadFast(LED.RED1)) state |= RED1;
+  if (digitalReadFast(LED.IR1 )) state |= IR1;
   
   return state;
 }
