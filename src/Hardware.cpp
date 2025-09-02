@@ -56,6 +56,6 @@ void Hardware::tick() {
   Serial.print("\t offset2:");  Serial.print(offsetPot2.getLevel());
   Serial.print("\t Gain:");     Serial.print(   gainPot.getLevel());
   Serial.print("\t Min:");      Serial.print(offsetPot2.getRunningAverage().GetMin() - 0*avg2);
-  Serial.print("\t Max:");      Serial.print(offsetPot2.getRunningAverage().GetMax() - avg2);
+  Serial.print("\t Max:");      Serial.print(offsetPot2.getRunningAverage().GetMax() - 0*avg2);
 
 }
