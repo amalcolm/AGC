@@ -72,12 +72,12 @@ CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) 
   if (m_Mode == mode) return m_Mode;
 
   if ((m_Mode & FRAMING_MASK) && m_handshakeComplete)
-    put(g_EndFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);
+    put(  g_EndFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);
 
   m_Mode = mode;
 
   if ((m_Mode & FRAMING_MASK) && m_handshakeComplete)
-    put(g_EndFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);
+    put(g_StartFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);
 
   return m_Mode;
 }

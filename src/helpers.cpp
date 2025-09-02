@@ -40,16 +40,19 @@ void error(const char *msg)
   }
 }
 
+#include "CA2D.h" 
+#include "CHead.h"
+#include "CUSB.h"
+#include "CTimer.h"
 
 ChipSelectPins CS;
 ProbePointPins PP;
 ButtonPins     BUT;
 LedPins        LED;
-Timer          timer;
+CTimer         Timer;
 CA2D           A2D(CA2D::ModeType::CONTINUOUS);
 CHead          HEAD;
 CUSB           USB;
 
-Hardware        HW(&CS, &PP, &BUT, &LED, &timer, &A2D, &HEAD, &USB);
 
 

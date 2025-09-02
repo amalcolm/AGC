@@ -19,7 +19,7 @@
     };
 
     struct BlockType {
-      static const uint MAX_BLOCKSIZE = 16384;
+      static const uint MAX_BLOCKSIZE = 4096;
 
       uint32_t               timeStamp;
       CHead::StateType       State;
@@ -44,4 +44,4 @@
 
     };
     
-    typedef void (*CallbackType)(BlockType);
+    typedef void (*CallbackType)(BlockType*);

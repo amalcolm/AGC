@@ -1,5 +1,5 @@
 #include "Setup.h"
-
+#include "CA2D.h"
 void CA2D::setMode_Triggered() {
   // initalize the pins:
   pinMode(PIN_SPI_SCK , OUTPUT); //SPI SCK

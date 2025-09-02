@@ -1,0 +1,61 @@
+#include "Setup.h"
+#include "Hardware.h"
+
+#include "CUSB.h"
+#include "CAutoPot.h"
+#include "CA2D.h"
+#include "CHead.h"
+#include "CTimer.h"
+
+
+COffsetPot Hardware::offsetPot1{ CS.offset1, PP.primaryOffset,  50, 224, 800 };
+COffsetPot Hardware::offsetPot2{ CS.offset2, PP.preGain      , 100, 224, 800 };
+CGainPot   Hardware::gainPot   { CS.gain   , PP.preGain      ,  10           };
+
+void Hardware::init() {
+    // Initialize all hardware components
+    USB .init();
+    SPI .begin();
+    BUT .init();
+    LED .init();
+    Head.init();
+    A2D .init()->setCallback(ProccessA2D);
+
+    Serial.printf("CPU Frequency: %.0f Mhz\n", F_CPU / 1000000.0f);
+    Timer.restart();
+
+
+}
+
+void Hardware::ProccessA2D(CA2D::BlockType* block) { if (block->data == NULL) return;
+
+    USB.buffer(block);
+
+    auto last = block->data->back();
+
+    
+}
+
+void Hardware::tick() {
+ 
+    
+  offsetPot1.update();
+  offsetPot2.update();
+
+  if (offsetPot1.inZone) {
+    gainPot.update();
+  }
+
+  auto avg1 = offsetPot1.getRunningAverage().GetAverage() - 900;
+  auto avg2 = offsetPot2.getRunningAverage().GetAverage() - 512;
+
+  // --- Serial Debugging Output ---
+  Serial.print("\n Sensor1:");  Serial.print(offsetPot1.getSensorValue()-0*avg1);
+  Serial.print("\t Sensor2:");  Serial.print(offsetPot2.getSensorValue()-0*avg2);
+  Serial.print("\t offset1:");  Serial.print(offsetPot1.getLevel());
+  Serial.print("\t offset2:");  Serial.print(offsetPot2.getLevel());
+  Serial.print("\t Gain:");     Serial.print(   gainPot.getLevel());
+  Serial.print("\t Min:");      Serial.print(offsetPot2.getRunningAverage().GetMin() - 0*avg2);
+  Serial.print("\t Max:");      Serial.print(offsetPot2.getRunningAverage().GetMax() - avg2);
+
+}

@@ -4,6 +4,9 @@
 class CHead {
   public:
     typedef uint32_t StateType;
+
+    static const int NUM_LEDS = 9;
+    static const int IR_STARTBIT = 16;
     static const StateType DIRTY = 0xFFFFFFFF;
 
     //                                    3         2         1         0
@@ -12,7 +15,7 @@ class CHead {
     //                                             IR             RED
     //                                          987654321       987654321
 
-    static const StateType VALID     = 0b00000001111111110000000111111111; 
+    static const StateType VALIDBITS = 0b00000001111111110000000111111111; 
 
     static const StateType ALL_OFF   = 0b00000000000000000000000000000000;
     static const StateType ALL_ON    = 0b00000001111111110000000111111111;

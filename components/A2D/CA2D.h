@@ -14,14 +14,12 @@ class CA2D {
     CA2D(ModeType mode);
     CA2D(CA2D::CallbackType callback);
     
-    void      init();
-    void      setHead    (CHead*             pHead   ) { m_pHead = pHead;         }
+    CA2D*     init();
     void      setCallback(CA2D::CallbackType callback) { m_fnCallback = callback; }
 
     ModeType  getMode() { return m_Mode ; };
 
     // Triggered
-    void           GPIOwrite(uint8_t b);
     CA2D::DataType getData ();
 
     // Continuous

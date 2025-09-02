@@ -1,25 +1,18 @@
 #pragma once
 #include <Arduino.h>
-#include <SPI.h>
+#include "PinHelpers.h"
 
 constexpr double VERSION = 0.1;
-
 
 extern struct ChipSelectPins CS;
 extern struct ProbePointPins PP;
 extern struct ButtonPins     BUT;
 extern struct LedPins        LED;
 extern struct Hardware       HW;
-extern class  Timer          timer;
+extern class  CTimer         Timer;
 extern class  CA2D           A2D;
-extern class  CHead          HEAD;
+extern class  CHead          Head;
 extern class  CUSB           USB;
-
-#include "PinHelpers.h"
-#include "Timer.h"
-#include "CA2D.h"
-#include "CHead.h"
-#include "CUSB.h"
 
 
 struct ChipSelectPins {
@@ -72,36 +65,4 @@ struct LedPins {
     activity.init();
     all.init();
   }
-};
-
-
-struct Hardware {
-  ChipSelectPins* const CS;
-  ProbePointPins* const PP;
-  ButtonPins    * const BUT;
-  LedPins       * const LED;
-  Timer         * const timer;
-  CA2D          * const A2D;
-  CHead         * const Head;
-  CUSB          * const USB;
-  
-  Hardware(ChipSelectPins* cs, ProbePointPins *pp, ButtonPins *but, LedPins *led, Timer* timer, CA2D* a2d, CHead* head, CUSB* usb)
-    : CS(cs), PP(pp), BUT(but), LED(led), timer(timer), A2D(a2d), Head(head), USB(usb)
-  {};
-
-  void init() const {
-    USB->init();
-
-    SPI.begin();
-
-    BUT->init();
-    LED->init();
-
-    Head->init();
-    A2D->init();
-
-    Serial.printf("CPU Frequency: %.0f Mhz\n", F_CPU / 1000000.0f);
-    timer->restart();
-  }
-
 };

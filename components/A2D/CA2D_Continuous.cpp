@@ -18,7 +18,7 @@ void CA2D::setMode_Continuous() {
   SPI.beginTransaction(g_settings);
   {
     SPIwrite( { 0x11 } );  // SDATAC
-    //                        0     1     2     3     4     5     6     7     8
+    //                        0     1     2     3     4     5     6     7     8   // which channels to enable
     SPIwrite( { 0x45, 0x07, 0x00, 0x00, 0x01, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81 } );
    
     SPIwrite( { 0x41, 0x00, 0x80 } ); // Config1 - 16k samples per second
@@ -47,6 +47,7 @@ void CA2D::setMode_Continuous() {
 
   m_Mode = CA2D::ModeType::CONTINUOUS;
 }
+
 
 void CA2D::ISR_Data() { Singleton->parseData(); }
 

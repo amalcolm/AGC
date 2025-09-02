@@ -19,7 +19,9 @@ void CUSB::buffer(CA2D::DataType data) {
 }
 
 void CUSB::buffer(volatile CA2D::BlockType* pBlock) {
-  m_pBlock = pBlock;
+  for (auto &d : *(pBlock->data)) {
+    buffer(d);
+  }
 }
 
 // Called from the main loop: reads data from the buffer.

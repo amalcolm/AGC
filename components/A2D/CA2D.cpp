@@ -22,8 +22,9 @@ void CA2D::setMode(CA2D::ModeType mode) {
   }
 }
 
-void CA2D::init() {
+CA2D* CA2D::init() {
   m_pinDataReady.init();
+  return this;
 }
 
 CA2D::DataType CA2D::readData() {
@@ -58,11 +59,6 @@ CA2D::DataType CA2D::readData() {
   }
   
   return data;
-}
-
-
-void CA2D::GPIOwrite(byte b) {
-  SPIwrite( { 0x54, 0x00, b });
 }
 
 

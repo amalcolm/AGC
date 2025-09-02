@@ -1,5 +1,5 @@
 
-class Timer {
+class CTimer {
 private:
   uint32_t startTick;
   uint32_t calibration;
@@ -7,7 +7,7 @@ private:
   float ticksPerUS;
 
 public:
-  Timer() {
+  CTimer() {
     ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA;  // enable cycle counter
     
     ticksPerMS = F_CPU / 1000.0f;
