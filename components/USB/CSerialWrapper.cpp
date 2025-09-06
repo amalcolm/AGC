@@ -59,13 +59,15 @@ void CSerialWrapper::begin() {
   }
 
 
-  g_StartFrame[CSerialWrapper::PACKETS] = m_Packet_Start;
-  g_EndFrame[  CSerialWrapper::PACKETS] = m_Packet_End;
+  g_StartFrame[CSerialWrapper::BLOCKDATA] = m_BlockData_Start;
+  g_EndFrame[  CSerialWrapper::BLOCKDATA] = m_BlockData_End;
   g_StartFrame[CSerialWrapper::RAWDATA] = m_RawData_Start;
   g_EndFrame[  CSerialWrapper::RAWDATA] = m_RawData_End;
 
-
-  setMode(ModeType::PACKETS);
+  if (m_handshakeComplete)
+    setMode(ModeType::BLOCKDATA);
+  else
+    setMode(ModeType::UNSET);
 }
 
 CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) {
@@ -88,7 +90,7 @@ void CSerialWrapper::put(uint8_t* pData, uint dataLen) {
 
 
 void CSerialWrapper::printf(const char *pFMT, ...) {        
-  setMode(ModeType::PACKETS);
+  setMode(ModeType::TEXT);
 
   char buffer[PRINTF_BUFFER_SIZE];
   va_list args;
@@ -97,7 +99,7 @@ void CSerialWrapper::printf(const char *pFMT, ...) {
   va_end(args);
   put((uint8_t*)buffer, strlen(buffer));
 
-  setMode(CSerialWrapper::ModeType::UNSET);
+  // leave it in text mode
 }
 
 void CSerialWrapper::writeRawData(CA2D::DataType* pData) {  if (pData == NULL) return;
@@ -115,9 +117,7 @@ void CSerialWrapper::writeRawData(volatile CA2D::BlockType* pBlock) {  if (pBloc
   if (m_Mode != ModeType::BLOCKDATA)
     setMode(ModeType::BLOCKDATA);
 
-  CA2D::BlockType* nvpBlock = const_cast<CA2D::BlockType*>(pBlock);
-
-  nvpBlock->writeSerial();
+   pBlock->writeSerial();
 
   // leave it in blockdata mode
 }

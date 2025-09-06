@@ -26,6 +26,14 @@ void CHead::setSequence( std::initializer_list<uint32_t> data ) {
     *pW++ = b;
 }
 
+std::vector<CHead::StateType> CHead::getSequence() {
+    std::vector<CHead::StateType> seq;
+    for (int i = 0; i < m_sequenceLength; i++)
+      seq.push_back(m_pSequence[i]);
+    return seq;
+}
+
+
 CHead::StateType CHead::setNextState() {
   m_sequencePosition = (m_sequencePosition + 1) % m_sequenceLength;
 

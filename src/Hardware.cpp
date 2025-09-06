@@ -27,13 +27,9 @@ void Hardware::init() {
 
 }
 
-void Hardware::ProccessA2D(CA2D::BlockType* block) { if (block->data == NULL) return;
-
+void Hardware::ProccessA2D(CA2D::BlockType* block) {
+    if (block->data == NULL) return;
     USB.buffer(block);
-
-    auto last = block->data->back();
-
-    
 }
 
 void Hardware::tick() {
@@ -42,9 +38,9 @@ void Hardware::tick() {
   offsetPot1.update();
   offsetPot2.update();
 
-  if (offsetPot1.inZone) {
+  if (offsetPot1.inZone)
     gainPot.update();
-  }
+  
 
   auto avg1 = offsetPot1.getRunningAverage().GetAverage() - 900;
   auto avg2 = offsetPot2.getRunningAverage().GetAverage() - 512;

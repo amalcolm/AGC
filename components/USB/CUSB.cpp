@@ -1,4 +1,5 @@
 #include "CUSB.h"
+#include "CA2D_DataTypes.h"
 #include <map>
 
 
@@ -19,28 +20,26 @@ void CUSB::buffer(CA2D::DataType data) {
 }
 
 void CUSB::buffer(volatile CA2D::BlockType* pBlock) {
-  for (auto &d : *(pBlock->data)) {
-    buffer(d);
-  }
+  m_pBlock = pBlock;
 }
 
 // Called from the main loop: reads data from the buffer.
 void CUSB::output_buffer() {
-constexpr uint TEXTOUT_INTERVAL = 1000; // ms
-
-  static uint32_t lastTick = 0;
-  static uint32_t lastOutTime = 0;
-  static std::map<CHead::StateType, int> lastReading;
+constexpr uint TEXTOUT_INTERVAL = 10000; // ms
 
   CSerialWrapper::ModeType mode = getMode();
 
   if (mode == CSerialWrapper::ModeType::BLOCKDATA) {
-    if (m_pBlock != NULL) {
+      if (m_pBlock == NULL) return;
       writeRawData(m_pBlock);
       m_pBlock = NULL;
-    }
-    return;
+      return;
   }
+
+  
+  static uint32_t lastTick = 0;
+  static uint32_t lastOutTime = 0;
+  static std::map<CHead::StateType, int> lastReading;
 
   while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timeStamp;
     CA2D::DataType *pData = &m_buffer[readIndex];
@@ -50,12 +49,15 @@ constexpr uint TEXTOUT_INTERVAL = 1000; // ms
 
     switch (mode)
     {
+      case CSerialWrapper::ModeType::BLOCKDATA: // handled above
+        break;
+
       case CSerialWrapper::ModeType::RAWDATA:
         writeRawData(pData);
         break;
 
 
-      case CSerialWrapper::ModeType::PACKETS:
+      case CSerialWrapper::ModeType::TEXT:
         lastReading[pData->State] = pData->Channels[1];
 
         // if nothing has been output for a while, switch to debug output

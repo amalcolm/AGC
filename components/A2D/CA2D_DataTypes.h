@@ -27,7 +27,9 @@
 
       BlockType() : data(new std::vector<DataType>()) { data->reserve(MAX_BLOCKSIZE); }
 
-      void writeSerial() { if (data == NULL) return;
+      void writeSerial() volatile {
+        if (data == NULL) return;
+        
         Serial.write((uint8_t*)&timeStamp, sizeof(timeStamp));
         Serial.write((uint8_t*)&State, sizeof(State));
 

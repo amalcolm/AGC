@@ -51,7 +51,7 @@ ButtonPins     BUT;
 LedPins        LED;
 CTimer         Timer;
 CA2D           A2D(CA2D::ModeType::CONTINUOUS);
-CHead          HEAD;
+CHead          Head;
 CUSB           USB;
 
 
