@@ -10,7 +10,8 @@ struct OutputPin {
   void toggle()                { digitalWriteFast(PIN, !digitalRead(PIN));  }
   void set()                   { digitalWriteFast(PIN, value = HIGH);       }
   void clear()                 { digitalWriteFast(PIN, value = LOW);        }
-  int  getNum()                { return PIN;                                }
+  
+  constexpr operator int() const noexcept { return PIN; }
   uint8_t value;
 };
 
@@ -19,7 +20,8 @@ template <int PIN>
 struct InputPin {
   void init(int mode = INPUT)  const { pinMode(PIN, mode); }
   int read()                   const { return digitalRead(PIN); }
-  int getNum()                 const { return PIN; }
+  
+  constexpr operator int() const noexcept { return PIN; }
 };
 
 

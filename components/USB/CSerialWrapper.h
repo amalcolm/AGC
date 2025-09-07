@@ -6,9 +6,9 @@
 class CSerialWrapper {
   public:
     enum ModeType { UNSET = 0, INITIALISING = 1, TEXT = 2, RAWDATA = 4, BLOCKDATA = 8 };
-    static const uint FRAMING_MASK = ModeType::RAWDATA | ModeType::BLOCKDATA;
-    static const uint PRINTF_BUFFER_SIZE = 256;
-    static const uint FRAMING_SIZE = 4;
+    static const unsigned int FRAMING_MASK = ModeType::RAWDATA | ModeType::BLOCKDATA;
+    static const unsigned int PRINTF_BUFFER_SIZE = 256;
+    static const unsigned int FRAMING_SIZE = 4;
 
     CSerialWrapper();
     virtual ~CSerialWrapper() = default;
@@ -30,7 +30,7 @@ class CSerialWrapper {
   protected:
     bool m_handshakeComplete = false;
 
-    void put(uint8_t* pData, uint dataLen);
+    void put(uint8_t* pData, unsigned int dataLen);
 
     void writeRawData(CA2D::DataType* pData);
     void writeRawData(volatile CA2D::BlockType* pBlock);

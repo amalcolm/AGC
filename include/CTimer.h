@@ -6,10 +6,12 @@ private:
   float ticksPerMS;
   float ticksPerUS;
 
+
 public:
   CTimer() {
-    ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA;  // enable cycle counter
-    
+
+    mmio_set_bits(ARM_DWT_CTRL, ARM_DWT_CTRL_CYCCNTENA);  // Enable the counter
+
     ticksPerMS = F_CPU / 1000.0f;
     ticksPerUS = F_CPU / 1000000.0f;
 
@@ -24,4 +26,9 @@ public:
 
 private:
   inline uint32_t ticks_raw() const { return ARM_DWT_CYCCNT - startTick; }
+
+  inline void mmio_set_bits(volatile uint32_t& reg, uint32_t mask) noexcept {
+    uint32_t v = reg; reg = v | mask;
+}
+
 };

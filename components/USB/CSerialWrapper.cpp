@@ -84,7 +84,7 @@ CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) 
   return m_Mode;
 }
 
-void CSerialWrapper::put(uint8_t* pData, uint dataLen) {
+void CSerialWrapper::put(uint8_t* pData, unsigned int dataLen) {
   Serial.write(pData, dataLen); 
 }
 

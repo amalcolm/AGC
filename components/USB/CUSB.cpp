@@ -25,7 +25,7 @@ void CUSB::buffer(volatile CA2D::BlockType* pBlock) {
 
 // Called from the main loop: sends data from the buffer.
 void CUSB::output_buffer() {
-  constexpr uint TEXTOUT_INTERVAL = 10000; // ms
+  constexpr unsigned int TEXTOUT_INTERVAL = 10000; // ms
 
   CSerialWrapper::ModeType mode = getMode();
 
