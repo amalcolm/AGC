@@ -38,17 +38,17 @@ struct ButtonPins {
 struct LedPins {
   OutputPin<4> activity;
   	
-	              													//	big puck probe  Q = photodiode                                                    // 	small probe layout  Q = photodiode    
-	const int IR1  = 24;										//                                                 IR8
-	const int IR2  = 25;										//  (Picture By Rob!)                     RED8               RED7
-	const int IR3  = 26;										//                                                                                    //    
-	const int IR4  = 27;										//                                                 IR9                                //            IR1
-	const int IR5  = 28;										//                                  IR3                            IR7                //        RED4    RED1
-	const int IR6  = 29;										//                                                                                    //      IR4    Q    IR2
-	const int IR7  = 30;										//                                        RED1             RED9                       //        RED3    RED2
-	const int IR8  = 31;										//                                                                                    //            IR3
+	              												//	big puck probe  Q = photodiode                                                  // 	small probe layout  Q = photodiode    
+	const int IR1  = 24;										//                                                 IR8							   	//
+	const int IR2  = 25;										//  (Picture By Rob!)                     RED8               RED7					//
+	const int IR3  = 26;										//                                                                                  //    
+	const int IR4  = 27;										//                                                 IR9                              //            IR1
+	const int IR5  = 28;										//                                  IR3                            IR7              //        RED4    RED1
+	const int IR6  = 29;										//                                                                                  //      IR4    Q    IR2
+	const int IR7  = 30;										//                                        RED1             RED9                     //        RED3    RED2
+	const int IR8  = 31;										//                                                                                  //            IR3
 	const int IR9  = 32;										//                               RED3              QQQQ              RED6
-          																//             
+          														//             
 	const int RED1 = 33;										//                                        IR4              IR1
 	const int RED2 = 34;										//
 	const int RED3 = 35;										//                                 IR5                            IR2
@@ -61,7 +61,7 @@ struct LedPins {
 
   LedPinRange all{24, 41};
 
-  void init() const {
+  void init() {
     activity.init();
     all.init();
   }

@@ -4,6 +4,10 @@
 #include "CHead.h"
 #include "CUSB.h"
 
+  const float uS_TickSpeed = 10000;  // 10ms
+
+
+
 void setup() {
   Hardware::init();
 
@@ -17,12 +21,13 @@ void setup() {
 
 
 void loop() {
-  const float uS_delay = 10000;  // 10ms
 
-  while (Timer.uS() < uS_delay);
+  while (Timer.uS() < uS_TickSpeed);
   Timer.restart();
 
   Head.setNextState();
+
+  Hardware::tick();
 
   USB.output_buffer();
 }

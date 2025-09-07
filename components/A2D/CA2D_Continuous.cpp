@@ -46,6 +46,7 @@ void CA2D::setMode_Continuous() {
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady.getNum()), CA2D::ISR_Data, FALLING);
 
   m_Mode = CA2D::ModeType::CONTINUOUS;
+  Serial.print("A2D: Continuous mode.\r\n");
 }
 
 

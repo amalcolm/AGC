@@ -42,6 +42,7 @@ private:
 class COffsetPot : public CAutoPot {
 public:
   COffsetPot(int csPin, int sensorPin, int samples, int lowThreshold, int highThreshold);
+  COffsetPot& operator=(const COffsetPot&) = default;
   void update() override;
 
 private:
@@ -53,5 +54,13 @@ private:
 class CGainPot : public CAutoPot {
 public:
   CGainPot(int csPin, int sensorPin, int samples);
+  CGainPot& operator=(const CGainPot&) = default;
   void update() override;
 };
+
+
+
+static_assert(std::is_copy_constructible_v<COffsetPot>);
+static_assert(std::is_copy_constructible_v<CGainPot  >);
+static_assert(std::is_copy_assignable_v<COffsetPot>);
+static_assert(std::is_copy_assignable_v<CGainPot  >);

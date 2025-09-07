@@ -15,7 +15,7 @@ void CUSB::buffer(CA2D::DataType data) {
 
   if (nextIndex != readIndex) {
     m_buffer[writeIndex] = data;
-    writeIndex = nextIndex;  // atomic for interrupt safety
+    writeIndex = nextIndex;
   }
 }
 
@@ -23,9 +23,9 @@ void CUSB::buffer(volatile CA2D::BlockType* pBlock) {
   m_pBlock = pBlock;
 }
 
-// Called from the main loop: reads data from the buffer.
+// Called from the main loop: sends data from the buffer.
 void CUSB::output_buffer() {
-constexpr uint TEXTOUT_INTERVAL = 10000; // ms
+  constexpr uint TEXTOUT_INTERVAL = 10000; // ms
 
   CSerialWrapper::ModeType mode = getMode();
 

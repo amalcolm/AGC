@@ -1,12 +1,11 @@
 // #included within CA2D class definition
 // class CA2D {
 //  public:
-//   enum ModeType { UNSET, CONTINUOUS, TRIGGERED };
-
-
+//   enum ModeType { UNSET, CONTINUOUS, TRIGGERED };'
+    
     struct DataType {
-      static const uint NUM_CHANNELS = 8;
-      static const uint CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
+      static const unsigned int NUM_CHANNELS = 8;
+      static const unsigned int CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 
       CHead::StateType  State;
       uint32_t          timeStamp;
@@ -19,7 +18,7 @@
     };
 
     struct BlockType {
-      static const uint MAX_BLOCKSIZE = 4096;
+      static const unsigned int MAX_BLOCKSIZE = 4096;
 
       uint32_t               timeStamp;
       CHead::StateType       State;

@@ -2,14 +2,18 @@
 #include "Setup.h"
 #include "CA2D.h"
 #include "CAutoPot.h"
+#include <map>
+
+struct PerStateHW {
+  PerStateHW(CHead::StateType state) : state(state) {}
+  CHead::StateType state;
+  COffsetPot    offsetPot1{ CS.offset1, PP.primaryOffset,  50, 224, 800 };
+  COffsetPot    offsetPot2{ CS.offset2, PP.preGain      , 100, 224, 800 };
+  CGainPot      gainPot   { CS.gain   , PP.preGain      ,  10           };
+};
 
 struct Hardware {
 
-  static IntervalTimer ti_LED;
-  
-  static COffsetPot offsetPot1;
-  static COffsetPot offsetPot2;
-  static CGainPot   gainPot   ;
 
   static void init();
 
