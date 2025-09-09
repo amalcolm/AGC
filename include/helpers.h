@@ -1,5 +1,7 @@
 const char * getSketch();
 
-void error(const char *msg);
+struct PerStateHW& getPerStateHW();
+
+void error(const char *msg, ...);
 
 

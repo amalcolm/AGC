@@ -1,6 +1,6 @@
 #include "Setup.h"
 #include "Hardware.h"
-
+#include "Helpers.h"
 #include "CUSB.h"
 #include "CAutoPot.h"
 #include "CA2D.h"
@@ -18,10 +18,10 @@ void Hardware::init() {
     Head.init();
     A2D .init()->setCallback(ProccessA2D);
 
-    Serial.printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
+    delay(100); // Allow time for hardware to stabilize
+
+    USB.printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
     Timer.restart();
-
-
 }
 
 void Hardware::ProccessA2D(CA2D::BlockType* block) {
@@ -31,16 +31,9 @@ void Hardware::ProccessA2D(CA2D::BlockType* block) {
 
 
 void Hardware::tick() {
-  static std::map<CHead::StateType, PerStateHW> stateMap;
 
-  const auto state = Head.getState();
-  auto  [it, inserted] = stateMap.try_emplace(state, state);
-  auto& [_, offsetPot1, offsetPot2, gainPot] = it->second;
-  if (inserted) {
-      offsetPot1.begin(127);
-      offsetPot2.begin(127);
-      gainPot.begin(1);
-  }
+  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW();
+
 
   offsetPot1.update();
   offsetPot2.update();

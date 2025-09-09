@@ -45,6 +45,7 @@ CHead::StateType CHead::setNextState() {
   if (!diff) return m_State;
   m_State = newState;
 
+  // Update only the changed LEDs using bit manipulation
   while (diff) {
       const int  i  = __builtin_ctz(diff);          // index of lowest set bit
       const bool on = (newState >> i) & 1u;

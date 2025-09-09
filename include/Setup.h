@@ -23,12 +23,12 @@ struct ChipSelectPins {
 };
 
 struct ProbePointPins {
-  const int primaryOffset = A1;
-  const int preGain       = A0;
+  const int primaryOffset = PIN_A1;
+  const int preGain       = PIN_A0;
 };
 
 struct ButtonPins {
-  InputPin<17> halt;
+  InputPin< 17 > halt;
 
   void init() const {
     halt.init();
@@ -36,33 +36,32 @@ struct ButtonPins {
 };
 
 struct LedPins {
-  OutputPin<4> activity;
-  	
-	              												//	big puck probe  Q = photodiode                                                  // 	small probe layout  Q = photodiode    
-	const int IR1  = 24;										//                                                 IR8							   	//
-	const int IR2  = 25;										//  (Picture By Rob!)                     RED8               RED7					//
-	const int IR3  = 26;										//                                                                                  //    
-	const int IR4  = 27;										//                                                 IR9                              //            IR1
-	const int IR5  = 28;										//                                  IR3                            IR7              //        RED4    RED1
-	const int IR6  = 29;										//                                                                                  //      IR4    Q    IR2
-	const int IR7  = 30;										//                                        RED1             RED9                     //        RED3    RED2
-	const int IR8  = 31;										//                                                                                  //            IR3
-	const int IR9  = 32;										//                               RED3              QQQQ              RED6
-          														//             
-	const int RED1 = 33;										//                                        IR4              IR1
-	const int RED2 = 34;										//
-	const int RED3 = 35;										//                                 IR5                            IR2
-	const int RED4 = 36;										//                                                 RED2                 
-	const int RED5 = 37;										//
-	const int RED6 = 38;										//                                       RED4               RED5
-	const int RED7 = 39;										//                                                 IR6
-	const int RED8 = 40;     
-	const int RED9 = 41;
+  OutputPin<  4 > activity;
+								//  Big puck probe  Q = photodiode                                                  // 	small probe layout  Q = photodiode    
+  OutputPin< 24 > IR1;			//                                                 IR8							   	//
+  OutputPin< 25 > IR2;			//  (Picture By Rob!)                     RED8               RED7					//
+  OutputPin< 26 > IR3;			//                                                                                  //    
+  OutputPin< 27 > IR4;			//                                                 IR9                              //            IR1
+  OutputPin< 28 > IR5;			//                                  IR3                            IR7              //        RED4    RED1
+  OutputPin< 29 > IR6;			//                                                                                  //      IR4    Q    IR2
+  OutputPin< 30 > IR7;			//                                        RED1             RED9                     //        RED3    RED2
+  OutputPin< 31 > IR8;			//                                                                                  //            IR3
+  OutputPin< 32 > IR9;			//                               RED3              QQQQ              RED6
+								//								
+  OutputPin< 33 > RED1;			//                                        IR4              IR1
+  OutputPin< 34 > RED2;			//
+  OutputPin< 35 > RED3;			//                                 IR5                            IR2
+  OutputPin< 36 > RED4;			//                                                 RED2                 
+  OutputPin< 37 > RED5;			//
+  OutputPin< 38 > RED6;			//                                       RED4               RED5
+  OutputPin< 39 > RED7;			//                                                 IR6
+  OutputPin< 40 > RED8;			//
+  OutputPin< 41 > RED9;			
 
-  LedPinRange all{24, 41};
+  LedPinRange<24,41> LEDs;
 
   void init() {
     activity.init();
-    all.init();
+    LEDs.init();
   }
 };

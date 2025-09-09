@@ -1,5 +1,60 @@
+#include <map>
+#include "WString.h"
+
+#include "CA2D.h" 
+#include "CHead.h"
+#include "CTimer.h"
+#include "CUSB.h"
 #include "Setup.h"
+#include "Hardware.h"
 #include "Helpers.h"
+
+ChipSelectPins CS;
+ProbePointPins PP;
+ButtonPins     BUT;
+LedPins        LED;
+CTimer         Timer;
+CA2D           A2D(CA2D::ModeType::CONTINUOUS);
+CHead          Head;
+CUSB           USB;
+
+
+struct PerStateHW& getPerStateHW() {
+    static std::map<CHead::StateType, PerStateHW> stateMap;
+
+    const auto state = Head.getState();
+    auto [it, inserted] = stateMap.try_emplace(state, state);
+    if (inserted) it->second.begin();
+    return it->second;
+}
+
+
+void error(const char *msg, ...)
+{
+  constexpr unsigned int PRINTF_BUFFER_SIZE = 1024;
+  
+  char buffer[PRINTF_BUFFER_SIZE];
+  va_list args;
+  va_start(args, msg);
+  vsnprintf(buffer, sizeof(buffer)-1, msg, args);
+  va_end(args);
+
+  Serial.println("Error: system halted.");
+  Serial.println(buffer);
+  Serial.println("--End");
+  Serial.flush();
+  while (true)
+  {
+    LED.activity.write(HIGH);
+    delay(1500);
+    LED.activity.write(LOW );
+    delay(500);
+  }
+}
+
+
+
+
 
 const char* getSketch() {
   static String result; // Static to ensure it lives beyond function return
@@ -24,35 +79,3 @@ const char* getSketch() {
   result = path;
   return result.c_str();
 }
-
-void error(const char *msg)
-{
-  Serial.println("Error: system halted.");
-  Serial.println(msg);
-  Serial.println("--End");
-  Serial.flush();
-  while (true)
-  {
-    LED.activity.write(HIGH);
-    delay(1500);
-    LED.activity.write(LOW );
-    delay(500);
-  }
-}
-
-#include "CA2D.h" 
-#include "CHead.h"
-#include "CUSB.h"
-#include "CTimer.h"
-
-ChipSelectPins CS;
-ProbePointPins PP;
-ButtonPins     BUT;
-LedPins        LED;
-CTimer         Timer;
-CA2D           A2D(CA2D::ModeType::CONTINUOUS);
-CHead          Head;
-CUSB           USB;
-
-
-

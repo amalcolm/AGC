@@ -47,7 +47,7 @@ public:
 
 private:
   int _lowThreshold;
-  int _highThreshold;;
+  int _highThreshold;
 };
 
 // =================================================================
