@@ -29,23 +29,27 @@ void CA2D::setMode_Triggered() {
 
   delay(300);
 
+  Serial.print("A2D: Triggered mode.\r\n");
   m_Mode = CA2D::ModeType::TRIGGERED;
 }
 
 CA2D::DataType CA2D::getData() {
-  // init return value with current head state
-  CA2D::DataType data(m_pHead->getState());
+
+  CA2D::DataType data(Head.getState());
 
   if (getMode() != ModeType::TRIGGERED) return data;
 
   SPI.beginTransaction(g_settings);
+  {
+    digitalWrite(CS.A2D, LOW);
 
-  digitalWrite(CS.A2D, LOW);   // Sets PIN_CHIP_SELECT to low for read
-  delayMicroseconds(5);
-  SPI.transfer(0x12);   // RDATA command
+    delayMicroseconds(5);
+    SPI.transfer(0x12);   // RDATA command
 
-  data = readData();                     // Resets PIN_CHIP_SELECT to high inside readData()
+    data = readData(); 
 
+    digitalWrite(CS.A2D, LOW);
+  }
   SPI.endTransaction();
 
   return data;

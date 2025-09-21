@@ -9,7 +9,6 @@ CHead::CHead() : m_State(0) {}
 CHead::~CHead() { if (m_pSequence) delete[] m_pSequence; }
 
 void CHead::init() {
-  LED.all.deactivate();
   m_sequencePosition = -1;
   m_State = DIRTY;
   
@@ -35,9 +34,11 @@ std::vector<CHead::StateType> CHead::getSequence() {
 
 
 CHead::StateType CHead::setNextState() {
+  // if its the first time, start from state ALL_OFF
+  const StateType oldState = (m_sequencePosition == -1) ? ALL_OFF : m_State;
+
   m_sequencePosition = (m_sequencePosition + 1) % m_sequenceLength;
 
-  const StateType oldState = m_State;
   const StateType newState = m_pSequence[m_sequencePosition];
 
   StateType diff = (newState ^ oldState) & VALIDBITS;
@@ -48,13 +49,14 @@ CHead::StateType CHead::setNextState() {
   // Update only the changed LEDs using bit manipulation
   while (diff) {
       const int  i  = __builtin_ctz(diff);          // index of lowest set bit
-      const bool on = (newState >> i) & 1u;
+      const bool on = ((newState >> i) & 1u) ^ LED.Inverted; // desired state
 
-      if (i < NUM_LEDS) 
-          digitalWriteFast(LED.RED1 + i               , on ? HIGH : LOW);
-      else // i in [16..24]
-          digitalWriteFast(LED.IR1 + (i - IR_STARTBIT), on ? HIGH : LOW);
+      const int led =  (i < NUM_LEDS) 
+                    ? LED.RED1 +  i
+                    : LED.IR1  + (i - IR_STARTBIT);
 
+      digitalWriteFast(led, on ? HIGH : LOW);
+ 
       diff &= diff - 1;                             // clear LOWEST bit using magic
   }
 

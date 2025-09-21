@@ -11,10 +11,6 @@ CA2D::CA2D(CA2D::CallbackType callback) : m_fnCallback(callback) {
 }
 
 void CA2D::setMode(CA2D::ModeType mode) {
-  // set as input to give access to current state. !! Important !! - may overheat chip if ommitted.
-  //  pinMode(PIN_GPIO_RED, INPUT);  digitalWrite(PIN_GPIO_RED, LOW);
-  //  pinMode(PIN_GPIO_IR , INPUT);  digitalWrite(PIN_GPIO_IR , LOW);lk
-
   switch (mode) {
     case CA2D::ModeType::CONTINUOUS: setMode_Continuous();  break;
     case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
@@ -29,35 +25,22 @@ CA2D* CA2D::init() {
 
 CA2D::DataType CA2D::readData() {
 
-  DataType data{m_pHead->getState()};
+  DataType data{Head.getState()};
 
-  if (getMode() == ModeType::CONTINUOUS)
-      digitalWrite(CS.A2D, LOW);
+  uint8_t raw[27];
+  unsigned int err = read_frame(raw);
 
-  uint8_t rawData[27];
-
-  for( byte &b : rawData)
-    b = SPI.transfer(0x00);
-  
-  digitalWrite(CS.A2D, HIGH);
-
-  if (m_pHead->getState() != data.State)
-    data.State = CHead::DIRTY;
-
-  uint8_t *pR = rawData;
-  uint8_t b2 = *pR++, b1 = *pR++, b0 = *pR++;
-
-
-  for(int q = 1 ; q < 7 ; q++){
-    b2 = *pR++, b1 = *pR++, b0 = *pR++;
-    long rawValue = (b2 << 16) | (b1 << 8) | b0;
-
-    if (rawValue & 0x800000)
-      rawValue -= 0x1000000;
-
-    data.Channels[q] = rawValue;
+  if (!err) {
+    const uint8_t* p = &raw[3]; // skip status
+    for (int ch=0; ch<8; ++ch) {
+      int32_t val = be24_to_s32(p[0], p[1], p[2]);
+      p += 3;
+      data.Channels[ch] = val;
+    }
   }
-  
+  else
+    data.State = 0x1000 | err; // mark as dirty with error code in low byte
+   
   return data;
 }
 

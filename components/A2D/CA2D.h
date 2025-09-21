@@ -17,15 +17,15 @@ class CA2D {
     CA2D*     init();
     void      setCallback(CA2D::CallbackType callback) { m_fnCallback = callback; }
 
-    ModeType  getMode() { return m_Mode ; };
+    ModeType  getMode() { return m_Mode; }
 
     // Triggered
-    CA2D::DataType getData ();
+    CA2D::DataType getData();
 
     // Continuous
     static void         ISR_Data();
-    volatile BlockType* getBlockToSend();
-    void                releaseBlockToSend();
+    inline BlockType*   getBlockToSend()     { return m_pBlockToSend;         }
+    inline void         releaseBlockToSend() { m_pBlockToSend->data->clear(); }
     volatile bool       isBlockReadyToSend = false;
 
   private:
@@ -36,14 +36,13 @@ class CA2D {
     CA2D::DataType readData();
     void           parseData();
 
-    InputPin<9> m_pinDataReady;
+    InputPin            m_pinDataReady{9};
 
   private:
     static SPISettings  g_settings;
 
     ModeType            m_Mode       = ModeType::UNSET;
     CallbackType        m_fnCallback = NULL;
-    CHead*              m_pHead      = NULL;
 
     // Continuous
     CHead::StateType    m_State;
@@ -51,8 +50,8 @@ class CA2D {
     BlockType           m_BlockA;
     BlockType           m_BlockB;
 
-    volatile BlockType *m_pBlockToFill;
-    volatile BlockType *m_pBlockToSend;
+    BlockType* volatile m_pBlockToFill;
+    BlockType* volatile m_pBlockToSend;
 
     void SPIwrite(std::initializer_list<uint8_t> data);
 }; 

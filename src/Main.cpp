@@ -4,7 +4,7 @@
 #include "CHead.h"
 #include "CUSB.h"
 
-  const float uS_TickSpeed = 10000;  // 10ms
+  const float uS_TickSpeed = 100000;  // 10ms
 
 
 
@@ -12,15 +12,32 @@ void setup() {
   Hardware::init();
 
   Head.setSequence({
-    CHead::ALL_OFF,
+//    CHead::ALL_OFF,
     CHead::RED1,
-    CHead::RED1 | CHead::IR1,
-    CHead::IR1,
+//    CHead::RED1 | CHead::IR1,
+//z    CHead::IR1,
   });
 }
 
+void trySendBlock() {
+ CA2D::BlockType* toSend = nullptr;
+
+  noInterrupts();
+  if (A2D.isBlockReadyToSend) {
+      toSend = A2D.getBlockToSend(); // no cast needed
+      A2D.isBlockReadyToSend = false; // we’ve claimed it
+  }
+  interrupts();
+
+  if (toSend == nullptr) return;
+  toSend->debugSerial();
+  A2D.releaseBlockToSend();
+}
+
+
 
 void loop() {
+  LED.activity.toggle();
 
   while (Timer.uS() < uS_TickSpeed);
   Timer.restart();
@@ -29,5 +46,6 @@ void loop() {
 
   Hardware::tick();
 
-  USB.output_buffer();
+  trySendBlock();
+//  USB.output_buffer();
 }

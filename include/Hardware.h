@@ -5,8 +5,9 @@
 #include <map>
 
 struct PerStateHW {
-  PerStateHW(CHead::StateType state) : state(state) {}
   CHead::StateType state;
+  PerStateHW(CHead::StateType state) : state(state) {}
+
   COffsetPot    offsetPot1{ CS.offset1, PP.primaryOffset,  50, 224, 800 };
   COffsetPot    offsetPot2{ CS.offset2, PP.preGain      , 100, 224, 800 };
   CGainPot      gainPot   { CS.gain   , PP.preGain      ,  10           };

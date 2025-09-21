@@ -10,7 +10,7 @@ COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int lowThreshold, 
 void COffsetPot::update() {
   auto val =  _readSensor();
  
-  val = _runningAverage.GetAverage();
+//  val = _runningAverage.GetAverage();
 
   inZone = (val > _lowThreshold && val < _highThreshold);
 
