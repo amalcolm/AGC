@@ -2,48 +2,47 @@
 // class CA2D {
 //  public:
 //   enum ModeType { UNSET, CONTINUOUS, TRIGGERED };'
-    
     struct DataType {
-      static const unsigned int NUM_CHANNELS = 8;
-      static const unsigned int CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
+      static constexpr unsigned int NUM_CHANNELS = 8;
+      static constexpr unsigned int CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 
-      CHead::StateType  State;
       uint32_t          timeStamp;
+      CHead::StateType  state = CHead::DIRTY;
       uint32_t          timeDelta;
-      int               Channels[NUM_CHANNELS];
-      int               SerialCount;
+      int               channels[NUM_CHANNELS];
+      int               serialCount;
 
-      DataType(CHead::StateType state) : State(state), timeStamp(micros()), timeDelta(0) { memset(&Channels[0], 0, CHANNELS_BYTESIZE ); }
-      DataType() : State(CHead::UNSET), timeStamp(micros()), timeDelta(0)                { memset(&Channels[0], 0, CHANNELS_BYTESIZE ); }
+      DataType() : timeStamp(micros()), state(CHead::DIRTY), timeDelta(0), serialCount(0) { memset(&channels[0], 0, CHANNELS_BYTESIZE ); }
+      DataType(CHead::StateType state) : timeStamp(micros()), state(state), timeDelta(0), serialCount(0) { memset(&channels[0], 0, CHANNELS_BYTESIZE ); }
 
       void debugSerial() volatile {
         Serial.print("C0:");
-        Serial.println(Channels[0]);
+        Serial.println(channels[0]);
       }
 
       void writeSerial() volatile {
-        Serial.write((uint8_t*)&State,      sizeof(State));
-        Serial.write((uint8_t*)&timeStamp,  sizeof(timeStamp));
-        Serial.write((uint8_t*)&timeDelta,  sizeof(timeDelta));
-        Serial.write((uint8_t*)&Channels[0], CHANNELS_BYTESIZE);
-        Serial.write((uint8_t*)&SerialCount, sizeof(SerialCount));
+        Serial.write((uint8_t*)&timeStamp, sizeof(timeStamp));
+        Serial.write((uint8_t*)&timeDelta, sizeof(timeDelta));
+        Serial.write((uint8_t*)&channels[0], CHANNELS_BYTESIZE);
+        Serial.write((uint8_t*)&serialCount, sizeof(serialCount));
       }
     };
 
     struct BlockType {
-      static const unsigned int MAX_BLOCKSIZE = 4096;
-      static const unsigned int DEBUG_BLOCKSIZE = 16;
+      static constexpr unsigned int MAX_BLOCKSIZE = 4096;
+      static constexpr unsigned int DEBUG_BLOCKSIZE = 16;
 
       uint32_t               timeStamp;
-      CHead::StateType       State;
       std::vector<DataType> *data;
 
       BlockType() : data(new std::vector<DataType>()) { data->reserve(MAX_BLOCKSIZE); }
 
+      ~BlockType() { if (data != NULL) { delete data; data = NULL; } }
+
       void debugSerial() volatile {
         Serial.print("N:"); Serial.print(data->size());
         for(unsigned int i = 0; i < DEBUG_BLOCKSIZE && i < data->size(); i++) {
-          Serial.print("\t C"); Serial.print(i); Serial.print(":"); Serial.print(data->at(i).Channels[0]);
+          Serial.print("\t C"); Serial.print(i); Serial.print(":"); Serial.print(data->at(i).channels[0]);
         }
         Serial.println();
       }
@@ -52,7 +51,6 @@
         if (data == NULL) return;
         
         Serial.write((uint8_t*)&timeStamp, sizeof(timeStamp));
-        Serial.write((uint8_t*)&State, sizeof(State));
 
         uint32_t sampleCount = data->size();
         Serial.write((uint8_t*)&sampleCount, sizeof(sampleCount));
@@ -67,4 +65,4 @@
 
     };
     
-    typedef void (*CallbackType)(BlockType*);
+    typedef void (*CallbackType)(volatile BlockType*);

@@ -1,10 +1,7 @@
 #include "CA2D.h"
-#include "Setup.h"
-#include "CUSB.h"
-
+#include "Setup.h" 
 // only visible inside Continuous codebase
 static CA2D* Singleton = NULL;
-
 
 
 void CA2D::setMode_Continuous() {
@@ -12,6 +9,7 @@ void CA2D::setMode_Continuous() {
   if (Singleton) { Serial.print("*** A2D: Single continuous instance only."); return; }
   Singleton = this;
 
+  pinMode(CS.A2D, OUTPUT);
   digitalWrite(CS.A2D, HIGH);
 
   SPI.begin();
@@ -30,25 +28,25 @@ void CA2D::setMode_Continuous() {
     SPI.transfer(0x00);               // read 1 register
     id = SPI.transfer(0x00);
     digitalWrite(CS.A2D, HIGH);
-    // check 'id' != 0xFF/0x00
 
-    // 4) Config: 250SPS & clock out enabled for scope
-    SPIwrite({0x41, 0x00, 0xB6});     // CONFIG1 = 0xB4 (DR=110, CLK_EN=1)
-    //    CONFIG2: test off first (0xC0). If needed, set INT_CAL later.
-    SPIwrite({0x42, 0x00, 0xC0});     // CONFIG2
+    // 4) Config: 2 kSPS, reserved bits correct, no CLK out
+    SPIwrite({0x41, 0x00, 0xD4});     // CONFIG1 = 0xD4 for 1 kSPS); use 0xD3 (2 kSPS)
+                                      // bits: 1 DAISY_EN=1 CLK_EN=0 1 0 DR=100 (1 kSPS)
+    SPIwrite({0x42, 0x00, 0xC0});     // CONFIG2 (baseline; no internal test)
+    SPIwrite({0x43, 0x00, 0xE0});     // CONFIG3 (enable internal reference buffer)
 
-    //    Power up CH1 in normal mode @gain=24. Others can be powered down.
-    SPIwrite({0x45, 0x07,
-              0x60,                   // CH1SET
-              0x81,0x81,0x81,0x81,0x81,0x81,0x81  // CH2..CH8 PD=1
-    });
+// channels: CH1 normal input, gain=1; others powered-down & shorted
+SPIwrite({ 0x45, 0x07,
+           0x00,                 // CH1SET: PD=0, GAIN=000 (x1), SRB2=0, MUX=000 (normal)
+           0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81  // CH2..CH8: PD=1, MUX=short
+});
 
     // 5) Start conversions, then enable RDATAC
     SPIwrite({0x08});                 // START (START pin held low)
     SPIwrite({0x10});                 // RDATAC
   }
   SPI.endTransaction();
-  
+
   // MCU side
   pinMode(m_pinDataReady, INPUT); // no pullups; ADS drives the line
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
@@ -60,35 +58,29 @@ void CA2D::setMode_Continuous() {
   isBlockReadyToSend = false;
 
   m_Mode = CA2D::ModeType::CONTINUOUS;
-  Serial.print("A2D: Continuous mode (id=");
+  Serial.print("A2D: Test = Continuous mode (id=");
   Serial.print(id);
   Serial.println(")");
 }
 
+void CA2D::ISR_Data() { Singleton->m_dataReady = true; }
 
-void CA2D::ISR_Data() { Singleton->parseData(); }
+void CA2D::fetchData() { 
+  m_dataReady = false;
+  if (getMode() != ModeType::CONTINUOUS) return;
 
-void CA2D::parseData() {
-  
-  SPI.beginTransaction(CA2D::g_settings);
-//{
-      digitalWrite(CS.A2D, LOW);
-      CA2D::DataType data = readData();
-      digitalWrite(CS.A2D, HIGH);
-//}
-  SPI.endTransaction();
-   
-  switch (data.State) {
-    case CHead::DIRTY: Serial.print('d'); return;
-    case CHead::UNSET: Serial.print('u'); return;
-    default:       
-        if ((data.State & 0x1000) == 0) {Serial.print('.'); break;}  // good data
+  CA2D::DataType data;
 
-        Serial.print("\r\nA2D err:");
-        Serial.print(data.State & 0xFFF, HEX);
-        return;
+  SPI.beginTransaction(g_settings);
+  {
+    digitalWrite(CS.A2D, LOW);
+    delayMicroseconds(2);
+
+    data = readData();
+    digitalWrite(CS.A2D, HIGH);
   }
-  
+  SPI.endTransaction();
+
   m_pBlockToFill->data->push_back(data);
 
   // when full, swap & flag
@@ -101,24 +93,6 @@ void CA2D::parseData() {
       isBlockReadyToSend = true;
       if (m_fnCallback) m_fnCallback(m_pBlockToSend);
   }
-/*
-  if (data.State != m_State) {
-    
-    if (m_State != CHead::DIRTY) {
-      std::swap(m_pBlockToSend, m_pBlockToFill);
-
-      m_pBlockToFill->data->clear();
-      m_pBlockToFill->timeStamp = millis();
-
-      m_pBlockToSend->State = m_State;
-      isBlockReadyToSend = true;
-    }
-
-    m_State = data.State;
-  }
-  m_pBlockToFill->data->push_back(data);   
-*/
 
 
 }
-

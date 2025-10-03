@@ -4,7 +4,7 @@
 COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int lowThreshold, int highThreshold)
   : CAutoPot(csPin, sensorPin, samples), _lowThreshold(lowThreshold), _highThreshold(highThreshold) {
 
-    _runningAverage.Reset(8);
+    _runningAverage.Reset(160);
 }
 
 void COffsetPot::update() {
@@ -14,7 +14,7 @@ void COffsetPot::update() {
 
   inZone = (val > _lowThreshold && val < _highThreshold);
 
-  if (val > _highThreshold) _offsetLevel( 1); 
+  if (val > _highThreshold) _offsetLevel(-1); 
   else
-  if (val <  _lowThreshold) _offsetLevel(-1);
+  if (val <  _lowThreshold) _offsetLevel(+1);
 }

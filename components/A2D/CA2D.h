@@ -1,9 +1,7 @@
 #pragma once
 #include <SPI.h>
-#include "CHead.h"
-#include "PinHelpers.h"
 #include <vector>
-
+#include "CHead.h"
 class CA2D {
   public:
     enum ModeType { UNSET, CONTINUOUS, TRIGGERED };
@@ -14,19 +12,22 @@ class CA2D {
     CA2D(ModeType mode);
     CA2D(CA2D::CallbackType callback);
     
-    CA2D*     init();
+    CA2D&     init();
     void      setCallback(CA2D::CallbackType callback) { m_fnCallback = callback; }
 
     ModeType  getMode() { return m_Mode; }
+    bool      readFrame(uint8_t (&raw)[27]);
+    void      dataFromFrame(uint8_t (&raw)[27], CA2D::DataType& data);
 
     // Triggered
     CA2D::DataType getData();
 
     // Continuous
-    static void         ISR_Data();
-    inline BlockType*   getBlockToSend()     { return m_pBlockToSend;         }
-    inline void         releaseBlockToSend() { m_pBlockToSend->data->clear(); }
-    volatile bool       isBlockReadyToSend = false;
+    void        poll();
+    
+    inline BlockType* getBlockToSend()     { return m_pBlockToSend;         }
+    inline void       releaseBlockToSend() { m_pBlockToSend->data->clear(); }
+    volatile bool     isBlockReadyToSend = false;
 
   private:
     void      setMode(CA2D::ModeType mode);
@@ -36,7 +37,7 @@ class CA2D {
     CA2D::DataType readData();
     void           parseData();
 
-    InputPin            m_pinDataReady{9};
+    int m_pinDataReady{9};
 
   private:
     static SPISettings  g_settings;
@@ -45,13 +46,19 @@ class CA2D {
     CallbackType        m_fnCallback = NULL;
 
     // Continuous
-    CHead::StateType    m_State;
 
+    static void ISR_Data();
+    void        fetchData();
+
+
+    volatile bool       m_dataReady = false;
     BlockType           m_BlockA;
     BlockType           m_BlockB;
 
     BlockType* volatile m_pBlockToFill;
     BlockType* volatile m_pBlockToSend;
+
+    
 
     void SPIwrite(std::initializer_list<uint8_t> data);
 }; 

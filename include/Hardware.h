@@ -13,6 +13,9 @@ struct PerStateHW {
   CGainPot      gainPot   { CS.gain   , PP.preGain      ,  10           };
 
   void begin() { 
+    offsetPot1.invert();
+    offsetPot2.invert();
+    gainPot.invert();
     offsetPot1.begin(127); 
     offsetPot2.begin(127); 
     gainPot.begin(1); 
@@ -24,7 +27,7 @@ struct Hardware {
 
   static void init();
 
-  static void ProccessA2D(CA2D::BlockType* block);
+  static void ProccessA2D(volatile CA2D::BlockType* block);
 
   static void tick();
 

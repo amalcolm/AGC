@@ -4,6 +4,9 @@
 #include "helpers.h"
 constexpr double VERSION = 0.1;
 
+  const float TickSpeed_uS = 10000;  // 10ms
+
+
 extern struct ChipSelectPins CS; 
 extern struct ProbePointPins PP;
 extern struct ButtonPins     BUT;

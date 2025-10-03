@@ -65,18 +65,6 @@ CHead::StateType CHead::setNextState() {
 
 
 
-inline CHead::StateType CHead::getActiveState() {  // NOT COMPLETE
-  CHead::StateType state = 0x00;
-  
-  if (digitalReadFast(LED.RED1)) state |= RED1;
-  if (digitalReadFast(LED.IR1 )) state |= IR1;
-  
-  return state;
-}
-
-
-
-
 
 
 

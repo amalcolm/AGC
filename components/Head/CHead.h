@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include <initializer_list>
 #include <vector>
+#include "Setup.h"
+#include "CHead.h"
 
 class CHead {
   public:
@@ -46,7 +48,15 @@ class CHead {
     StateType getState() { return m_State; };
     StateType setNextState();
 
-    inline static StateType getActiveState();
+    inline static StateType getActiveState() {  // NOT COMPLETE
+      StateType state = 0x00;
+      
+      if (digitalReadFast(LED.RED1)) state |= RED1;
+      if (digitalReadFast(LED.IR1 )) state |= IR1;
+      
+      return state;
+    }
+    
     std::vector<StateType> getSequence();
 
   private:

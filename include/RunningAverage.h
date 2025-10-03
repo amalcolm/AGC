@@ -13,7 +13,7 @@ public:
         Reset(windowSize); 
     }
 
-    void Reset(int windowSize = 16) {
+    void Reset(int windowSize) {
         m_values.resize(windowSize > 0 ? windowSize : 1);
         std::fill(m_values.begin(), m_values.end(), 0);
         m_sum = 0; m_head = 0; m_count = 0;

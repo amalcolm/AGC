@@ -1,5 +1,6 @@
 #include "CUSB.h"
 #include "CA2D_DataTypes.h"
+#include "CHead.h"
 #include <map>
 
 
@@ -58,7 +59,7 @@ void CUSB::output_buffer() {
 
 
       case CSerialWrapper::ModeType::TEXT:
-        lastReading[pData->State] = pData->Channels[1];
+        lastReading[pData->state] = pData->channels[1];
 
         // if nothing has been output for a while, switch to debug output
         if (millis() - lastOutTime > TEXTOUT_INTERVAL) {

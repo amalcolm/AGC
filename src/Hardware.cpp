@@ -16,7 +16,7 @@ void Hardware::init() {
     BUT .init();
     LED .init();
     Head.init();
-    A2D .init()->setCallback(ProccessA2D);
+    A2D .init().setCallback(ProccessA2D);
 
     delay(100); // Allow time for hardware to stabilize
 
@@ -24,9 +24,9 @@ void Hardware::init() {
     Timer.restart();
 }
 
-void Hardware::ProccessA2D(CA2D::BlockType* block) {
+void Hardware::ProccessA2D(volatile CA2D::BlockType* block) {
     if (block->data == NULL) return;
-    Serial.print("\r\nA2D:"); Serial.println(block->data->at(0).Channels[0] / 6000);
+    Serial.print("\r\nA2D:"); Serial.println(block->data->at(0).channels[0] / 6000);
     USB.buffer(block);
 }
 
@@ -46,7 +46,7 @@ void Hardware::tick() {
   auto avg2 = offsetPot2.getRunningAverage().GetAverage() - 512;
 
   // --- Serial Debugging Output ---
-  Serial.print("\r\n A2D:");      Serial.print(data.Channels[0]/6000);
+  Serial.print("\r\n A2D:");      Serial.print(data.channels[0]*0);
   Serial.print(  "\t Sensor1:");  Serial.print(offsetPot1.getSensorValue()-0*avg1);
   Serial.print(  "\t Sensor2:");  Serial.print(offsetPot2.getSensorValue()-0*avg2);
   Serial.print(  "\t offset1:");  Serial.print(offsetPot1.getLevel());

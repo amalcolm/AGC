@@ -4,7 +4,6 @@
 #include "CHead.h"
 #include "CUSB.h"
 
-  const float uS_TickSpeed = 100000;  // 10ms
 
 
 
@@ -39,7 +38,7 @@ void trySendBlock() {
 void loop() {
   LED.activity.toggle();
 
-  while (Timer.uS() < uS_TickSpeed);
+  while (Timer.uS() < TickSpeed_uS);
   Timer.restart();
 
   Head.setNextState();
