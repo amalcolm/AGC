@@ -32,10 +32,11 @@ CA2D& CA2D::init() {
 }
 
 
-void CA2D::poll() { if (m_Mode == ModeType::CONTINUOUS && m_dataReady) fetchData(); }
+void CA2D::poll() { if (m_Mode == ModeType::CONTINUOUS) pollData(); }
 
 // Call with CS already LOW (continuous). Return false if header not found.
 bool CA2D::readFrame(uint8_t (&raw)[27]) {
+  // ensure status bits are set
   delayMicroseconds(2);
   
   // Read status first

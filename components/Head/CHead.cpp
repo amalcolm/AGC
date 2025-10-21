@@ -36,6 +36,7 @@ std::vector<CHead::StateType> CHead::getSequence() {
 CHead::StateType CHead::setNextState() {
   // if its the first time, start from state ALL_OFF
   const StateType oldState = (m_sequencePosition == -1) ? ALL_OFF : m_State;
+  A2D.setBlockState(oldState);
 
   m_sequencePosition = (m_sequencePosition + 1) % m_sequenceLength;
 

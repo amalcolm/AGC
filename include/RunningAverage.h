@@ -23,7 +23,7 @@ public:
     void Add(uint16_t value) {
         const size_t W = m_values.size();
 
-        // Handle sum overwrite like before
+        // Handle sum overwrite
         if (m_count == W) {
             m_sum -= m_values[m_head];
         }

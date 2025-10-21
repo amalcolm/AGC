@@ -4,7 +4,6 @@ const char * getSketch();
 
 struct PerStateHW& getPerStateHW();
 
-unsigned int read_frame(uint8_t raw[27]);
 
 // 24-bit sign-extend (two’s-complement)
 inline int32_t be24_to_s32(const uint8_t b2, const uint8_t b1, const uint8_t b0) {

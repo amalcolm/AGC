@@ -1,5 +1,7 @@
 #include "CA2D.h"
 #include "Setup.h" 
+#include "CUSB.h"
+
 // only visible inside Continuous codebase
 static CA2D* Singleton = NULL;
 
@@ -35,11 +37,11 @@ void CA2D::setMode_Continuous() {
     SPIwrite({0x42, 0x00, 0xC0});     // CONFIG2 (baseline; no internal test)
     SPIwrite({0x43, 0x00, 0xE0});     // CONFIG3 (enable internal reference buffer)
 
-// channels: CH1 normal input, gain=1; others powered-down & shorted
-SPIwrite({ 0x45, 0x07,
-           0x00,                 // CH1SET: PD=0, GAIN=000 (x1), SRB2=0, MUX=000 (normal)
-           0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81  // CH2..CH8: PD=1, MUX=short
-});
+    // channels: CH1 normal input, gain=1; others powered-down & shorted
+    SPIwrite({ 0x45, 0x07,
+              0x00,                 // CH1SET: PD=0, GAIN=000 (x1), SRB2=0, MUX=000 (normal)
+              0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81  // CH2..CH8: PD=1, MUX=short
+    });
 
     // 5) Start conversions, then enable RDATAC
     SPIwrite({0x08});                 // START (START pin held low)
@@ -55,7 +57,6 @@ SPIwrite({ 0x45, 0x07,
   m_pBlockToSend = &m_BlockB;
   m_BlockA.data->clear();
   m_BlockB.data->clear();
-  isBlockReadyToSend = false;
 
   m_Mode = CA2D::ModeType::CONTINUOUS;
   Serial.print("A2D: Test = Continuous mode (id=");
@@ -65,9 +66,10 @@ SPIwrite({ 0x45, 0x07,
 
 void CA2D::ISR_Data() { Singleton->m_dataReady = true; }
 
-void CA2D::fetchData() { 
+void CA2D::pollData() { 
+  if (!m_dataReady || getMode() != ModeType::CONTINUOUS) return;
+
   m_dataReady = false;
-  if (getMode() != ModeType::CONTINUOUS) return;
 
   CA2D::DataType data;
 
@@ -82,17 +84,16 @@ void CA2D::fetchData() {
   SPI.endTransaction();
 
   m_pBlockToFill->data->push_back(data);
+}
 
-  // when full, swap & flag
-  if (m_pBlockToFill->data->size() >= CA2D::BlockType::DEBUG_BLOCKSIZE) {
-      std::swap(m_pBlockToSend, m_pBlockToFill);
+void CA2D::setBlockState(CHead::StateType state) {
+  m_pBlockToFill->state = state;
+  std::swap(m_pBlockToSend, m_pBlockToFill);
 
-      m_pBlockToFill->data->clear();
-      m_pBlockToFill->timeStamp = millis();
+  m_pBlockToFill->data->clear();
+  m_pBlockToFill->timeStamp = millis();
 
-      isBlockReadyToSend = true;
-      if (m_fnCallback) m_fnCallback(m_pBlockToSend);
-  }
+  USB.buffer(m_pBlockToSend);
 
-
+  if (m_fnCallback) m_fnCallback(m_pBlockToSend);
 }

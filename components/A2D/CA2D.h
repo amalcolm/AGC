@@ -25,6 +25,8 @@ class CA2D {
     // Continuous
     void        poll();
     
+    void        setBlockState(CHead::StateType state);
+
     inline BlockType* getBlockToSend()     { return m_pBlockToSend;         }
     inline void       releaseBlockToSend() { m_pBlockToSend->data->clear(); }
     volatile bool     isBlockReadyToSend = false;
@@ -35,7 +37,6 @@ class CA2D {
     void      setMode_Triggered();
 
     CA2D::DataType readData();
-    void           parseData();
 
     int m_pinDataReady{9};
 
@@ -48,7 +49,7 @@ class CA2D {
     // Continuous
 
     static void ISR_Data();
-    void        fetchData();
+    void        pollData();
 
 
     volatile bool       m_dataReady = false;

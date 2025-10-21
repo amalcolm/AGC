@@ -19,7 +19,7 @@ CHead          Head;
 CUSB           USB;
 
 
-struct PerStateHW& getPerStateHW() {
+struct PerStateHW& getPerStateHW(CA2D::BlockType* block) {
     static std::map<CHead::StateType, PerStateHW> stateMap;
 
     const auto state = Head.getState();
@@ -28,26 +28,6 @@ struct PerStateHW& getPerStateHW() {
     return it->second;
 }
 
-// Call with CS already LOW (continuous). Return false if header not found.
-unsigned int read_frame(uint8_t raw[27]) {
-  // delay to enable status bits to be set
-  delayMicroseconds(5);
-  
-  // Read status
-  for (int i=0;i<3;i++) raw[i] = SPI.transfer(0x00);
-
-  // Header check per datasheet: top nibble of first status byte = 1100b (0xC?)
-  if ((raw[0] & 0xF0) != 0xC0) {
-    // Drain remaining bytes for this bad frame so we realign next time
-    for (int i=3;i<27;i++) (void)SPI.transfer(0x00);
-    return 0x1000 | raw[0];
-  }
-
-  // read raw data
-  for (int i=3;i<27;i++) raw[i] = SPI.transfer(0x00);
-
-  return 0;
-}
 
 
 void error(const char *msg, ...)

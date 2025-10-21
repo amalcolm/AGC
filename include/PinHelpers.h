@@ -23,7 +23,7 @@ public:
   Pins(const Pins&) = delete;
   Pins& operator=(const Pins&) = delete;
 
-  virtual Kind kind() const noexcept = 0; // tiny virtual tag
+  virtual Kind kind() const noexcept = 0; 
   constexpr operator int() const noexcept { return _pin; }
   int getNum() const noexcept { return _pin; }
 

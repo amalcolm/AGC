@@ -21,9 +21,10 @@
       }
 
       void writeSerial() volatile {
-        Serial.write((uint8_t*)&timeStamp, sizeof(timeStamp));
-        Serial.write((uint8_t*)&timeDelta, sizeof(timeDelta));
-        Serial.write((uint8_t*)&channels[0], CHANNELS_BYTESIZE);
+        Serial.write((uint8_t*)&timeStamp  , sizeof(timeStamp  ));
+        Serial.write((uint8_t*)&state      , sizeof(state      ));
+        Serial.write((uint8_t*)&timeDelta  , sizeof(timeDelta  ));
+        Serial.write((uint8_t*)&channels[0], CHANNELS_BYTESIZE  );
         Serial.write((uint8_t*)&serialCount, sizeof(serialCount));
       }
     };
@@ -33,6 +34,8 @@
       static constexpr unsigned int DEBUG_BLOCKSIZE = 16;
 
       uint32_t               timeStamp;
+      uint32_t               state;
+      uint32_t               count;
       std::vector<DataType> *data;
 
       BlockType() : data(new std::vector<DataType>()) { data->reserve(MAX_BLOCKSIZE); }
@@ -51,9 +54,14 @@
         if (data == NULL) return;
         
         Serial.write((uint8_t*)&timeStamp, sizeof(timeStamp));
+        Serial.write((uint8_t*)&state, sizeof(state));
 
         uint32_t sampleCount = data->size();
         Serial.write((uint8_t*)&sampleCount, sizeof(sampleCount));
+
+        for (DataType& item : *data) {
+           item.writeSerial();
+        }
 
         if (data->empty() == false) {
           uint8_t* pVectorData = reinterpret_cast<uint8_t*>(data->data());
