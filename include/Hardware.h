@@ -3,10 +3,11 @@
 #include "CA2D.h"
 #include "CAutoPot.h"
 #include <map>
+#include "DataTypes.h"
 
 struct PerStateHW {
-  CHead::StateType state;
-  PerStateHW(CHead::StateType state) : state(state) {}
+  StateType state;
+  PerStateHW(StateType state) : state(state) {}
 
   COffsetPot    offsetPot1{ CS.offset1, PP.primaryOffset,  50, 224, 800 };
   COffsetPot    offsetPot2{ CS.offset2, PP.preGain      , 100, 224, 800 };
@@ -27,7 +28,7 @@ struct Hardware {
 
   static void init();
 
-  static void ProccessA2D(volatile CA2D::BlockType* block);
+  static void ProccessA2D(volatile BlockType* block);
 
   static void tick();
 

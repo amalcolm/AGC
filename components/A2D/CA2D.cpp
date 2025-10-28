@@ -1,8 +1,10 @@
 #include "CA2D.h"
 #include "Setup.h"
+#include "CHead.h"
+
 CA2D::CA2D(ModeType mode) : m_Mode(mode) {}
 
-CA2D::CA2D(CA2D::CallbackType callback) : m_Mode(CA2D::CONTINUOUS), m_fnCallback(callback) {}
+CA2D::CA2D(CallbackType callback) : m_Mode(CONTINUOUS), m_fnCallback(callback) {}
 
 void CA2D::setMode(CA2D::ModeType mode) {
   pinMode(PIN_SPI_SCK   , OUTPUT); // SPI SCK
@@ -55,7 +57,7 @@ bool CA2D::readFrame(uint8_t (&raw)[27]) {
 }
 
 
-void CA2D::dataFromFrame(uint8_t (&raw)[27], CA2D::DataType& data) {
+void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
   const uint8_t* p = &raw[3]; // skip status
   for (int ch=0; ch<8; ++ch) {
     int32_t val = be24_to_s32(p[0], p[1], p[2]);
@@ -65,7 +67,7 @@ void CA2D::dataFromFrame(uint8_t (&raw)[27], CA2D::DataType& data) {
 }
 
 
-CA2D::DataType CA2D::readData() {
+DataType CA2D::readData() {
 
   DataType data(CHead::getActiveState());
 

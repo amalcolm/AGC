@@ -16,7 +16,7 @@ void Hardware::init() {
     BUT .init();
     LED .init();
     Head.init();
-    A2D .init().setCallback(ProccessA2D);
+    A2D .init();
 
     delay(100); // Allow time for hardware to stabilize
 

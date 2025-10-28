@@ -1,5 +1,5 @@
 #include "CUSB.h"
-#include "CA2D_DataTypes.h"
+#include "DataTypes.h"
 #include "CHead.h"
 #include <map>
 
@@ -10,7 +10,7 @@ void CUSB::init() { CSerialWrapper::init(); }
 
 
 
-void CUSB::buffer(CA2D::DataType data) {
+void CUSB::buffer(DataType data) {
   
   uint8_t nextIndex = (writeIndex + 1) % BUFFER_SIZE;
 
@@ -20,7 +20,7 @@ void CUSB::buffer(CA2D::DataType data) {
   }
 }
 
-void CUSB::buffer(volatile CA2D::BlockType* pBlock) {
+void CUSB::buffer(volatile BlockType* pBlock) {
   m_pBlock = pBlock;
 }
 
@@ -40,10 +40,10 @@ void CUSB::output_buffer() {
   
   static uint32_t lastTick = 0;
   static uint32_t lastOutTime = 0;
-  static std::map<CHead::StateType, int> lastReading;
+  static std::map<StateType, int> lastReading;
 
   while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timeStamp;
-    CA2D::DataType *pData = &m_buffer[readIndex];
+    DataType *pData = &m_buffer[readIndex];
     pData->timeDelta = pData->timeStamp - lastTick;
     lastTick = pData->timeStamp;
 

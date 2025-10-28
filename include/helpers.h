@@ -1,8 +1,9 @@
 #pragma once
+#include <DataTypes.h>
 
 const char * getSketch();
 
-struct PerStateHW& getPerStateHW();
+struct PerStateHW& getPerStateHW(BlockType* block = nullptr);
 
 
 // 24-bit sign-extend (two’s-complement)

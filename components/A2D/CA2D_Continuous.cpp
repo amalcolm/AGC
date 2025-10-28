@@ -58,7 +58,7 @@ void CA2D::setMode_Continuous() {
   m_BlockA.data->clear();
   m_BlockB.data->clear();
 
-  m_Mode = CA2D::ModeType::CONTINUOUS;
+  m_Mode = ModeType::CONTINUOUS;
   Serial.print("A2D: Test = Continuous mode (id=");
   Serial.print(id);
   Serial.println(")");
@@ -71,7 +71,7 @@ void CA2D::pollData() {
 
   m_dataReady = false;
 
-  CA2D::DataType data;
+  DataType data;
 
   SPI.beginTransaction(g_settings);
   {
@@ -86,7 +86,7 @@ void CA2D::pollData() {
   m_pBlockToFill->data->push_back(data);
 }
 
-void CA2D::setBlockState(CHead::StateType state) {
+void CA2D::setBlockState(StateType state) {
   m_pBlockToFill->state = state;
   std::swap(m_pBlockToSend, m_pBlockToFill);
 

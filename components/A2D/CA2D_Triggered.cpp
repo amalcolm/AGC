@@ -1,5 +1,6 @@
 #include "CA2D.h"
 #include "Setup.h"
+#include "CHead.h"
 
 void CA2D::setMode_Triggered()
 {
@@ -63,9 +64,9 @@ void CA2D::setMode_Triggered()
   m_Mode = CA2D::ModeType::TRIGGERED;
 }
 
-CA2D::DataType CA2D::getData() {
+DataType CA2D::getData() {
 
-  CA2D::DataType data(Head.getActiveState());   if (getMode() != ModeType::TRIGGERED) return data;
+  DataType data(Head.getActiveState());   if (getMode() != ModeType::TRIGGERED) return data;
   
 
   SPI.beginTransaction(g_settings);

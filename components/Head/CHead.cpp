@@ -3,6 +3,7 @@
 #include "CHead.h"
 #include "CA2D.h"
 #include "Setup.h"
+#include "DataTypes.h"
 
 CHead::CHead() : m_State(0) {}
 
@@ -25,15 +26,15 @@ void CHead::setSequence( std::initializer_list<uint32_t> data ) {
     *pW++ = b;
 }
 
-std::vector<CHead::StateType> CHead::getSequence() {
-    std::vector<CHead::StateType> seq;
+std::vector<StateType> CHead::getSequence() {
+    std::vector<StateType> seq;
     for (int i = 0; i < m_sequenceLength; i++)
       seq.push_back(m_pSequence[i]);
     return seq;
 }
 
 
-CHead::StateType CHead::setNextState() {
+StateType CHead::setNextState() {
   // if its the first time, start from state ALL_OFF
   const StateType oldState = (m_sequencePosition == -1) ? ALL_OFF : m_State;
   A2D.setBlockState(oldState);
@@ -64,7 +65,7 @@ CHead::StateType CHead::setNextState() {
   return m_State;
 }
 
-
+const StateType DIRTY = CHead::DIRTY;
 
 
 
@@ -123,7 +124,7 @@ void CHead::setPortAndMasks() {
   m_portInputRegister = portInputRegister(m_portGPIO);
 }
 
-CHead::StateType CHead::getActiveState() {
+StateType CHead::getActiveState() {
   uint32_t portValue = *m_portInputRegister;  
   return ((portValue & m_maskGPIO_RED) ? LED_RED : 0x00) | 
          ((portValue & m_maskGPIO_IR ) ? LED_IR  : 0x00);

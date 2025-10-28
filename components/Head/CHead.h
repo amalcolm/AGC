@@ -3,11 +3,10 @@
 #include <initializer_list>
 #include <vector>
 #include "Setup.h"
-#include "CHead.h"
+#include "DataTypes.h"
 
 class CHead {
   public:
-    typedef uint32_t StateType;
 
     static constexpr int NUM_LEDS = 9;
     static constexpr int IR_STARTBIT = 16;
@@ -45,7 +44,7 @@ class CHead {
     void init();
     void setSequence( std::initializer_list<uint32_t> data );
 
-    StateType getState() { return m_State; };
+    StateType getState(BlockType* block) { return block ? block->state : m_State; };
     StateType setNextState();
 
     inline static StateType getActiveState() {  // NOT COMPLETE

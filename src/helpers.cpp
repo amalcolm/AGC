@@ -19,16 +19,17 @@ CHead          Head;
 CUSB           USB;
 
 
-struct PerStateHW& getPerStateHW(CA2D::BlockType* block) {
-    static std::map<CHead::StateType, PerStateHW> stateMap;
+struct PerStateHW& getPerStateHW(BlockType* block) {
+    static std::map<StateType, PerStateHW> stateMap;
 
-    const auto state = Head.getState();
+    const auto state = block ? Head.getState(block) : Head.getActiveState();
     auto [it, inserted] = stateMap.try_emplace(state, state);
     if (inserted) it->second.begin();
     return it->second;
 }
 
 
+struct PerStateHW& getPerStateHW() { return getPerStateHW(nullptr); }
 
 void error(const char *msg, ...)
 {

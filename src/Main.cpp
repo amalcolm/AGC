@@ -6,11 +6,11 @@
 
 
 
-void ProccessA2D(volatile CA2D::BlockType* block) { if (block->data == NULL) return;
+void ProccessA2D(volatile BlockType* block) { if (block->data == NULL) return;
 
   auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW();
 
-  CA2D::DataType data = A2D.getData();
+  DataType data = A2D.getData();
 
   auto avg1 = offsetPot1.getRunningAverage().GetAverage() - 900;
   auto avg2 = offsetPot2.getRunningAverage().GetAverage() - 512;

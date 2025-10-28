@@ -20,7 +20,7 @@ class CSerialWrapper {
            ModeType setMode(ModeType mode);
 
     void printf(const char *pFMT, ...);
-    void buffer(CA2D::DataType data);
+    void buffer(DataType data);
     
   private:
     ModeType m_Mode = ModeType::UNSET;
@@ -32,8 +32,8 @@ class CSerialWrapper {
 
     void put(uint8_t* pData, unsigned int dataLen);
 
-    void writeRawData(CA2D::DataType* pData);
-    void writeRawData(volatile CA2D::BlockType* pBlock);
+    void writeRawData(DataType* pData);
+    void writeRawData(volatile BlockType* pBlock);
 
 
     std::array<uint8_t, FRAMING_SIZE> m_BlockData_Start = { 0x0A, 0x50, 0x4B, 0x2B };

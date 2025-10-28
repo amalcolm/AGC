@@ -102,17 +102,17 @@ void CSerialWrapper::printf(const char *pFMT, ...) {
   // leave it in text mode
 }
 
-void CSerialWrapper::writeRawData(CA2D::DataType* pData) {  if (pData == NULL) return;
+void CSerialWrapper::writeRawData(DataType* pData) {  if (pData == NULL) return;
  
   if (m_Mode != ModeType::RAWDATA) 
     setMode(ModeType::RAWDATA);
 
-  put((uint8_t*)pData, sizeof(CA2D::DataType));
+  put((uint8_t*)pData, sizeof(DataType));
 
   // leave it in rawdata mode
 }
 
-void CSerialWrapper::writeRawData(volatile CA2D::BlockType* pBlock) {  if (pBlock == NULL) return;
+void CSerialWrapper::writeRawData(volatile BlockType* pBlock) {  if (pBlock == NULL) return;
   
   if (m_Mode != ModeType::BLOCKDATA)
     setMode(ModeType::BLOCKDATA);

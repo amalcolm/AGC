@@ -1,42 +1,41 @@
 #pragma once
 #include <SPI.h>
-#include <vector>
-#include "CHead.h"
+#include "DataTypes.h"
+
 class CA2D {
   public:
     enum ModeType { UNSET, CONTINUOUS, TRIGGERED };
 
-    #include "CA2D_DataTypes.h"
 
   public:
     CA2D(ModeType mode);
-    CA2D(CA2D::CallbackType callback);
+    CA2D(CallbackType callback);
     
     CA2D&     init();
-    void      setCallback(CA2D::CallbackType callback) { m_fnCallback = callback; }
+    void      setCallback(CallbackType callback) { m_fnCallback = callback; }
 
     ModeType  getMode() { return m_Mode; }
     bool      readFrame(uint8_t (&raw)[27]);
-    void      dataFromFrame(uint8_t (&raw)[27], CA2D::DataType& data);
+    void      dataFromFrame(uint8_t (&raw)[27], DataType& data);
 
     // Triggered
-    CA2D::DataType getData();
+    DataType getData();
 
     // Continuous
     void        poll();
     
-    void        setBlockState(CHead::StateType state);
+    void        setBlockState(StateType state);
 
     inline BlockType* getBlockToSend()     { return m_pBlockToSend;         }
     inline void       releaseBlockToSend() { m_pBlockToSend->data->clear(); }
     volatile bool     isBlockReadyToSend = false;
 
   private:
-    void      setMode(CA2D::ModeType mode);
+    void      setMode(ModeType mode);
     void      setMode_Continuous();
     void      setMode_Triggered();
 
-    CA2D::DataType readData();
+    DataType readData();
 
     int m_pinDataReady{9};
 
