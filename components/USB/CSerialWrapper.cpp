@@ -112,7 +112,7 @@ void CSerialWrapper::writeRawData(DataType* pData) {  if (pData == NULL) return;
   // leave it in rawdata mode
 }
 
-void CSerialWrapper::writeRawData(volatile BlockType* pBlock) {  if (pBlock == NULL) return;
+void CSerialWrapper::writeRawData(BlockType* pBlock) {  if (pBlock == NULL) return;
   
   if (m_Mode != ModeType::BLOCKDATA)
     setMode(ModeType::BLOCKDATA);

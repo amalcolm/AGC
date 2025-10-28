@@ -3,14 +3,14 @@
 #include "CHead.h"
 
 void CA2D::setMode_Triggered()
-{
+{   uint8_t id = 0;
+
     SPI.begin();
     delay(2); // let SPI/rails settle
 
     SPI.beginTransaction(g_settings);
     {
       // Configuration sequence per ADS1299 datasheet
-      // Note: This is a basic setup. You may want to adjust channel settings, bias, etc.
       // 1) Make sure we're not in RDATAC (so writes are allowed)
       SPIwrite({ 0x11 }); // SDATAC
       delayMicroseconds(5);
@@ -20,6 +20,11 @@ void CA2D::setMode_Triggered()
       delay(2);
 
       // (Optional sanity: read ID here if you have a readReg helper)
+      digitalWrite(CS.A2D, LOW);
+      SPI.transfer(0x20);               // RREG addr=0x00
+      SPI.transfer(0x00);               // read 1 register
+      id = SPI.transfer(0x00);
+      digitalWrite(CS.A2D, HIGH);
 
       // 3) CONFIG1: 0xD4 = 0b11010100
       // bit7 must be 1 per datasheet; reserved pattern honored; DR=100 (1000SPS)
@@ -52,7 +57,6 @@ void CA2D::setMode_Triggered()
     //   wait for DRDY low -> CS low -> 0x12 (RDATA) -> read 3+24 bytes -> CS high.
 
     m_dataReady = false;
-    isBlockReadyToSend = false;
 
     m_pBlockToFill = &m_BlockA;
     m_pBlockToSend = &m_BlockB;
@@ -60,13 +64,16 @@ void CA2D::setMode_Triggered()
 
   delay(300);
 
-  Serial.print("A2D: Triggered mode.\r\n");
+  Serial.print("A2D: Triggered mode (id=");
+  Serial.print(id);
+  Serial.println(")\r\n");
+
   m_Mode = CA2D::ModeType::TRIGGERED;
 }
 
 DataType CA2D::getData() {
 
-  DataType data(Head.getActiveState());   if (getMode() != ModeType::TRIGGERED) return data;
+  DataType data(Head.getState());   if (getMode() != ModeType::TRIGGERED) return data;
   
 
   SPI.beginTransaction(g_settings);

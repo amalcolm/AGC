@@ -59,7 +59,7 @@ void CA2D::setMode_Continuous() {
   m_BlockB.data->clear();
 
   m_Mode = ModeType::CONTINUOUS;
-  Serial.print("A2D: Test = Continuous mode (id=");
+  Serial.print("A2D: Continuous mode (id=");
   Serial.print(id);
   Serial.println(")");
 }
@@ -67,6 +67,7 @@ void CA2D::setMode_Continuous() {
 void CA2D::ISR_Data() { Singleton->m_dataReady = true; }
 
 void CA2D::pollData() { 
+  
   if (!m_dataReady || getMode() != ModeType::CONTINUOUS) return;
 
   m_dataReady = false;

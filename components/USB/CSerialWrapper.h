@@ -33,7 +33,7 @@ class CSerialWrapper {
     void put(uint8_t* pData, unsigned int dataLen);
 
     void writeRawData(DataType* pData);
-    void writeRawData(volatile BlockType* pBlock);
+    void writeRawData(BlockType* pBlock);
 
 
     std::array<uint8_t, FRAMING_SIZE> m_BlockData_Start = { 0x0A, 0x50, 0x4B, 0x2B };

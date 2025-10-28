@@ -20,12 +20,12 @@ struct DataType {
   DataType() : timeStamp(micros()), state(DIRTY), timeDelta(0), serialCount(0) { memset(&channels[0], 0, CHANNELS_BYTESIZE ); }
   DataType(StateType state) : timeStamp(micros()), state(state), timeDelta(0), serialCount(0) { memset(&channels[0], 0, CHANNELS_BYTESIZE ); }
 
-  void debugSerial() volatile {
+  void debugSerial() {
     Serial.print("C0:");
     Serial.println(channels[0]);
   }
 
-  void writeSerial() volatile {
+  void writeSerial() {
     Serial.write((uint8_t*)&timeStamp  , sizeof(timeStamp  ));
     Serial.write((uint8_t*)&state      , sizeof(state      ));
     Serial.write((uint8_t*)&timeDelta  , sizeof(timeDelta  ));
@@ -47,7 +47,7 @@ struct BlockType {
 
   ~BlockType() { if (data != NULL) { delete data; data = NULL; } }
 
-  void debugSerial() volatile {
+  void debugSerial() {
     Serial.print("N:"); Serial.print(data->size());
     for(uint32_t i = 0; i < DEBUG_BLOCKSIZE && i < data->size(); i++) {
       Serial.print("\t C"); Serial.print(i); Serial.print(":"); Serial.print(data->at(i).channels[0]);
@@ -55,7 +55,7 @@ struct BlockType {
     Serial.println();
   }
 
-  void writeSerial() volatile {
+  void writeSerial() {
     if (data == NULL) return;
     
     Serial.write((uint8_t*)&timeStamp, sizeof(timeStamp));
@@ -78,4 +78,4 @@ struct BlockType {
 
 };
 
-typedef void (*CallbackType)(volatile BlockType*);
+typedef void (*CallbackType)(BlockType*);

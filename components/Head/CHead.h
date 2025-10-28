@@ -44,34 +44,12 @@ class CHead {
     void init();
     void setSequence( std::initializer_list<uint32_t> data );
 
-    StateType getState(BlockType* block) { return block ? block->state : m_State; };
+    StateType getState(BlockType* block = nullptr) { return block ? block->state : m_State; };
     StateType setNextState();
 
-    inline static StateType getActiveState() {  // NOT COMPLETE
-      StateType state = 0x00;
-      
-      if (digitalReadFast(LED.RED1)) state |= RED1;
-      if (digitalReadFast(LED.IR1 )) state |= IR1;
-      
-      return state;
-    }
-    
     std::vector<StateType> getSequence();
 
   private:
     StateType   m_State;
     
-
-
-
-
-
-
-/*
-    static uint32_t  m_portGPIO ;
-    static uint32_t  m_maskGPIO_RED;
-    static uint32_t  m_maskGPIO_IR;
-    volatile static uint32_t* m_portInputRegister;
-    static void      setPortAndMasks();
-*/
 };

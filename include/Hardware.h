@@ -28,7 +28,7 @@ struct Hardware {
 
   static void init();
 
-  static void ProccessA2D(volatile BlockType* block);
+  static void ProccessA2D(BlockType* block);
 
   static void tick();
 

@@ -20,7 +20,7 @@ void CUSB::buffer(DataType data) {
   }
 }
 
-void CUSB::buffer(volatile BlockType* pBlock) {
+void CUSB::buffer(BlockType* pBlock) {
   m_pBlock = pBlock;
 }
 

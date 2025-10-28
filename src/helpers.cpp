@@ -22,7 +22,7 @@ CUSB           USB;
 struct PerStateHW& getPerStateHW(BlockType* block) {
     static std::map<StateType, PerStateHW> stateMap;
 
-    const auto state = block ? Head.getState(block) : Head.getActiveState();
+    const auto state = Head.getState(block);
     auto [it, inserted] = stateMap.try_emplace(state, state);
     if (inserted) it->second.begin();
     return it->second;

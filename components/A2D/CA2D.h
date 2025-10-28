@@ -28,8 +28,7 @@ class CA2D {
 
     inline BlockType* getBlockToSend()     { return m_pBlockToSend;         }
     inline void       releaseBlockToSend() { m_pBlockToSend->data->clear(); }
-    volatile bool     isBlockReadyToSend = false;
-
+    
   private:
     void      setMode(ModeType mode);
     void      setMode_Continuous();

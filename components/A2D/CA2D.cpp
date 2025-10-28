@@ -69,7 +69,7 @@ void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
 
 DataType CA2D::readData() {
 
-  DataType data(CHead::getActiveState());
+  DataType data(Head.getState());
 
   uint8_t raw[27]; 
   bool ok = readFrame(raw);
