@@ -48,8 +48,11 @@ void CAutoPot::_setLevel(int newLevel) {
   }
 }
 
+
 void CAutoPot::_writeToPot(int value) {
-  SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
+  static SPISettings g_settings(4000000, MSBFIRST, SPI_MODE0);
+
+  SPI.beginTransaction(g_settings);
   digitalWrite(_csPin, LOW);
   SPI.transfer(0x00); // Address for wiper
   SPI.transfer(_inverted ? 255 - value : value);

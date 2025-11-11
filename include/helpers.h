@@ -3,6 +3,7 @@
 
 const char * getSketch();
 
+struct PerStateHW& getPerStateHW(DataType& data);
 struct PerStateHW& getPerStateHW(BlockType* block = nullptr);
 
 

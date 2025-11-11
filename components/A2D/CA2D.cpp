@@ -1,7 +1,8 @@
 #include "CA2D.h"
 #include "Setup.h"
 #include "CHead.h"
-
+#include "Helpers.h"
+#include "Hardware.h"
 CA2D::CA2D(ModeType mode) : m_Mode(mode) {}
 
 CA2D::CA2D(CallbackType callback) : m_Mode(CONTINUOUS), m_fnCallback(callback) {}
@@ -58,6 +59,9 @@ bool CA2D::readFrame(uint8_t (&raw)[27]) {
 
 
 void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
+
+  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(data);
+
   const uint8_t* p = &raw[3]; // skip status
   for (int ch=0; ch<8; ++ch) {
     int32_t val = be24_to_s32(p[0], p[1], p[2]);
@@ -76,6 +80,8 @@ DataType CA2D::readData() {
 
   if (ok) 
     dataFromFrame(raw, data);
+  else
+    data.state = DIRTY;
   
   return data;
 }

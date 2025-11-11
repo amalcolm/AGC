@@ -1,4 +1,4 @@
-#include <map>
+#include <deque>
 #include "WString.h"
 
 #include "CA2D.h" 
@@ -14,26 +14,41 @@ ProbePointPins PP;
 ButtonPins     BUT;
 LedPins        LED;
 CTimer         Timer;
-CA2D           A2D(CA2D::ModeType::TRIGGERED);
+CA2D           A2D(CA2D::ModeType::CONTINUOUS);
 CHead          Head;
 CUSB           USB;
 
 
-struct PerStateHW& getPerStateHW(BlockType* block) {
-    static std::map<StateType, PerStateHW> stateMap;
 
-    const auto state = Head.getState(block);
-    auto [it, inserted] = stateMap.try_emplace(state, state);
-    if (inserted) it->second.begin();
-    return it->second;
+PerStateHW& getPerStateHW(StateType state) {
+  static std::deque<PerStateHW> stateHWs;
+
+  if (state == DIRTY) state = Head.getState();
+  for (auto& hw : stateHWs) {
+      if (hw.state == state) return hw;
+  }
+  PerStateHW newHW(state);
+  stateHWs.push_back(newHW);
+  return stateHWs.back();
 }
 
+PerStateHW& getPerStateHW(BlockType* block) {
+  return getPerStateHW(block ? block->state : DIRTY);
+}
 
-struct PerStateHW& getPerStateHW() { return getPerStateHW(nullptr); }
+PerStateHW& getPerStateHW(DataType& data){
+  return getPerStateHW(data.state);
+}
+
+PerStateHW& getPerStateHW(){
+  return getPerStateHW(DIRTY);
+}
 
 void error(const char *msg, ...)
 {
   constexpr unsigned int PRINTF_BUFFER_SIZE = 1024;
+
+  noInterrupts();
   
   char buffer[PRINTF_BUFFER_SIZE];
   va_list args;

@@ -2,7 +2,6 @@
 #include "Setup.h"
 #include "CA2D.h"
 #include "CAutoPot.h"
-#include <map>
 #include "DataTypes.h"
 
 struct PerStateHW {
@@ -17,19 +16,15 @@ struct PerStateHW {
     offsetPot1.invert();
     offsetPot2.invert();
     gainPot.invert();
+
     offsetPot1.begin(127); 
     offsetPot2.begin(127); 
     gainPot.begin(1); 
   }
 };
 
+
 struct Hardware {
-
-
   static void init();
-
-  static void ProccessA2D(BlockType* block);
-
   static void tick();
-
 };

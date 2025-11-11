@@ -6,11 +6,11 @@
 
 
 
-void ProccessA2D(BlockType* block) { if (block->data == NULL) return;
+void ProccessA2D(BlockType* block) { if (block->data.empty()) return;
 
   auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(block);
 
-  DataType data = block->data->back();
+  DataType data = block->data[block->count - 1];
 
   auto avg1 = offsetPot1.getRunningAverage().GetAverage() - 900;
   auto avg2 = offsetPot2.getRunningAverage().GetAverage() - 512;
@@ -35,15 +35,21 @@ void ProccessA2D(BlockType* block) { if (block->data == NULL) return;
 
 
 void setup() {
+  LED.activity.set();
+
   Hardware::init();
+
+  USB.setMode(CUSB::ModeType::BLOCKDATA);
   A2D.setCallback(ProccessA2D);
 
   Head.setSequence({
 //    CHead::ALL_OFF,
       CHead::RED1,
-//    CHead::RED1 | CHead::IR1,
 //    CHead::IR1,
+//    CHead::RED1 | CHead::IR1,
   });
+
+  LED.activity.clear();
 }
 
 

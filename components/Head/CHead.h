@@ -1,5 +1,4 @@
 #pragma once
-#include <Arduino.h>
 #include <initializer_list>
 #include <vector>
 #include "Setup.h"
@@ -44,7 +43,7 @@ class CHead {
     void init();
     void setSequence( std::initializer_list<uint32_t> data );
 
-    StateType getState(BlockType* block = nullptr) { return block ? block->state : m_State; };
+    inline StateType getState() { return m_State; }
     StateType setNextState();
 
     std::vector<StateType> getSequence();

@@ -32,7 +32,11 @@ void CUSB::output_buffer() {
 
   if (mode == CSerialWrapper::ModeType::BLOCKDATA) {
       if (m_pBlock == NULL) return;
-      writeRawData(m_pBlock);
+      if (m_handshakeComplete)
+        m_pBlock->writeSerial();
+      else
+        m_pBlock->debugSerial();
+
       m_pBlock = NULL;
       return;
   }
@@ -44,7 +48,6 @@ void CUSB::output_buffer() {
 
   while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timeStamp;
     DataType *pData = &m_buffer[readIndex];
-    pData->timeDelta = pData->timeStamp - lastTick;
     lastTick = pData->timeStamp;
 
 
@@ -54,7 +57,10 @@ void CUSB::output_buffer() {
         break;
 
       case CSerialWrapper::ModeType::RAWDATA:
-        writeRawData(pData);
+        if (m_handshakeComplete)
+          pData->writeSerial();
+        else
+          pData->debugSerial();
         break;
 
 

@@ -14,7 +14,6 @@ class CA2D {
     CA2D&     init();
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
 
-    ModeType  getMode() { return m_Mode; }
     bool      readFrame(uint8_t (&raw)[27]);
     void      dataFromFrame(uint8_t (&raw)[27], DataType& data);
 
@@ -26,8 +25,9 @@ class CA2D {
     
     void        setBlockState(StateType state);
 
-    inline BlockType* getBlockToSend()     { return m_pBlockToSend;         }
-    inline void       releaseBlockToSend() { m_pBlockToSend->data->clear(); }
+    inline ModeType   getMode()            { return m_Mode;           }
+    inline BlockType* getBlockToSend()     { return m_pBlockToSend;   }
+    inline void       releaseBlockToSend() { m_pBlockToSend->clear(); }
     
   private:
     void      setMode(ModeType mode);

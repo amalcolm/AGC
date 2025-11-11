@@ -11,8 +11,8 @@
 
 void Hardware::init() {
     // Initialize all hardware components
-    USB .init();
     SPI .begin();
+    USB .init();
     BUT .init();
     LED .init();
     Head.init();

@@ -5,7 +5,8 @@
 
 class CSerialWrapper {
   public:
-    enum ModeType { UNSET = 0, INITIALISING = 1, TEXT = 2, RAWDATA = 4, BLOCKDATA = 8 };
+    enum ModeType { UNSET, INITIALISING, TEXT, RAWDATA, BLOCKDATA };
+    
     static const unsigned int FRAMING_MASK = ModeType::RAWDATA | ModeType::BLOCKDATA;
     static const unsigned int PRINTF_BUFFER_SIZE = 256;
     static const unsigned int FRAMING_SIZE = 4;
@@ -20,7 +21,6 @@ class CSerialWrapper {
            ModeType setMode(ModeType mode);
 
     void printf(const char *pFMT, ...);
-    void buffer(DataType data);
     
   private:
     ModeType m_Mode = ModeType::UNSET;
@@ -31,10 +31,6 @@ class CSerialWrapper {
     bool m_handshakeComplete = false;
 
     void put(uint8_t* pData, unsigned int dataLen);
-
-    void writeRawData(DataType* pData);
-    void writeRawData(BlockType* pBlock);
-
 
     std::array<uint8_t, FRAMING_SIZE> m_BlockData_Start = { 0x0A, 0x50, 0x4B, 0x2B };
     std::array<uint8_t, FRAMING_SIZE> m_BlockData_End   = { 0x0A, 0x50, 0x4B, 0x2D };

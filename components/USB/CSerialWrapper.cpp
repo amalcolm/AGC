@@ -4,20 +4,28 @@
 #include "helpers.h"
 #include <map>
 
+std::map<CSerialWrapper::ModeType, std::array<uint8_t, CSerialWrapper::FRAMING_SIZE>> g_StartFrame;
+std::map<CSerialWrapper::ModeType, std::array<uint8_t, CSerialWrapper::FRAMING_SIZE>> g_EndFrame;
+
 CSerialWrapper::CSerialWrapper()  {
-  Serial.begin(57600*16);
+  static const unsigned long USB_BAUDRATE = 57600 * 16;
+
+  Serial.begin(USB_BAUDRATE);
+
+  g_StartFrame[CSerialWrapper::BLOCKDATA] = m_BlockData_Start;
+  g_EndFrame[  CSerialWrapper::BLOCKDATA] = m_BlockData_End;
+  g_StartFrame[CSerialWrapper::RAWDATA] = m_RawData_Start;
+  g_EndFrame[  CSerialWrapper::RAWDATA] = m_RawData_End;
+
 }
 
-void CSerialWrapper::init() {}
+void CSerialWrapper::init() {}  // serialWtapper is initialized when 
 
 bool CSerialWrapper::isInitialising() {
   if (getMode() == ModeType::UNSET) begin();
   return getMode() == ModeType::INITIALISING;
 }
 
-
-std::map<CSerialWrapper::ModeType, std::array<uint8_t, CSerialWrapper::FRAMING_SIZE>> g_StartFrame;
-std::map<CSerialWrapper::ModeType, std::array<uint8_t, CSerialWrapper::FRAMING_SIZE>> g_EndFrame;
 
 void CSerialWrapper::begin() {
   static const unsigned long timeout = 1000;  // timeout (mS)
@@ -59,26 +67,21 @@ void CSerialWrapper::begin() {
   }
 
 
-  g_StartFrame[CSerialWrapper::BLOCKDATA] = m_BlockData_Start;
-  g_EndFrame[  CSerialWrapper::BLOCKDATA] = m_BlockData_End;
-  g_StartFrame[CSerialWrapper::RAWDATA] = m_RawData_Start;
-  g_EndFrame[  CSerialWrapper::RAWDATA] = m_RawData_End;
-
   if (m_handshakeComplete)
     setMode(ModeType::BLOCKDATA);
   else
-    setMode(ModeType::UNSET);
+    setMode(ModeType::TEXT);
 }
 
 CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) {
-  if (m_Mode == mode) return m_Mode;
+  if ((m_Mode == mode) || !m_handshakeComplete) return m_Mode;
 
-  if ((m_Mode & FRAMING_MASK) && m_handshakeComplete)
+  if (m_Mode & FRAMING_MASK)
     put(  g_EndFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);
 
   m_Mode = mode;
 
-  if ((m_Mode & FRAMING_MASK) && m_handshakeComplete)
+  if (m_Mode & FRAMING_MASK)
     put(g_StartFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);
 
   return m_Mode;
@@ -89,7 +92,8 @@ void CSerialWrapper::put(uint8_t* pData, unsigned int dataLen) {
 }
 
 
-void CSerialWrapper::printf(const char *pFMT, ...) {        
+void CSerialWrapper::printf(const char *pFMT, ...) {
+  ModeType previousMode = getMode();
   setMode(ModeType::TEXT);
 
   char buffer[PRINTF_BUFFER_SIZE];
@@ -99,27 +103,8 @@ void CSerialWrapper::printf(const char *pFMT, ...) {
   va_end(args);
   put((uint8_t*)buffer, strlen(buffer));
 
-  // leave it in text mode
+  setMode(previousMode);
 }
 
-void CSerialWrapper::writeRawData(DataType* pData) {  if (pData == NULL) return;
- 
-  if (m_Mode != ModeType::RAWDATA) 
-    setMode(ModeType::RAWDATA);
-
-  put((uint8_t*)pData, sizeof(DataType));
-
-  // leave it in rawdata mode
-}
-
-void CSerialWrapper::writeRawData(BlockType* pBlock) {  if (pBlock == NULL) return;
-  
-  if (m_Mode != ModeType::BLOCKDATA)
-    setMode(ModeType::BLOCKDATA);
-
-   pBlock->writeSerial();
-
-  // leave it in blockdata mode
-}
 
  

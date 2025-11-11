@@ -39,8 +39,8 @@ void CA2D::setMode_Continuous() {
 
     // channels: CH1 normal input, gain=1; others powered-down & shorted
     SPIwrite({ 0x45, 0x07,
-              0x00,                 // CH1SET: PD=0, GAIN=000 (x1), SRB2=0, MUX=000 (normal)
-              0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81  // CH2..CH8: PD=1, MUX=short
+               0x00,                 // CH1SET: PD=0, GAIN=000 (x1), SRB2=0, MUX=000 (normal)
+               0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81  // CH2..CH8: PD=1, MUX=short
     });
 
     // 5) Start conversions, then enable RDATAC
@@ -55,8 +55,8 @@ void CA2D::setMode_Continuous() {
 
   m_pBlockToFill = &m_BlockA;
   m_pBlockToSend = &m_BlockB;
-  m_BlockA.data->clear();
-  m_BlockB.data->clear();
+  m_BlockA.clear();
+  m_BlockB.clear();
 
   m_Mode = ModeType::CONTINUOUS;
   Serial.print("A2D: Continuous mode (id=");
@@ -84,17 +84,20 @@ void CA2D::pollData() {
   }
   SPI.endTransaction();
 
-  m_pBlockToFill->data->push_back(data);
+  m_pBlockToFill->push_back(data);
 }
 
 void CA2D::setBlockState(StateType state) {
   m_pBlockToFill->state = state;
+  noInterrupts();
   std::swap(m_pBlockToSend, m_pBlockToFill);
+  interrupts();
 
-  m_pBlockToFill->data->clear();
   m_pBlockToFill->timeStamp = millis();
 
-  USB.buffer(m_pBlockToSend);
+  BlockType* blockToSend = getBlockToSend();
+  USB.buffer(blockToSend);
 
-  if (m_fnCallback) m_fnCallback(m_pBlockToSend);
+  if (m_fnCallback) m_fnCallback(blockToSend);
+  releaseBlockToSend();
 }

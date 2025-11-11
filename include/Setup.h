@@ -19,15 +19,15 @@ extern class  CUSB           USB;
 
 
 struct ChipSelectPins {
-  const int offset1 = 23;
-  const int offset2 = 21;
-  const int gain    = 22;
-  const int A2D     = 20;
+  static constexpr int offset1 = 23;
+  static constexpr int offset2 = 21;
+  static constexpr int gain    = 22;
+  static constexpr int A2D     = 20;
 };
 
 struct ProbePointPins {
-  const int primaryOffset = PIN_A1;
-  const int preGain       = PIN_A0;
+  static constexpr int primaryOffset = PIN_A1;
+  static constexpr int preGain       = PIN_A0;
 };
 
 struct ButtonPins {
@@ -39,7 +39,7 @@ struct ButtonPins {
 };
 
 struct LedPins {
-  const bool Inverted = true;  // LED ON is LOW on this board
+  static constexpr bool Inverted = true;  // LED ON is LOW on this board
 
   OutputPin activity{4};
 						          		//  Big puck probe  Q = photodiode                                                  // 	small probe layout  Q = photodiode    

@@ -60,7 +60,7 @@ void CA2D::setMode_Triggered()
 
     m_pBlockToFill = &m_BlockA;
     m_pBlockToSend = &m_BlockB;
-    m_pBlockToFill->data->clear();
+    m_pBlockToFill->clear();
 
   delay(300);
 
