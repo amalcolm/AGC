@@ -18,6 +18,8 @@ CA2D           A2D(CA2D::ModeType::CONTINUOUS);
 CHead          Head;
 CUSB           USB;
 
+OutputPin activityLED{4};
+
 
 
 PerStateHW& getPerStateHW(StateType state) {
@@ -44,32 +46,43 @@ PerStateHW& getPerStateHW(){
   return getPerStateHW(DIRTY);
 }
 
-void error(const char *msg, ...)
+__attribute__((noinline)) static bool print_frame(unsigned n)
 {
-  constexpr unsigned int PRINTF_BUFFER_SIZE = 1024;
-
-  noInterrupts();
-  
-  char buffer[PRINTF_BUFFER_SIZE];
-  va_list args;
-  va_start(args, msg);
-  vsnprintf(buffer, sizeof(buffer)-1, msg, args);
-  va_end(args);
-
-  Serial.println("Error: system halted.");
-  Serial.println(buffer);
-  Serial.println("--End");
-  Serial.flush();
-  while (true)
-  {
-    LED.all.set();
-    delay(1500);
-    LED.all.clear();
-    delay(500);
-  }
+    void* ra = nullptr;
+    switch (n) {
+        case 0: ra = __builtin_return_address(0); break;
+        case 1: ra = __builtin_return_address(1); break;
+        case 2: ra = __builtin_return_address(2); break;
+        case 3: ra = __builtin_return_address(3); break;
+        case 4: ra = __builtin_return_address(4); break;
+        case 5: ra = __builtin_return_address(5); break;
+        default: return false;
+    }
+    if (!ra) return false;
+    Serial.printf("#%u %p\n", n, ra);
+    return true;
 }
 
+[[noreturn]] void error_impl(const char* file, int line, const char* func,
+                             const char* fmt, ...)
+{
+    char msg[1024];
+    va_list args; va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
 
+    Serial.println("Error: system halted.");
+    Serial.printf("%s:%d in %s(): %s\n", file, line, func, msg);
+    Serial.println("Backtrace (newest first):");
+
+    for (unsigned n = 0; n < 6; ++n) {
+        if (!print_frame(n)) break;   // stop when a frame isn’t available
+    }
+
+    Serial.println("--End");
+    Serial.flush();
+    for (;;) { LED.all.set(); delay(1500); LED.all.clear(); delay(500); }
+}
 
 
 

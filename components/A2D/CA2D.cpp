@@ -60,7 +60,7 @@ bool CA2D::readFrame(uint8_t (&raw)[27]) {
 
 void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
 
-  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(data);
+//  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(data);
 
   const uint8_t* p = &raw[3]; // skip status
   for (int ch=0; ch<8; ++ch) {

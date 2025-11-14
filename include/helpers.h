@@ -14,6 +14,10 @@ inline int32_t be24_to_s32(const uint8_t b2, const uint8_t b1, const uint8_t b0)
   return v;
 }
 
-void error(const char *msg, ...);
+#define ERROR(fmt, ...) error_impl(__FILE__, __LINE__, __func__, fmt, ##__VA_ARGS__)
+
+
+[[noreturn]] void error_impl(const char* file, int line, const char* func,
+                             const char* fmt, ...);
 
 

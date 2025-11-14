@@ -1,25 +1,44 @@
 #pragma once
 #include "Helpers.h"
 #include <Arduino.h>
-#include <unordered_map>
+#include <array>
 #include <vector>
+
 
 // -- Base ----------------------------------------------------------
 struct Pins {
 protected:
-  inline static std::unordered_map<int, Pins*> pinMap;
-  const int _pin;
-  explicit Pins(int pin) : _pin(pin) {
-    if (pinMap.count(pin)) error("Pin %d already in use!", pin);
-    pinMap.emplace(pin, this);
+  static constexpr int MAX_HEADS = 16;
+  static constexpr int MAX_PINS  = 42;
+  inline static int numHeadsUsed = 0;
+  inline static std::array<std::array<Pins*, MAX_PINS>, MAX_HEADS> pinMap{};
+
+  inline static int _currentHead = -1; // chosen head to use
+
+  int _pin = 255; // invalid pin number
+
+  explicit Pins(std::initializer_list<uint32_t> pinPerHead ) {
+    int iHead = 0;
+    for (auto pin : pinPerHead) { 
+      if (iHead >= MAX_HEADS) ERROR("Too many heads: %d (max %d)", iHead, MAX_HEADS);
+      if (pin >= MAX_PINS) ERROR("Pin %u out of range (head %d, max %d)", pin, iHead, MAX_PINS);
+
+      if (iHead >= numHeadsUsed)
+        numHeadsUsed = iHead + 1;
+
+      if (pinMap[iHead][pin] != nullptr) 
+        ERROR("Pin %u already defined. Head %d", pin, iHead);
+      else
+        pinMap[iHead][pin] = this;    
+
+
+      ++iHead;
+    }
   }
+
 
 public:
   enum class Kind { Output, Input };
-  virtual ~Pins() {
-    auto it = pinMap.find(_pin);
-    if (it != pinMap.end() && it->second == this) pinMap.erase(it);
-  }
   Pins(const Pins&) = delete;
   Pins& operator=(const Pins&) = delete;
 
@@ -28,14 +47,33 @@ public:
   int getNum() const noexcept { return _pin; }
 
   static Pins* get(int pin) {
-    auto it = pinMap.find(pin);
-    return (it == pinMap.end()) ? nullptr : it->second;
+    if (_currentHead < 0 || pin < 0 || pin >= MAX_PINS) return nullptr;
+
+    return pinMap[_currentHead][pin];
   }
+
+  static void setHead(int head) {
+    if (head < 0 || head >= numHeadsUsed) ERROR("Head %d out of range", head);
+    if (head == _currentHead) return;
+
+    if (head != 0)
+      for (int pin = 0; pin < MAX_PINS; ++pin) {
+        if (auto* p = pinMap[0][pin])
+          if (pinMap[head][pin] == nullptr)
+            pinMap[head][pin] = p;
+      }    
+
+    for (int pin = 0; pin < MAX_PINS; ++pin)
+      if (auto* p = pinMap[head][pin]) p->_pin = pin;
+
+    _currentHead = head;
+  }
+  
 };
 
 // -- Output --------------------------------------------------------
 struct OutputPin : Pins {
-  explicit OutputPin(int pin) : Pins(pin) {}
+  explicit OutputPin(std::initializer_list<uint32_t> pinPerHead) : Pins(pinPerHead) {}
   Kind kind() const noexcept override { return Kind::Output; }
 
   void init(int mode = OUTPUT) { pinMode(_pin, mode); clear(); }
@@ -51,7 +89,7 @@ private:
 
 // -- Input ---------------------------------------------------------
 struct InputPin : Pins {
-  explicit InputPin(int pin) : Pins(pin) {}
+  explicit InputPin(std::initializer_list<uint32_t> pinPerHead) : Pins(pinPerHead) {}
   Kind kind() const noexcept override { return Kind::Input; }
 
   void init(int mode = INPUT) const { pinMode(_pin, mode); }
@@ -64,10 +102,12 @@ struct LedPinRange {
   bool inverted = false;
 
   LedPinRange(int startPin, int endPin) {
+    if (startPin > endPin) std::swap(startPin, endPin);
     pins.reserve(endPin - startPin + 1);
+    
     for (int p = startPin; p <= endPin; ++p) {
       Pins* base = Pins::get(p);
-      if (!base || base->kind() != Pins::Kind::Output) error("Pin %d not defined as OutputPin", p);
+      if (!base || base->kind() != Pins::Kind::Output) ERROR("Pin %d not defined as OutputPin", p);
       pins.emplace_back(static_cast<OutputPin*>(base));
     }
   }

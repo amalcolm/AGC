@@ -42,13 +42,13 @@ void CUSB::output_buffer() {
   }
 
   
-  static uint32_t lastTick = 0;
+//static uint32_t lastTick = 0;
   static uint32_t lastOutTime = 0;
   static std::map<StateType, int> lastReading;
 
   while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timeStamp;
     DataType *pData = &m_buffer[readIndex];
-    lastTick = pData->timeStamp;
+//  lastTick = pData->timeStamp;
 
 
     switch (mode)

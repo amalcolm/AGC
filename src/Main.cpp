@@ -35,7 +35,7 @@ void ProccessA2D(BlockType* block) { if (block->data.empty()) return;
 
 
 void setup() {
-  LED.activity.set();
+  activityLED.set();
 
   Hardware::init();
 
@@ -49,7 +49,7 @@ void setup() {
 //    CHead::RED1 | CHead::IR1,
   });
 
-  LED.activity.clear();
+  activityLED.clear();
 }
 
 
@@ -63,5 +63,5 @@ void loop() {
 
   Hardware::tick();
 
-  LED.activity.toggle();
+  activityLED.toggle();
 }

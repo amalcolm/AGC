@@ -116,7 +116,7 @@ void CHead::setPortAndMasks() {
   Serial.print("Pin 6 bit mask: 0x");
   Serial.println(digitalPinToBitMask(6), HEX);
   Serial.flush();
-    error("Pins for IR and RED are on different ports");
+    ERROR("Pins for IR and RED are on different ports");
   }
 
   m_maskGPIO_RED = digitalPinToBitMask(PIN_GPIO_RED);
