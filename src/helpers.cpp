@@ -66,22 +66,33 @@ __attribute__((noinline)) static bool print_frame(unsigned n)
 [[noreturn]] void error_impl(const char* file, int line, const char* func,
                              const char* fmt, ...)
 {
-    char msg[1024];
+    char msg[4096];
     va_list args; va_start(args, fmt);
     vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
 
-    Serial.println("Error: system halted.");
-    Serial.printf("%s:%d in %s(): %s\n", file, line, func, msg);
-    Serial.println("Backtrace (newest first):");
+    // Compose the file/line line in RAM too
+    char hdr[4200];
+    snprintf(hdr, sizeof(hdr), "%s:%d in %s(): %s", file, line, func, msg);
 
+    // Try to make USB serial usable even during static init
+    if (!Serial) {
+        Serial.begin(115200);
+        for (int i = 0; i < 50 && !Serial; ++i) delay(10); // ~500ms max
+    }
+
+    Serial.println("Error: system halted.");
+    Serial.println(hdr);
+
+    Serial.println("Backtrace (newest first):");
     for (unsigned n = 0; n < 6; ++n) {
-        if (!print_frame(n)) break;   // stop when a frame isn’t available
+        if (!print_frame(n)) break;   // will often stop at #0 during static init
     }
 
     Serial.println("--End");
     Serial.flush();
-    for (;;) { LED.all.set(); delay(1500); LED.all.clear(); delay(500); }
+
+    for (;;) { digitalWrite(4, HIGH); delay(1500); digitalWrite(4, LOW); delay(500); }
 }
 
 

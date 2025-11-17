@@ -28,7 +28,9 @@ void DataType::writeSerial() {
 
 
 
-BlockType::BlockType() : timeStamp(0), state(DIRTY), count(0), data() { data.fill(DataType()); }
+BlockType::BlockType() : timeStamp(0), state(DIRTY), count(0), data() {
+  // data.fill(DataType());
+}
 
 void BlockType::writeSerial() {
   Serial.write((uint8_t*)&timeStamp, sizeof(timeStamp));

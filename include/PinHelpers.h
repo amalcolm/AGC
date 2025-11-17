@@ -7,13 +7,16 @@
 
 // -- Base ----------------------------------------------------------
 struct Pins {
+  enum class Kind { Input, Output, LED };
+
 protected:
   static constexpr int MAX_HEADS = 16;
   static constexpr int MAX_PINS  = 42;
   inline static int numHeadsUsed = 0;
   inline static std::array<std::array<Pins*, MAX_PINS>, MAX_HEADS> pinMap{};
 
-  inline static int _currentHead = -1; // chosen head to use
+  inline static int      _currentHead = -1; // chosen head to use
+  inline static uint32_t _headEpoch   = 0;  // incremented each time head is changed
 
   int _pin = 255; // invalid pin number
 
@@ -38,18 +41,25 @@ protected:
 
 
 public:
-  enum class Kind { Output, Input };
   Pins(const Pins&) = delete;
   Pins& operator=(const Pins&) = delete;
 
   virtual Kind kind() const noexcept = 0; 
   constexpr operator int() const noexcept { return _pin; }
   int getNum() const noexcept { return _pin; }
-
+  
   static Pins* get(int pin) {
     if (_currentHead < 0 || pin < 0 || pin >= MAX_PINS) return nullptr;
 
     return pinMap[_currentHead][pin];
+  }
+
+  static int      getCurrentHead() noexcept { return _currentHead; }
+  static uint32_t getHeadEpoch()   noexcept { return _headEpoch;   }
+  
+  static std::array<Pins*, MAX_PINS>& getPinMap() {
+    if (_currentHead < 0) ERROR("No head selected when accessing pin map");
+    return pinMap[_currentHead];
   }
 
   static void setHead(int head) {
@@ -67,6 +77,21 @@ public:
       if (auto* p = pinMap[head][pin]) p->_pin = pin;
 
     _currentHead = head;
+    _headEpoch++;
+  }
+
+  static void flash(int numFlashes = 3) {
+
+    for (int i = 0; i < numFlashes; ++i) {
+
+      for (int pin = 24; pin < 42; pin++) digitalWrite(pin, LOW);
+      delay(300);
+      for (int pin = 24; pin < 42; pin++) digitalWrite(pin, HIGH);
+      delay(300);
+
+    }
+
+    delay(1000);
   }
   
 };
@@ -87,6 +112,13 @@ private:
   uint8_t _high = HIGH, _low = LOW;
 };
 
+struct LedPin : OutputPin {
+    using OutputPin::OutputPin;          // inherit all OutputPin constructors
+    Kind kind() const noexcept override { return Kind::LED; }
+};
+
+
+
 // -- Input ---------------------------------------------------------
 struct InputPin : Pins {
   explicit InputPin(std::initializer_list<uint32_t> pinPerHead) : Pins(pinPerHead) {}
@@ -96,24 +128,35 @@ struct InputPin : Pins {
   int  read() const                 { return digitalRead(_pin); }
 };
 
-// -- Range of predefined Output Pins ------------------------------
+// -- Range of predefined LED Pins ------------------------------
 struct LedPinRange {
-  std::vector<OutputPin*> pins;
-  bool inverted = false;
+    int start{}, end{};
+    uint32_t cachedEpoch{0};
+    std::vector<LedPin*> pins;
 
-  LedPinRange(int startPin, int endPin) {
-    if (startPin > endPin) std::swap(startPin, endPin);
-    pins.reserve(endPin - startPin + 1);
-    
-    for (int p = startPin; p <= endPin; ++p) {
-      Pins* base = Pins::get(p);
-      if (!base || base->kind() != Pins::Kind::Output) ERROR("Pin %d not defined as OutputPin", p);
-      pins.emplace_back(static_cast<OutputPin*>(base));
+    LedPinRange(int s, int e) : start(s), end(e) {
+      if (start > end) std::swap(start, end);
     }
-  }
 
-  LedPinRange& init()  { for (auto* pin : pins) { pin->init(); pin->clear(); } return *this; }
-  LedPinRange& set()   { for (auto* pin : pins) pin->set();   return *this; }
-  LedPinRange& clear() { for (auto* pin : pins) pin->clear(); return *this; }
-  LedPinRange& invert(){ for (auto* pin : pins) pin->invert(); inverted = !inverted; return *this; }
-};
+    // Call after setHead(), or before first use
+    void refreshIfStale() {
+        if (cachedEpoch == Pins::getHeadEpoch()) return;
+
+        pins.clear();
+        const auto& map = Pins::getPinMap();
+        pins.reserve(end - start + 1);
+
+        for (int p = start; p <= end; ++p)
+          if (Pins* base = map[p]) 
+            if (base->kind() == Pins::Kind::LED)
+              pins.emplace_back(static_cast<LedPin*>(base));
+
+        cachedEpoch = Pins::getHeadEpoch();
+    }
+
+    // Convenience wrappers that ensure freshness
+    void init()    { refreshIfStale(); for (auto* pin : pins) { pin->init(); pin->clear(); } }
+    void set()     { refreshIfStale(); for (auto* pin : pins) pin->set();    }
+    void clear()   { refreshIfStale(); for (auto* pin : pins) pin->clear();  }
+    void invert()  { refreshIfStale(); for (auto* pin : pins) pin->invert(); }
+}; 

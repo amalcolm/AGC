@@ -2,10 +2,12 @@
 #include "CSerialWrapper.h"
 #include "Setup.h"
 #include "helpers.h"
-#include <map>
+#include <array>
 
-std::map<CSerialWrapper::ModeType, std::array<uint8_t, CSerialWrapper::FRAMING_SIZE>> g_StartFrame;
-std::map<CSerialWrapper::ModeType, std::array<uint8_t, CSerialWrapper::FRAMING_SIZE>> g_EndFrame;
+using FrameTable = std::array<CSerialWrapper::Frame, CSerialWrapper::NUM_MODETYPES>;
+
+FrameTable g_StartFrame;
+FrameTable g_EndFrame;
 
 CSerialWrapper::CSerialWrapper()  {
   static const unsigned long USB_BAUDRATE = 57600 * 16;
@@ -17,6 +19,7 @@ CSerialWrapper::CSerialWrapper()  {
   g_StartFrame[CSerialWrapper::RAWDATA] = m_RawData_Start;
   g_EndFrame[  CSerialWrapper::RAWDATA] = m_RawData_End;
 
+  
 }
 
 void CSerialWrapper::init() {}  // serialWtapper is initialized when 
