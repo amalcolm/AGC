@@ -35,9 +35,8 @@ std::vector<StateType> CHead::getSequence() {
 
 
 StateType CHead::setNextState() {
-  // if its the first time, start from state ALL_OFF
+  // if it's the first time, start from state ALL_OFF
   const StateType oldState = (m_sequencePosition == -1) ? ALL_OFF : m_State;
-
   
   A2D.setBlockState(oldState);
 
@@ -53,11 +52,9 @@ StateType CHead::setNextState() {
   // Update only the changed LEDs using bit manipulation
   while (diff) {
       const int  i  = __builtin_ctz(diff);          // index of lowest set bit
+      const uint8_t led = Pins::pinForBit(i);          // corresponding pin number  
       const bool on = ((newState >> i) & 1u) ^ LED.Inverted; // desired state
 
-      const int led =  (i < NUM_LEDS) 
-                    ? LED.RED1 +  i
-                    : LED.IR1  + (i - IR_STARTBIT);
 
       digitalWriteFast(led, on ? HIGH : LOW);
  

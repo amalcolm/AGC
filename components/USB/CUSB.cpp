@@ -28,7 +28,7 @@ void CUSB::buffer(BlockType* pBlock) {
 void CUSB::output_buffer() {
   constexpr unsigned int TEXTOUT_INTERVAL = 10000; // ms
 
-  CSerialWrapper::ModeType mode = getMode();
+  auto mode = getMode();
 
   if (mode == CSerialWrapper::ModeType::BLOCKDATA) {
       if (m_pBlock == NULL) return;
@@ -84,3 +84,15 @@ void CUSB::output_buffer() {
   }
 }
 
+
+void CUSB::CrashReport(CrashReportClass& pReport)
+{
+  Serial.begin(115200);
+  for (int i = 0; i < 50 && !Serial; ++i) delay(10); 
+
+  pReport.printTo(Serial);
+
+  while (true) {
+    Pins::flash(2);
+  }
+}

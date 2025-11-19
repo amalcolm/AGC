@@ -46,22 +46,6 @@ PerStateHW& getPerStateHW(){
   return getPerStateHW(DIRTY);
 }
 
-__attribute__((noinline)) static bool print_frame(unsigned n)
-{
-    void* ra = nullptr;
-    switch (n) {
-        case 0: ra = __builtin_return_address(0); break;
-        case 1: ra = __builtin_return_address(1); break;
-        case 2: ra = __builtin_return_address(2); break;
-        case 3: ra = __builtin_return_address(3); break;
-        case 4: ra = __builtin_return_address(4); break;
-        case 5: ra = __builtin_return_address(5); break;
-        default: return false;
-    }
-    if (!ra) return false;
-    Serial.printf("#%u %p\n", n, ra);
-    return true;
-}
 
 [[noreturn]] void error_impl(const char* file, int line, const char* func,
                              const char* fmt, ...)
@@ -83,13 +67,12 @@ __attribute__((noinline)) static bool print_frame(unsigned n)
 
     Serial.println("Error: system halted.");
     Serial.println(hdr);
+    Serial.println();
 
-    Serial.println("Backtrace (newest first):");
-    for (unsigned n = 0; n < 6; ++n) {
-        if (!print_frame(n)) break;   // will often stop at #0 during static init
-    }
+    Serial.print("Calling function: ");
+    void* ra = __builtin_return_address(0);
+    Serial.println((uintptr_t)ra, HEX);
 
-    Serial.println("--End");
     Serial.flush();
 
     for (;;) { digitalWrite(4, HIGH); delay(1500); digitalWrite(4, LOW); delay(500); }

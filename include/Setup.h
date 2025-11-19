@@ -4,7 +4,6 @@
 #include "helpers.h"
 constexpr double VERSION = 0.1;
 
-const float TickSpeed_uS = 10000;  // 10ms
 
 
 extern struct ChipSelectPins CS; 
@@ -42,35 +41,40 @@ extern OutputPin activityLED;  // set in helpers.cpp (4)
 
 struct LedPins {
   static constexpr bool Inverted = true;  // LED ON is LOW on this board
+  static constexpr uint32_t HEAD_TO_USE = 2; 
 
-						   //h1  h2            		//  Big puck probe  Q = photodiode                                                  // 	small probe layout  Q = photodiode    
-  OutputPin IR1 {24, 31};			//                                                 IR8							   	//
-  OutputPin IR2 {25, 30};			//  (Picture By Rob!)                     RED8               RED7					//
-  OutputPin IR3 {26, 38};			//                                                                                  //    
-  OutputPin IR4 {27, 36};			//                                                 IR9                              //            IR1
-  OutputPin IR5 {28, 34};			//                                  IR3                            IR7              //        RED4    RED1
-  OutputPin IR6 {29, 24};			//                                                                                  //      IR4    Q    IR2
-  OutputPin IR7 {30, 25};			//                                        RED1             RED9                     //        RED3    RED2
-  OutputPin IR8 {31, 33};			//                                                                                  //            IR3
-  OutputPin IR9 {32, 32};			//                               RED3              QQQQ              RED6
-				    				      		//
-  OutputPin RED1{33, 27};			//                                        IR4              IR1
-  OutputPin RED2{34, 29};			//
-  OutputPin RED3{35, 39};			//                                 IR5                            IR2
-  OutputPin RED4{36, 26};			//                                                 RED2                 
-  OutputPin RED5{37, 37};			//
-  OutputPin RED6{38, 28};			//                                       RED4               RED5
-  OutputPin RED7{39, 40};			//                                                 IR6
-  OutputPin RED8{40, 35};			//
-  OutputPin RED9{41, 41};			
+//           bit  h1  h2     		//  Big puck probe  Q = photodiode                                                  // 	small probe layout  Q = photodiode    
+  LedPin IR1 {16, 24, 31};			//  (Head 1)                                       IR8							   	            //
+  LedPin IR2 {17, 25, 30};			//  (Picture By Rob!)                     RED8               RED7					          //
+  LedPin IR3 {18, 26, 38};			//                                                                                  //    
+  LedPin IR4 {19, 27, 36};			//                                                 IR9                              //            IR1
+  LedPin IR5 {20, 28, 34};			//                                  IR3                            IR7              //        RED4    RED1
+  LedPin IR6 {21, 29, 24};			//                                                                                  //      IR4    Q    IR2
+  LedPin IR7 {22, 30, 25};			//                                        RED1             RED9                     //        RED3    RED2
+  LedPin IR8 {23, 31, 33};			//                                                                                  //            IR3
+  LedPin IR9 {24, 32, 32};			//                               RED3              QQQQ              RED6
+  		    			    	      		//
+  LedPin RED1{ 0, 33, 27};			//                                        IR4              IR1
+  LedPin RED2{ 1, 34, 29};			//
+  LedPin RED3{ 2, 35, 39};			//                                 IR5                            IR2
+  LedPin RED4{ 3, 36, 26};			//                                                 RED2                 
+  LedPin RED5{ 4, 37, 37};			//
+  LedPin RED6{ 5, 38, 28};			//                                       RED4               RED5
+  LedPin RED7{ 6, 39, 40};			//                                                 IR6
+  LedPin RED8{ 7, 40, 35};			//
+  LedPin RED9{ 8, 41, 41};			//
 
   LedPinRange all{24, 41};
 
   void init() {
+    Pins::setHead(HEAD_TO_USE);
+
     activityLED.init();
 
     if (Inverted) all.invert();
     all.init();
-  
+
+    all.clear();
+
   }
 };

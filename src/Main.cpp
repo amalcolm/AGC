@@ -4,9 +4,12 @@
 #include "CHead.h"
 #include "CUSB.h"
 
+#define DEBUG 1
+const float TickSpeed_uS = 50000;  // 50ms
 
 
-void ProccessA2D(BlockType* block) { if (block->data.empty()) return;
+// ProcessA2D: Callback to process A2D data blocks for debugging
+void ProccessA2D(BlockType* block) { if (!DEBUG || block->data.empty()) return;
 
   auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(block);
 
@@ -16,7 +19,7 @@ void ProccessA2D(BlockType* block) { if (block->data.empty()) return;
   auto avg2 = offsetPot2.getRunningAverage().GetAverage() - 512;
 
   // --- Serial Debugging Output ---
-  Serial.print("\r\n A2D:");      Serial.print(data.channels[0]/6000);
+  Serial.print("\r\n A2D:");      Serial.print(data.channels[0]);
   Serial.print(  "\t Sensor1:");  Serial.print(offsetPot1.getSensorValue()-0*avg1);
   Serial.print(  "\t Sensor2:");  Serial.print(offsetPot2.getSensorValue()-0*avg2);
   Serial.print(  "\t offset1:");  Serial.print(offsetPot1.getLevel());
@@ -35,6 +38,7 @@ void ProccessA2D(BlockType* block) { if (block->data.empty()) return;
 
 
 void setup() {
+  if (CrashReport) USB.CrashReport(CrashReport);
   activityLED.set();
 
   Hardware::init();
@@ -57,6 +61,7 @@ void setup() {
 
 void loop() {
   Head.setNextState();
+  if (!DEBUG) USB.output_buffer();  // output previous block, and give time for head to settle
 
   while (Timer.uS() < TickSpeed_uS) A2D.poll();
   Timer.restart();

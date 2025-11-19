@@ -77,7 +77,7 @@ void CSerialWrapper::begin() {
 }
 
 CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) {
-  if ((m_Mode == mode) || !m_handshakeComplete) return m_Mode;
+  if (m_Mode == mode) return m_Mode;
 
   if (m_Mode & FRAMING_MASK)
     put(  g_EndFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);

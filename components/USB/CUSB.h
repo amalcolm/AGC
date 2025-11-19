@@ -1,5 +1,6 @@
 #pragma once
 #include "CSerialWrapper.h"
+#include "CrashReport.h"
 
 class CUSB : public CSerialWrapper {
   private:
@@ -19,4 +20,6 @@ class CUSB : public CSerialWrapper {
     void buffer(BlockType* block);
     
     void output_buffer();
+
+    void CrashReport(CrashReportClass& pReport);
 };

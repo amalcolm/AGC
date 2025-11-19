@@ -10,33 +10,59 @@ struct Pins {
   enum class Kind { Input, Output, LED };
 
 protected:
-  static constexpr int MAX_HEADS = 16;
-  static constexpr int MAX_PINS  = 42;
+  static constexpr uint8_t MAX_HEADS = 16;
+  static constexpr uint8_t MAX_PINS  = 42;
   inline static int numHeadsUsed = 0;
   inline static std::array<std::array<Pins*, MAX_PINS>, MAX_HEADS> pinMap{};
+  inline static std::array<int, 32> pinsPerBit{}; // map bit number to pin number
 
   inline static int      _currentHead = -1; // chosen head to use
   inline static uint32_t _headEpoch   = 0;  // incremented each time head is changed
 
-  int _pin = 255; // invalid pin number
+  uint8_t _bit = 255; // invalid bit number
+  uint8_t _pin = 255; // invalid pin number
 
-  explicit Pins(std::initializer_list<uint32_t> pinPerHead ) {
+  explicit Pins(std::initializer_list<uint8_t> pinPerHead ) {
     int iHead = 0;
-    for (auto pin : pinPerHead) { 
-      if (iHead >= MAX_HEADS) ERROR("Too many heads: %d (max %d)", iHead, MAX_HEADS);
-      if (pin >= MAX_PINS) ERROR("Pin %u out of range (head %d, max %d)", pin, iHead, MAX_PINS);
 
-      if (iHead >= numHeadsUsed)
-        numHeadsUsed = iHead + 1;
+    if (pinPerHead.size() == 0) ERROR("At least one pin must be specified for a Pins object");
+    if (pinPerHead.size() > MAX_HEADS) ERROR("Too many heads specified (%d), max is %d", pinPerHead.size(), MAX_HEADS);
 
-      if (pinMap[iHead][pin] != nullptr) 
-        ERROR("Pin %u already defined. Head %d", pin, iHead);
-      else
-        pinMap[iHead][pin] = this;    
+    uint8_t pinStatic = *pinPerHead.begin(); // only used if single pin provided
 
+    switch (pinPerHead.size()) {
+      case 0: ERROR("At least one pin must be specified for a Pins object"); break;
 
-      ++iHead;
-    }
+      case 1:
+        Serial.print("Pins: Using static pin "); Serial.print(pinStatic); Serial.println(" for all heads");
+        for (iHead = 1; iHead < MAX_HEADS; ++iHead) {
+         
+          if (pinMap[iHead][pinStatic] != nullptr) 
+            ERROR("Pin %u already defined. Head %d", pinStatic, iHead);
+          else
+            pinMap[iHead][pinStatic] = this;
+        }
+        break;
+
+      default:
+        for (uint8_t pin : pinPerHead) { 
+          if (pin >= MAX_PINS) ERROR("Pin %u out of range (head %d, max %d)", pin, iHead, MAX_PINS);
+
+          if (iHead >= numHeadsUsed)
+            numHeadsUsed = iHead + 1;
+
+          if (pinMap[iHead][pin] != nullptr) 
+            ERROR("Pin %u already defined. Head %d", pin, iHead);
+          else
+            pinMap[iHead][pin] = this;
+
+          if (iHead == 0)
+            _bit = pin;
+
+          ++iHead;
+        }
+        break;
+      }
   }
 
 
@@ -45,8 +71,8 @@ public:
   Pins& operator=(const Pins&) = delete;
 
   virtual Kind kind() const noexcept = 0; 
-  constexpr operator int() const noexcept { return _pin; }
-  int getNum() const noexcept { return _pin; }
+  constexpr operator uint8_t() const noexcept { return _pin; }
+  uint8_t getNum() const noexcept { return _pin; }
   
   static Pins* get(int pin) {
     if (_currentHead < 0 || pin < 0 || pin >= MAX_PINS) return nullptr;
@@ -63,21 +89,26 @@ public:
   }
 
   static void setHead(int head) {
-    if (head < 0 || head >= numHeadsUsed) ERROR("Head %d out of range", head);
+    if (head < 1 || head >= numHeadsUsed) ERROR("Head %d out of range, (1 to %d)", head, numHeadsUsed);
     if (head == _currentHead) return;
 
-    if (head != 0)
-      for (int pin = 0; pin < MAX_PINS; ++pin) {
-        if (auto* p = pinMap[0][pin])
-          if (pinMap[head][pin] == nullptr)
-            pinMap[head][pin] = p;
-      }    
+    pinsPerBit.fill(-1);
 
     for (int pin = 0; pin < MAX_PINS; ++pin)
-      if (auto* p = pinMap[head][pin]) p->_pin = pin;
+      if (auto* p = pinMap[head][pin]) {
+        p->_pin = pin;
+        pinsPerBit[p->_bit] = pin;
+      }
 
     _currentHead = head;
     _headEpoch++;
+  }
+
+  inline static uint8_t pinForBit(uint8_t bit) {
+    if (bit >= 32) ERROR("Bit %u out of range (0-31)", bit);
+    int pin = pinsPerBit[bit];
+    if (pin < 0) ERROR("No pin mapped for bit %u on head %d", bit, _currentHead);
+    return pin;
   }
 
   static void flash(int numFlashes = 3) {
@@ -98,7 +129,7 @@ public:
 
 // -- Output --------------------------------------------------------
 struct OutputPin : Pins {
-  explicit OutputPin(std::initializer_list<uint32_t> pinPerHead) : Pins(pinPerHead) {}
+  explicit OutputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) {}
   Kind kind() const noexcept override { return Kind::Output; }
 
   void init(int mode = OUTPUT) { pinMode(_pin, mode); clear(); }
@@ -121,7 +152,7 @@ struct LedPin : OutputPin {
 
 // -- Input ---------------------------------------------------------
 struct InputPin : Pins {
-  explicit InputPin(std::initializer_list<uint32_t> pinPerHead) : Pins(pinPerHead) {}
+  explicit InputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) {}
   Kind kind() const noexcept override { return Kind::Input; }
 
   void init(int mode = INPUT) const { pinMode(_pin, mode); }
@@ -130,33 +161,33 @@ struct InputPin : Pins {
 
 // -- Range of predefined LED Pins ------------------------------
 struct LedPinRange {
-    int start{}, end{};
+    uint8_t start{}, end{};
     uint32_t cachedEpoch{0};
     std::vector<LedPin*> pins;
 
-    LedPinRange(int s, int e) : start(s), end(e) {
+    LedPinRange(uint8_t s, uint8_t e) : start(s), end(e) {
       if (start > end) std::swap(start, end);
     }
 
-    // Call after setHead(), or before first use
     void refreshIfStale() {
-        if (cachedEpoch == Pins::getHeadEpoch()) return;
+      if (cachedEpoch == Pins::getHeadEpoch()) return;
 
-        pins.clear();
-        const auto& map = Pins::getPinMap();
-        pins.reserve(end - start + 1);
+      pins.clear();
+      const auto& map = Pins::getPinMap();
+      pins.reserve(end - start + 1);
 
-        for (int p = start; p <= end; ++p)
-          if (Pins* base = map[p]) 
-            if (base->kind() == Pins::Kind::LED)
-              pins.emplace_back(static_cast<LedPin*>(base));
+      for (uint8_t p = start; p <= end; ++p)
+        if (Pins* base = map[p]) 
+          if (base->kind() == Pins::Kind::LED) 
+            pins.emplace_back(static_cast<LedPin*>(base));
+        
 
-        cachedEpoch = Pins::getHeadEpoch();
+      cachedEpoch = Pins::getHeadEpoch();
     }
 
     // Convenience wrappers that ensure freshness
     void init()    { refreshIfStale(); for (auto* pin : pins) { pin->init(); pin->clear(); } }
-    void set()     { refreshIfStale(); for (auto* pin : pins) pin->set();    }
-    void clear()   { refreshIfStale(); for (auto* pin : pins) pin->clear();  }
-    void invert()  { refreshIfStale(); for (auto* pin : pins) pin->invert(); }
+    void set()     { refreshIfStale(); for (auto* pin : pins) { pin->set();                } }
+    void clear()   { refreshIfStale(); for (auto* pin : pins) { pin->clear();              } }
+    void invert()  { refreshIfStale(); for (auto* pin : pins) { pin->invert();             } }
 }; 

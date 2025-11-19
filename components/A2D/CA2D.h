@@ -26,8 +26,6 @@ class CA2D {
     void        setBlockState(StateType state);
 
     inline ModeType   getMode()            { return m_Mode;           }
-    inline BlockType* getBlockToSend()     { return m_pBlockToSend;   }
-    inline void       releaseBlockToSend() { m_pBlockToSend->clear(); }
     
   private:
     void      setMode(ModeType mode);

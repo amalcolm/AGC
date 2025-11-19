@@ -69,7 +69,6 @@ void CA2D::ISR_Data() { Singleton->m_dataReady = true; }
 void CA2D::pollData() { 
   
   if (!m_dataReady || getMode() != ModeType::CONTINUOUS) return;
-
   m_dataReady = false;
 
   DataType data;
@@ -94,10 +93,9 @@ void CA2D::setBlockState(StateType state) {
   interrupts();
 
   m_pBlockToFill->timeStamp = millis();
+  m_pBlockToFill->clear();
 
-  BlockType* blockToSend = getBlockToSend();
-  USB.buffer(blockToSend);
+  USB.buffer(m_pBlockToSend);
 
-  if (m_fnCallback) m_fnCallback(blockToSend);
-  releaseBlockToSend();
+  if (m_fnCallback) m_fnCallback(m_pBlockToSend);
 }
