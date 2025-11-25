@@ -9,7 +9,7 @@ const float TickSpeed_uS = 50000;  // 50ms
 
 
 // ProcessA2D: Callback to process A2D data blocks for debugging
-void ProccessA2D(BlockType* block) { if (!DEBUG || block->data.empty()) return;
+void ProccessA2D(BlockType* block) { if (!DEBUG || block->count == 0) return;
 
   auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(block);
 

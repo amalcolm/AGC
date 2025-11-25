@@ -2,24 +2,28 @@
 #include <cstdint>
 #include <array>
 
-typedef uint32_t StateType;
+using StateType = uint32_t;
+using Frame = uint32_t;
 
 extern const StateType DIRTY;
+static constexpr uint32_t NUM_CHANNELS = 8;
 
 struct DataType {
-  static constexpr uint32_t NUM_CHANNELS = 8;
-  static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 
   StateType  state;          // state of the head during this reading
   uint32_t   timeStamp;
   uint32_t   hardwareState;  //  (count & 0xFF) << 24 | offset1 << 24 | offset2 << 16 | gain << 8      // needs 4 byte alignment
   uint32_t   channels[NUM_CHANNELS];
 
+  Frame frameStart = 0x8A52442B;
+  Frame frameEnd   = 0x8A52442D;
+
+
   DataType();
   DataType(StateType state);
 
+  void writeSerial(bool includeFrameMarkers = true);
   void debugSerial();
-  void writeSerial();
 };
 
 struct BlockType {
@@ -29,7 +33,10 @@ struct BlockType {
   uint32_t timeStamp;
   uint32_t state;
   uint32_t count;
-  std::array<DataType, MAX_BLOCKSIZE> data;
+  DataType data[MAX_BLOCKSIZE];
+
+  Frame frameStart = 0x8A514B2B;
+  Frame frameEnd   = 0x8A514B2D;
 
   BlockType();
 
@@ -43,8 +50,10 @@ struct BlockType {
     return true;
   }
 
-  void writeSerial();
+  void writeSerial(bool includeFrameMarkers = true);
   void debugSerial();
 };
+
+
 
 typedef void (*CallbackType)(BlockType*);

@@ -4,20 +4,11 @@
 #include "helpers.h"
 #include <array>
 
-using FrameTable = std::array<CSerialWrapper::Frame, CSerialWrapper::NUM_MODETYPES>;
-
-FrameTable g_StartFrame;
-FrameTable g_EndFrame;
 
 CSerialWrapper::CSerialWrapper()  {
   static const unsigned long USB_BAUDRATE = 57600 * 16;
 
   Serial.begin(USB_BAUDRATE);
-
-  g_StartFrame[CSerialWrapper::BLOCKDATA] = m_BlockData_Start;
-  g_EndFrame[  CSerialWrapper::BLOCKDATA] = m_BlockData_End;
-  g_StartFrame[CSerialWrapper::RAWDATA] = m_RawData_Start;
-  g_EndFrame[  CSerialWrapper::RAWDATA] = m_RawData_End;
 
   
 }
@@ -77,21 +68,16 @@ void CSerialWrapper::begin() {
 }
 
 CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) {
-  if (m_Mode == mode) return m_Mode;
-
-  if (m_Mode & FRAMING_MASK)
-    put(  g_EndFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);
-
   m_Mode = mode;
-
-  if (m_Mode & FRAMING_MASK)
-    put(g_StartFrame[m_Mode].data(), CSerialWrapper::FRAMING_SIZE);
-
   return m_Mode;
 }
 
-void CSerialWrapper::put(uint8_t* pData, unsigned int dataLen) {
+inline void CSerialWrapper::put(uint8_t* pData, unsigned int dataLen) {
   Serial.write(pData, dataLen); 
+}
+
+inline void CSerialWrapper::put(Frame frame) {
+  Serial.write(frame);;
 }
 
 
