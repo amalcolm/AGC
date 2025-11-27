@@ -11,7 +11,7 @@ class CA2D {
     CA2D(ModeType mode);
     CA2D(CallbackType callback);
     
-    CA2D&     init();
+    CA2D&     begin();
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
 
     bool      readFrame(uint8_t (&raw)[27]);

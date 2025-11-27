@@ -9,7 +9,7 @@ CHead::CHead() : m_State(0) {}
 
 CHead::~CHead() { if (m_pSequence) delete[] m_pSequence; }
 
-void CHead::init() {
+void CHead::begin() {
   m_sequencePosition = -1;
   m_State = DIRTY;
   

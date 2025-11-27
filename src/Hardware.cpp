@@ -9,14 +9,14 @@
 #include <map>
 
 
-void Hardware::init() {
+void Hardware::begin() {
     // Initialize all hardware components
     SPI .begin();
-    USB .init();
-    BUT .init();
-    LED .init();
-    Head.init();
-    A2D .init();
+    USB .begin();
+    BUT .begin();
+    LED .begin();
+    Head.begin();
+    A2D .begin();
 
     delay(100); // Allow time for hardware to stabilize
 

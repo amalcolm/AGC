@@ -62,7 +62,7 @@ class CHead {
     CHead();
    ~CHead();
    
-    void init();
+    void begin();
     void setSequence( std::initializer_list<uint32_t> data );
 
     inline StateType getState() { return m_State; }

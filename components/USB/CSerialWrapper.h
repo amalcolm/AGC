@@ -13,12 +13,11 @@ class CSerialWrapper {
     static const unsigned int FRAMING_SIZE = 4;
 
 
-
     CSerialWrapper();
     virtual ~CSerialWrapper() = default;
 
-    virtual void init();
-    bool isInitialising();
+    virtual void begin();
+    virtual void tick();
 
     inline ModeType getMode() { return m_Mode; }
            ModeType setMode(ModeType mode);
@@ -27,8 +26,6 @@ class CSerialWrapper {
     
   private:
     ModeType m_Mode = ModeType::UNSET;
-
-    void begin();
 
   protected:
     bool m_handshakeComplete = false;

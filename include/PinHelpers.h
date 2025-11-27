@@ -132,7 +132,7 @@ struct OutputPin : Pins {
   explicit OutputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) {}
   Kind kind() const noexcept override { return Kind::Output; }
 
-  void init(int mode = OUTPUT) { pinMode(_pin, mode); clear(); }
+  void begin(int mode = OUTPUT) { pinMode(_pin, mode); clear(); }
   void write(int level)        { digitalWrite(_pin, level); }
   void toggle()                { digitalWrite(_pin, !digitalRead(_pin)); }
   void set()                   { digitalWrite(_pin, _high); }
@@ -155,7 +155,7 @@ struct InputPin : Pins {
   explicit InputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) {}
   Kind kind() const noexcept override { return Kind::Input; }
 
-  void init(int mode = INPUT) const { pinMode(_pin, mode); }
+  void begin(int mode = INPUT) const { pinMode(_pin, mode); }
   int  read() const                 { return digitalRead(_pin); }
 };
 
@@ -186,8 +186,8 @@ struct LedPinRange {
     }
 
     // Convenience wrappers that ensure freshness
-    void init()    { refreshIfStale(); for (auto* pin : pins) { pin->init(); pin->clear(); } }
-    void set()     { refreshIfStale(); for (auto* pin : pins) { pin->set();                } }
-    void clear()   { refreshIfStale(); for (auto* pin : pins) { pin->clear();              } }
-    void invert()  { refreshIfStale(); for (auto* pin : pins) { pin->invert();             } }
+    void begin()   { refreshIfStale(); for (auto* pin : pins) { pin->begin(); pin->clear(); } }
+    void set()     { refreshIfStale(); for (auto* pin : pins) { pin->set();                 } }
+    void clear()   { refreshIfStale(); for (auto* pin : pins) { pin->clear();               } }
+    void invert()  { refreshIfStale(); for (auto* pin : pins) { pin->invert();              } }
 }; 

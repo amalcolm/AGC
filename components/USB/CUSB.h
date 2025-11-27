@@ -14,12 +14,12 @@ class CUSB : public CSerialWrapper {
   public:
     CUSB();
 
-    void init();
+    void begin();
     
     void buffer(DataType data);
     void buffer(BlockType* block);
     
-    void output_buffer();
+    void tick();
 
     void CrashReport(CrashReportClass& pReport);
 };

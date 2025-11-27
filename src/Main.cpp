@@ -4,7 +4,7 @@
 #include "CHead.h"
 #include "CUSB.h"
 
-#define DEBUG 1
+#define DEBUG 0
 const float TickSpeed_uS = 50000;  // 50ms
 
 
@@ -41,7 +41,7 @@ void setup() {
   if (CrashReport) USB.CrashReport(CrashReport);
   activityLED.set();
 
-  Hardware::init();
+  Hardware::begin();
 
   USB.setMode(CUSB::ModeType::BLOCKDATA);
   A2D.setCallback(ProccessA2D);
@@ -61,12 +61,11 @@ void setup() {
 
 void loop() {
   Head.setNextState();
-  if (!DEBUG) USB.output_buffer();  // output previous block, and give time for head to settle
+  if (!DEBUG) USB.tick();  // output previous block, and give time for head to settle
 
   while (Timer.uS() < TickSpeed_uS) A2D.poll();
   Timer.restart();
 
   Hardware::tick();
 
-  activityLED.toggle();
 }

@@ -9,35 +9,21 @@ CSerialWrapper::CSerialWrapper()  {
   static const unsigned long USB_BAUDRATE = 57600 * 16;
 
   Serial.begin(USB_BAUDRATE);
-
-  
 }
 
-void CSerialWrapper::init() {}  // serialWtapper is initialized when 
-
-bool CSerialWrapper::isInitialising() {
-  if (getMode() == ModeType::UNSET) begin();
-  return getMode() == ModeType::INITIALISING;
+void CSerialWrapper::tick() {
+  if (Serial.available() > 0) begin();
 }
-
 
 void CSerialWrapper::begin() {
   static const unsigned long timeout = 1000;  // timeout (mS)
   setMode(ModeType::INITIALISING);
 
-  // assumes serial port is open and ready (done in constructor)
-  Serial.printf("\n\nTeensy 4.1\n Started %s v%.2lf\n%20s\n", getSketch(), VERSION, __DATE__);
-  
-  // Clear buffer
-  while(Serial.available()) {
-    Serial.read();
-  }
- 
   unsigned long endTime = millis() + timeout;
   m_handshakeComplete = false;
   
   const char* target = "HOST_ACK";
-  const uint8_t targetLength = 7;
+  const uint8_t targetLength = strlen(target);
   uint8_t targetIndex = 0;
   
   while (!m_handshakeComplete && (millis() < endTime)) {
@@ -49,8 +35,29 @@ void CSerialWrapper::begin() {
         targetIndex++;
         
         if (targetIndex >= targetLength) {
-          m_handshakeComplete = true;
-          Serial.println("HANDSHAKE_COMPLETE");
+          Serial.clear();
+          Serial.write("DEVICE_ACK\n");
+          endTime += timeout;
+          Serial.send_now();
+          LED.all.set();
+          HOST_VERSION.clear();
+          HOST_VERSION.reserve(32);
+          while (!m_handshakeComplete && (millis() < endTime)) {
+            if (Serial.available())
+            {
+              c = Serial.read();
+
+              if (c != '\n') 
+                HOST_VERSION += c;
+              else {
+                Serial.write(DEVICE_VERSION.c_str());
+                Serial.write("\n");
+                Serial.send_now();
+                m_handshakeComplete = true;
+              }
+            }
+
+          }
           break;
         }
       } else {
@@ -65,6 +72,17 @@ void CSerialWrapper::begin() {
     setMode(ModeType::BLOCKDATA);
   else
     setMode(ModeType::TEXT);
+
+  Serial.printf("Device Started %s v%s\n%20s\n", getSketch(), DEVICE_VERSION.c_str(), __DATE__);
+  if (m_handshakeComplete)
+    Serial.printf("Handshake complete. Host version: %s\n", HOST_VERSION.c_str());
+  else 
+    Serial.println("Handshake failed. Continuing in TEXT mode.\n");
+  
+  LED.all.clear();
+  Serial.flush(); // ensure all output sent
+  while (Serial.available() > 0) Serial.read(); // flush input buffer
+
 }
 
 CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) {

@@ -6,8 +6,7 @@
 
 CUSB::CUSB() {}
 
-void CUSB::init() { CSerialWrapper::init(); }  
-
+void CUSB::begin() { CSerialWrapper::begin(); }
 
 
 void CUSB::buffer(DataType data) {
@@ -25,10 +24,14 @@ void CUSB::buffer(BlockType* pBlock) {
 }
 
 // Called from the main loop: sends data from the buffer.
-void CUSB::output_buffer() {
+void CUSB::tick() {
   constexpr unsigned int TEXTOUT_INTERVAL = 10000; // ms
 
-  auto mode = getMode();
+
+  CSerialWrapper::tick();
+
+  auto mode = getMode(); if (mode == CSerialWrapper::ModeType::UNSET 
+                          || mode == CSerialWrapper::ModeType::INITIALISING) return;
 
   if (mode == CSerialWrapper::ModeType::BLOCKDATA) {
       if (m_pBlock == NULL) return;
@@ -93,6 +96,7 @@ void CUSB::CrashReport(CrashReportClass& pReport)
   pReport.printTo(Serial);
 
   while (true) {
-    Pins::flash(2);
+    Pins::flash(5);
+    delay(1000);
   }
 }

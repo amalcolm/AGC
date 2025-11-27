@@ -29,7 +29,7 @@ void CA2D::setMode(CA2D::ModeType mode) {
   }
 }
 
-CA2D& CA2D::init() {
+CA2D& CA2D::begin() {
   setMode(m_Mode);
   return *this;
 }

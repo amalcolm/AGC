@@ -2,8 +2,10 @@
 #include <Arduino.h>
 #include "PinHelpers.h"
 #include "helpers.h"
-constexpr double VERSION = 0.1;
+#include <string>
 
+inline static std::string DEVICE_VERSION = "0.1";
+inline static std::string HOST_VERSION; // set in handshake
 
 
 extern struct ChipSelectPins CS; 
@@ -32,8 +34,8 @@ struct ProbePointPins {
 struct ButtonPins {
   InputPin halt{17};
 
-  void init() const {
-    halt.init();
+  void begin() const {
+    halt.begin();
   }
 };
 
@@ -66,13 +68,13 @@ struct LedPins {
 
   LedPinRange all{24, 41};
 
-  void init() {
+  void begin() {
     Pins::setHead(HEAD_TO_USE);
 
-    activityLED.init();
+    activityLED.begin();
 
     if (Inverted) all.invert();
-    all.init();
+    all.begin();
 
     all.clear();
 
