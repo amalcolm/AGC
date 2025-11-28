@@ -67,6 +67,7 @@ class CHead {
 
     inline StateType getState() { return m_State; }
     StateType setNextState();
+    void clear();
 
     std::vector<StateType> getSequence();
 

@@ -15,8 +15,8 @@ struct DataType {
   uint32_t   hardwareState;  //  (count & 0xFF) << 24 | offset1 << 24 | offset2 << 16 | gain << 8      // needs 4 byte alignment
   uint32_t   channels[NUM_CHANNELS];
 
-  Frame frameStart = 0x8A52442B;
-  Frame frameEnd   = 0x8A52442D;
+  Frame frameStart = 0xEDD1FAB4;
+  Frame frameEnd   = 0xEDD2FAB4;
 
 
   DataType();
@@ -35,8 +35,8 @@ struct BlockType {
   uint32_t count;
   DataType data[MAX_BLOCKSIZE];
 
-  Frame frameStart = 0x8A514B2B;
-  Frame frameEnd   = 0x8A514B2D;
+  Frame frameStart = 0xEDB1FAB4;
+  Frame frameEnd   = 0xEDB2FAB4;
 
   BlockType();
 

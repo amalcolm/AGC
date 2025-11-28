@@ -3,6 +3,7 @@
 #include "CHead.h"
 #include <map>
 
+constexpr unsigned int TEXTOUT_INTERVAL = 10000; // 10ms
 
 CUSB::CUSB() {}
 
@@ -25,8 +26,6 @@ void CUSB::buffer(BlockType* pBlock) {
 
 // Called from the main loop: sends data from the buffer.
 void CUSB::tick() {
-  constexpr unsigned int TEXTOUT_INTERVAL = 10000; // ms
-
 
   CSerialWrapper::tick();
 

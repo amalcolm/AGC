@@ -1,4 +1,5 @@
 #include "DataTypes.h"
+#include "Setup.h"
 #include "Arduino.h"
 
 static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
@@ -36,10 +37,11 @@ void DataType::writeSerial(bool includeFrameMarkers) {
 
 
 BlockType::BlockType() : timeStamp(0), state(DIRTY), count(0), data() {
-  // data.fill(DataType());
+  for (uint32_t i = 0; i < MAX_BLOCKSIZE; i++)
+    data[i] = DataType();
 }
 
-void BlockType::writeSerial(bool includeFrameMarkers) {
+void BlockType::writeSerial(bool includeFrameMarkers) {  LED.RED2.toggle();
   if (includeFrameMarkers) Serial.write(frameStart);
 
   Serial.write((uint8_t*)&timeStamp, sizeof(timeStamp));

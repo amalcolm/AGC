@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <array>
 #include <vector>
-
+#include <atomic>
 
 // -- Base ----------------------------------------------------------
 struct Pins {
@@ -123,7 +123,10 @@ public:
     }
 
     delay(1000);
+
+    flashReset = true;
   }
+  inline static bool flashReset = false;
   
 };
 

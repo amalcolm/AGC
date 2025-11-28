@@ -35,8 +35,8 @@ std::vector<StateType> CHead::getSequence() {
 
 
 StateType CHead::setNextState() {
-  // if it's the first time, start from state ALL_OFF
-  const StateType oldState = (m_sequencePosition == -1) ? ALL_OFF : m_State;
+  const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
+  const StateType oldState = reset ? ALL_OFF : m_State;
   
   A2D.setBlockState(oldState);
 
@@ -62,6 +62,12 @@ StateType CHead::setNextState() {
   }
 
   return m_State;
+}
+
+void CHead::clear() {
+  m_State = ALL_OFF;
+
+  LED.all.clear();
 }
 
 const StateType DIRTY = CHead::DIRTY;

@@ -1,5 +1,6 @@
 #include "WString.h"
 #include "CSerialWrapper.h"
+#include "CHead.h"
 #include "Setup.h"
 #include "helpers.h"
 #include <array>
@@ -12,7 +13,26 @@ CSerialWrapper::CSerialWrapper()  {
 }
 
 void CSerialWrapper::tick() {
-  if (Serial.available() > 0) begin();
+  static bool lastConnected = false;
+  bool connected = (bool)Serial; // or (Serial && Serial.dtr()) if you want to be strict
+
+  // Detect disconnect edge
+  if (lastConnected && !connected && getMode() != ModeType::UNSET) {
+    Pins::flash(3);
+    m_handshakeComplete = false;
+    setMode(ModeType::UNSET);
+  }
+
+  lastConnected = connected;
+
+  if (Serial.available() > 0) {
+    if (!m_handshakeComplete)
+      begin();
+    while (Serial.available() > 0) Serial.read();
+  }
+
+  if (connected && getMode() == ModeType::UNSET)
+    begin();
 }
 
 void CSerialWrapper::begin() {
@@ -39,12 +59,13 @@ void CSerialWrapper::begin() {
           Serial.write("DEVICE_ACK\n");
           endTime += timeout;
           Serial.send_now();
-          LED.all.set();
+          LED.RED1.set();
           HOST_VERSION.clear();
           HOST_VERSION.reserve(32);
           while (!m_handshakeComplete && (millis() < endTime)) {
             if (Serial.available())
             {
+              LED.RED2.set();
               c = Serial.read();
 
               if (c != '\n') 
@@ -79,8 +100,11 @@ void CSerialWrapper::begin() {
   else 
     Serial.println("Handshake failed. Continuing in TEXT mode.\n");
   
-  LED.all.clear();
+
+  delay(500);
+  Head.clear(); // ensure all LEDs off at start
   Serial.flush(); // ensure all output sent
+  Serial.clear(); // clear output buffer
   while (Serial.available() > 0) Serial.read(); // flush input buffer
 
 }
