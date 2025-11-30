@@ -1,5 +1,6 @@
 #include "CA2D.h"
 #include "Setup.h" 
+#include "CTimer.h"
 #include "CUSB.h"
 
 // only visible inside Continuous codebase
@@ -32,7 +33,7 @@ void CA2D::setMode_Continuous() {
     digitalWrite(CS.A2D, HIGH);
 
     // 4) Config: 2 kSPS, reserved bits correct, no CLK out
-    SPIwrite({0x41, 0x00, 0xD4});     // CONFIG1 = 0xD4 for 1 kSPS); use 0xD3 (2 kSPS)
+    SPIwrite({0x41, 0x00, 0xD4});     // CONFIG1 = 0xD4 for 1 kSPS);  0xD6 = 250SPS, 0xD5 = 500SPS, OxD4 = 1kSPS, 0xD3 = 2kSPS, ... D0 = 16kSPS; 
                                       // bits: 1 DAISY_EN=1 CLK_EN=0 1 0 DR=100 (1 kSPS)
     SPIwrite({0x42, 0x00, 0xC0});     // CONFIG2 (baseline; no internal test)
     SPIwrite({0x43, 0x00, 0xE0});     // CONFIG3 (enable internal reference buffer)
@@ -92,7 +93,7 @@ void CA2D::setBlockState(StateType state) {
   std::swap(m_pBlockToSend, m_pBlockToFill);
   interrupts();
 
-  m_pBlockToFill->timeStamp = millis();
+  m_pBlockToFill->timeStamp = Timer.getTimestamp();
   m_pBlockToFill->clear();
 
   USB.buffer(m_pBlockToSend);

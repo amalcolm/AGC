@@ -5,7 +5,7 @@
 
 constexpr unsigned int TEXTOUT_INTERVAL = 10000; // 10ms
 
-CUSB::CUSB() {}
+CUSB::CUSB() : m_buffer{}, m_pBlock(nullptr), writeIndex(0), readIndex(0) {}
 
 void CUSB::begin() { CSerialWrapper::begin(); }
 
@@ -28,10 +28,10 @@ void CUSB::buffer(BlockType* pBlock) {
 void CUSB::tick() {
 
   CSerialWrapper::tick();
-
+ 
   auto mode = getMode(); if (mode == CSerialWrapper::ModeType::UNSET 
                           || mode == CSerialWrapper::ModeType::INITIALISING) return;
-
+ 
   if (mode == CSerialWrapper::ModeType::BLOCKDATA) {
       if (m_pBlock == NULL) return;
       if (m_handshakeComplete)
@@ -43,15 +43,11 @@ void CUSB::tick() {
       return;
   }
 
-  
-//static uint32_t lastTick = 0;
   static uint32_t lastOutTime = 0;
   static std::map<StateType, int> lastReading;
 
   while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timeStamp;
     DataType *pData = &m_buffer[readIndex];
-//  lastTick = pData->timeStamp;
-
 
     switch (mode)
     {

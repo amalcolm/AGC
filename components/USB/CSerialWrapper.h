@@ -5,13 +5,14 @@
 
 class CSerialWrapper {
   public:
+    static const unsigned long USB_BAUDRATE = 57600 * 16;
+  
     enum ModeType { UNSET = 0, INITIALISING = 1, TEXT = 2, RAWDATA = 3, BLOCKDATA = 4, placeholder = 5 };
-    static const unsigned int NUM_MODETYPES = ModeType::placeholder;
+    static const uint32_t NUM_MODETYPES = ModeType::placeholder;
     
-    static const unsigned int FRAMING_MASK = ModeType::RAWDATA | ModeType::BLOCKDATA;
-    static const unsigned int PRINTF_BUFFER_SIZE = 256;
-    static const unsigned int FRAMING_SIZE = 4;
-
+    static const uint32_t FRAMING_MASK = ModeType::RAWDATA | ModeType::BLOCKDATA;
+    static const uint32_t PRINTF_BUFFER_SIZE = 256;
+    static const uint32_t FRAMING_SIZE = 4;
 
     CSerialWrapper();
     virtual ~CSerialWrapper() = default;
@@ -24,14 +25,15 @@ class CSerialWrapper {
 
     void printf(const char *pFMT, ...);
     
+    void write(uint8_t byte);
+    void write(uint32_t data);
+    void write(uint8_t* pData, uint32_t dataLen);
   private:
     ModeType m_Mode = ModeType::UNSET;
 
   protected:
     bool m_handshakeComplete = false;
 
-    void put(uint8_t* pData, unsigned int dataLen);
-    void put(Frame frame);
-
+    void put(uint8_t* pData, uint32_t dataLen);
       
 };

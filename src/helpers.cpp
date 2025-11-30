@@ -14,12 +14,12 @@ ProbePointPins PP;
 ButtonPins     BUT;
 LedPins        LED;
 CTimer         Timer;
-CA2D           A2D(CA2D::ModeType::CONTINUOUS);
+CA2D           A2D( TESTMODE ? CA2D::ModeType::TRIGGERED : CA2D::ModeType::CONTINUOUS );
 CHead          Head;
 CUSB           USB;
 
 OutputPin activityLED{4};
-
+bool Ready = false;
 
 
 PerStateHW& getPerStateHW(StateType state) {

@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "Arduino.h"
 
 class CTimer {
 private:
@@ -8,9 +9,11 @@ private:
   float ticksPerMS;
   float ticksPerUS;
 
+  uint32_t startMillis;
 
 public:
   CTimer() {
+    resetStartMillis();
 
     mmio_set_bits(ARM_DWT_CTRL, ARM_DWT_CTRL_CYCCNTENA);  // Enable the counter
 
@@ -25,6 +28,9 @@ public:
   inline uint32_t ticks() const { return ticks_raw() - calibration; }
   inline float    mS() const    { return ticks() / ticksPerMS; }
   inline float    uS() const    { return ticks() / ticksPerUS; }
+
+  inline uint32_t getTimestamp() const { return millis() - startMillis; }
+  inline void     resetStartMillis() { startMillis = millis(); }
 
 private:
   inline uint32_t ticks_raw() const { return ARM_DWT_CYCCNT - startTick; }

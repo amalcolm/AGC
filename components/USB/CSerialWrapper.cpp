@@ -1,13 +1,14 @@
 #include "WString.h"
 #include "CSerialWrapper.h"
 #include "CHead.h"
+#include "CTimer.h"
 #include "Setup.h"
+#include "Hardware.h"
 #include "helpers.h"
 #include <array>
 
 
-CSerialWrapper::CSerialWrapper()  {
-  static const unsigned long USB_BAUDRATE = 57600 * 16;
+CSerialWrapper::CSerialWrapper() : m_Mode(ModeType::UNSET), m_handshakeComplete(false) {
 
   Serial.begin(USB_BAUDRATE);
 }
@@ -41,7 +42,6 @@ void CSerialWrapper::begin() {
 
   unsigned long endTime = millis() + timeout;
   m_handshakeComplete = false;
-  
   const char* target = "HOST_ACK";
   const uint8_t targetLength = strlen(target);
   uint8_t targetIndex = 0;
@@ -55,17 +55,17 @@ void CSerialWrapper::begin() {
         targetIndex++;
         
         if (targetIndex >= targetLength) {
-          Serial.clear();
+          Serial.clear(); // clear output buffer
+          while (Serial.available()) Serial.read(); // flush input buffer
+          
           Serial.write("DEVICE_ACK\n");
           endTime += timeout;
           Serial.send_now();
-          LED.RED1.set();
           HOST_VERSION.clear();
           HOST_VERSION.reserve(32);
           while (!m_handshakeComplete && (millis() < endTime)) {
             if (Serial.available())
             {
-              LED.RED2.set();
               c = Serial.read();
 
               if (c != '\n') 
@@ -101,11 +101,11 @@ void CSerialWrapper::begin() {
     Serial.println("Handshake failed. Continuing in TEXT mode.\n");
   
 
-  delay(500);
   Head.clear(); // ensure all LEDs off at start
   Serial.flush(); // ensure all output sent
   Serial.clear(); // clear output buffer
   while (Serial.available() > 0) Serial.read(); // flush input buffer
+  Timer.resetStartMillis();
 
 }
 
@@ -114,12 +114,14 @@ CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) 
   return m_Mode;
 }
 
-inline void CSerialWrapper::put(uint8_t* pData, unsigned int dataLen) {
-  Serial.write(pData, dataLen); 
-}
+void CSerialWrapper::write(uint8_t  byte) { put(&byte,           sizeof(byte)); }
+void CSerialWrapper::write(uint32_t data) { put((uint8_t*)&data, sizeof(data)); }
 
-inline void CSerialWrapper::put(Frame frame) {
-  Serial.write(frame);;
+void CSerialWrapper::write(uint8_t* pData, uint32_t dataLen) { put(pData, dataLen); }
+
+
+inline void CSerialWrapper::put(uint8_t* pData, uint32_t dataLen) {
+  Serial.write(pData, dataLen); 
 }
 
 

@@ -4,6 +4,10 @@
 #include "helpers.h"
 #include <string>
 
+
+#define TESTMODE 1
+extern bool Ready;
+
 inline static std::string DEVICE_VERSION = "0.1";
 inline static std::string HOST_VERSION; // set in handshake
 

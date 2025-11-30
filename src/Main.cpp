@@ -4,12 +4,12 @@
 #include "CHead.h"
 #include "CUSB.h"
 
-#define DEBUG 0
-const float TickSpeed_uS = 50000;  // 50ms
+const float TickSpeed_uS = 20000;  // 20ms
 
 
 // ProcessA2D: Callback to process A2D data blocks for debugging
-void ProccessA2D(BlockType* block) { if (!DEBUG || block->count == 0) return;
+void ProccessA2D(BlockType* block) { if (!TESTMODE || block == nullptr || block->count == 0) return;
+
 
   auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(block);
 
@@ -19,7 +19,7 @@ void ProccessA2D(BlockType* block) { if (!DEBUG || block->count == 0) return;
   auto avg2 = offsetPot2.getRunningAverage().GetAverage() - 512;
 
   // --- Serial Debugging Output ---
-  Serial.print("\r\n A2D:");      Serial.print(data.channels[0]);
+  Serial.print(     "A2D:");      Serial.print(data.channels[0]);
   Serial.print(  "\t Sensor1:");  Serial.print(offsetPot1.getSensorValue()-0*avg1);
   Serial.print(  "\t Sensor2:");  Serial.print(offsetPot2.getSensorValue()-0*avg2);
   Serial.print(  "\t offset1:");  Serial.print(offsetPot1.getLevel());
@@ -27,7 +27,8 @@ void ProccessA2D(BlockType* block) { if (!DEBUG || block->count == 0) return;
   Serial.print(  "\t Gain:");     Serial.print(   gainPot.getLevel());
   Serial.print(  "\t Min:");      Serial.print(offsetPot2.getRunningAverage().GetMin() - 0*avg2);
   Serial.print(  "\t Max:");      Serial.print(offsetPot2.getRunningAverage().GetMax() - 0*avg2);
-
+  Serial.println(); // must end output to be parsed correctly
+  
 }
 
 
@@ -44,7 +45,7 @@ void setup() {
   Hardware::begin();
 
   USB.setMode(CUSB::ModeType::BLOCKDATA);
-  A2D.setCallback(ProccessA2D);
+  if (!TESTMODE) A2D.setCallback(ProccessA2D);
 
   Head.setSequence({
 //    CHead::ALL_OFF,
@@ -53,19 +54,20 @@ void setup() {
 //    CHead::RED1 | CHead::IR1,
   });
 
-  activityLED.clear();
+  Ready = true;
+  activityLED.set();
 }
 
 
 
 
 void loop() {
-  Head.setNextState();
-  if (!DEBUG) USB.tick();  // output previous block, and give time for head to settle
+  Head.setNextState();                                                       if (TESTMODE)  { BlockType block; ProccessA2D(&block); }  
+  USB.tick(); // output previous block, and give time for head to settle
 
   while (Timer.uS() < TickSpeed_uS) A2D.poll();
   Timer.restart();
 
   Hardware::tick();
-
+  activityLED.toggle();
 }
