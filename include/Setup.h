@@ -5,11 +5,13 @@
 #include <string>
 
 
-#define TESTMODE 1
-extern bool Ready;
+constexpr bool TESTMODE = false;  // if true, uses polled A2D mode and ProccessA2D callback by default
+
+
+extern bool Ready;                // set to true once setup() is complete 
 
 inline static std::string DEVICE_VERSION = "0.1";
-inline static std::string HOST_VERSION; // set in handshake
+inline static std::string HOST_VERSION; // set in handshake; version of software on host PC
 
 
 extern struct ChipSelectPins CS; 
@@ -48,6 +50,7 @@ extern OutputPin activityLED;  // set in helpers.cpp (4)
 struct LedPins {
   static constexpr bool Inverted = true;  // LED ON is LOW on this board
   static constexpr uint32_t HEAD_TO_USE = 2; 
+
 
 //           bit  h1  h2     		//  Big puck probe  Q = photodiode                                                  // 	small probe layout  Q = photodiode    
   LedPin IR1 {16, 24, 31};			//  (Head 1)                                       IR8							   	            //
