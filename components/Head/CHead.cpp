@@ -5,49 +5,47 @@
 #include "Setup.h"
 #include "DataTypes.h"
 
-CHead::CHead() : m_State(0) {}
+CHead::CHead() : m_State(0), m_sequencePosition(-1) {}
 
-CHead::~CHead() { if (m_pSequence) delete[] m_pSequence; }
+CHead::~CHead() {}
 
 void CHead::begin() {
   m_sequencePosition = -1;
   m_State = DIRTY;
-  
-  //setPortAndMasks();
 }
 
-void CHead::setSequence( std::initializer_list<uint32_t> data ) {
 
-  m_sequenceLength = data.size();
-  m_pSequence = new uint32_t[m_sequenceLength];
-
-  uint32_t *pW = m_pSequence;
-  for ( uint32_t b : data )
-    *pW++ = b;
+void CHead::setSequence( std::vector<StateType> data ) {
+  m_sequence = std::move(data);
 }
 
-std::vector<StateType> CHead::getSequence() {
-    std::vector<StateType> seq;
-    for (int i = 0; i < m_sequenceLength; i++)
-      seq.push_back(m_pSequence[i]);
-    return seq;
+std::vector<StateType>& CHead::getSequence() {
+  return m_sequence;
+}
+
+void CHead::setSequence(std::initializer_list<StateType> il) {
+  m_sequence.assign(il);  // handles resizing wheres = it; does not
 }
 
 
 StateType CHead::setNextState() {
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
-  const StateType oldState = reset ? ALL_OFF : m_State;
+  if (reset) Pins::flashReset = false; // only use FlashReset once, and set it at start
   
-  A2D.setBlockState(oldState);
+  const StateType oldState = reset ? ALL_OFF : m_State;
 
-  m_sequencePosition = (m_sequencePosition + 1) % m_sequenceLength;
+  A2D.setBlockState(oldState);  // set the current block (the one which has been filled) to the old state
+                                // this also swaps the block and sets the filled block to be sent to USB
 
-  const StateType newState = m_pSequence[m_sequencePosition];
+  m_sequencePosition = (m_sequencePosition + 1) % m_sequence.size();
+
+  const StateType newState = m_sequence[m_sequencePosition];
 
   StateType diff = (newState ^ oldState) & VALIDBITS;
   
   if (!diff) return m_State;
   m_State = newState;
+
 
   // Update only the changed LEDs using bit manipulation
   while (diff) {
@@ -71,73 +69,3 @@ void CHead::clear() {
 }
 
 const StateType DIRTY = CHead::DIRTY;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-void CHead::setPortAndMasks() {
-  m_portGPIO = digitalPinToPort(PIN_GPIO_RED);
-  if (digitalPinToPort(PIN_GPIO_IR) != m_portGPIO)
-  {
-      
-  Serial.print("Pin 5 is on port: ");
-  Serial.println(digitalPinToPort(5));
-  
-  Serial.print("Pin 6 is on port: ");
-  Serial.println(digitalPinToPort(6));
-  
-  Serial.print("Pin 5 bit mask: 0x");
-  Serial.println(digitalPinToBitMask(5), HEX);
-  
-  Serial.print("Pin 6 bit mask: 0x");
-  Serial.println(digitalPinToBitMask(6), HEX);
-  Serial.flush();
-    ERROR("Pins for IR and RED are on different ports");
-  }
-
-  m_maskGPIO_RED = digitalPinToBitMask(PIN_GPIO_RED);
-  m_maskGPIO_IR  = digitalPinToBitMask(PIN_GPIO_IR);
-
-
-  m_portInputRegister = portInputRegister(m_portGPIO);
-}
-
-StateType CHead::getActiveState() {
-  uint32_t portValue = *m_portInputRegister;  
-  return ((portValue & m_maskGPIO_RED) ? LED_RED : 0x00) | 
-         ((portValue & m_maskGPIO_IR ) ? LED_IR  : 0x00);
-}
-
-
-uint32_t  CHead::m_portGPIO     = 0;
-uint32_t  CHead::m_maskGPIO_RED = 0;
-uint32_t  CHead::m_maskGPIO_IR  = 0;
-volatile uint32_t* CHead::m_portInputRegister = NULL;
-*/

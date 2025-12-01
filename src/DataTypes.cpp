@@ -51,7 +51,6 @@ BlockType::BlockType() : timeStamp(0), state(DIRTY), count(0), data() {
   }
 
 }
-
 void BlockType::writeSerial(bool includeFrameMarkers) {
   if (includeFrameMarkers) USB.write(frameStart);
 

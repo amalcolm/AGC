@@ -51,28 +51,26 @@ class CHead {
     static constexpr StateType UNSET     = 0b10000000000000000000000000000000;
 
 
-  private:
-    uint32_t* m_pSequence;
-
-    int   m_sequenceLength   = -1;
-    int   m_sequencePosition = -1;
-
-
+  
   public:
     CHead();
    ~CHead();
    
     void begin();
-    void setSequence( std::initializer_list<uint32_t> data );
+    void setSequence( std::vector<StateType> data );
+    void setSequence(std::initializer_list<StateType> il);
 
     inline StateType getState() { return m_State; }
     StateType setNextState();
     void clear();
 
-    std::vector<StateType> getSequence();
+    std::vector<StateType>& getSequence();
 
 
   private:
     StateType   m_State;
-    
+
+    std::vector<StateType> m_sequence;
+    int   m_sequencePosition = -1;
+  
 };

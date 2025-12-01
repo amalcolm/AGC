@@ -37,7 +37,8 @@ void CUSB::tick() {
       if (m_handshakeComplete)
         m_pBlock->writeSerial();
       else
-        m_pBlock->debugSerial();
+        if (A2D.outputDebugBlock)
+          m_pBlock->debugSerial();
 
       m_pBlock = NULL;
       return;

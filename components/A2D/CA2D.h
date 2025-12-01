@@ -26,7 +26,8 @@ class CA2D {
     void        setBlockState(StateType state);
 
     inline ModeType   getMode()            { return m_Mode;           }
-    
+    volatile bool     outputDebugBlock = true;
+
   private:
     void      setMode(ModeType mode);
     void      setMode_Continuous();
