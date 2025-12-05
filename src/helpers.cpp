@@ -75,16 +75,16 @@ PerStateHW& getPerStateHW(){
 
     Serial.flush();
 
-    auto view = std::views::iota(24, 42);
-    auto reverseView = view | std::views::reverse;
-    std::vector<uint8_t> pins(view.begin(), view.end());    pins.push_back(4);
-    std::vector<uint8_t> pinsReverse(reverseView.begin(), reverseView.end());    pinsReverse.push_back(4);
+    auto viewForward = std::views::iota(24, 42); // pins 24 to 41 inclusive
+    auto viewReverse = viewForward | std::views::reverse;
+    std::vector<uint8_t> pinsForward(viewForward.begin(), viewForward.end());    pinsForward.push_back(4);
+    std::vector<uint8_t> pinsReverse(viewReverse.begin(), viewReverse.end());    pinsReverse.push_back(4);
 
-    for (auto pin : pins) 
+    for (auto pin : pinsForward) 
       pinMode(pin, OUTPUT);
 
     for (;;) {
-      for (auto pin : pins) {
+      for (auto pin : pinsForward) {
         digitalWrite(pin, HIGH);
         delay(20);
       }
