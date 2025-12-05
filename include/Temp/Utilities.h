@@ -1,3 +1,4 @@
+namespace Temp {
 
 void configWrite(std::initializer_list<uint8_t> data) {
   digitalWrite(CS_A2D, LOW);
@@ -38,4 +39,5 @@ int sensorRead(uint8_t sensorPin) {
 
     return totalValue / LOOPS;
 
+}
 }

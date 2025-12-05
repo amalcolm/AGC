@@ -1,3 +1,5 @@
+namespace Temp {
+  
 void updateOffset2()
 {
   if (InZone == false) return;
@@ -22,4 +24,5 @@ void updateOffset2()
 
 
   potWrite(CS_OFFSET2, 0, Offset2);
+}
 }

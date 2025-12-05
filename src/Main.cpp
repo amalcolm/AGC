@@ -3,6 +3,7 @@
 #include "CTimer.h"
 #include "CHead.h"
 #include "CUSB.h"
+#include "Temp/Temp.h"
 
 bool TESTMODE = true;  // if true, uses polled A2D mode and ProccessA2D callback by default
 
@@ -86,6 +87,10 @@ return;
 
 void setup() {
   if (CrashReport) USB.CrashReport(CrashReport);
+
+  Temp::setup();
+  return;
+
   activityLED.set();
 
   Hardware::begin();
@@ -111,6 +116,9 @@ void setup() {
 
 void loop() {  
   // Head.setNextState();
+
+  Temp::loop();
+  return;
 
   delay(10);
 

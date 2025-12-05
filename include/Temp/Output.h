@@ -1,3 +1,5 @@
+namespace Temp {
+
 #include "pins_arduino.h"
 void Output(int A2D_value)
 {
@@ -12,4 +14,6 @@ void Output(int A2D_value)
 
 
   Serial.println();
+}
+
 }

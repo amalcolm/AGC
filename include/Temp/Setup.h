@@ -1,3 +1,4 @@
+namespace Temp {
 
 void setup() {
   pinMode(ACTIVITY_LED, OUTPUT);
@@ -29,4 +30,5 @@ void setup() {
   digitalWrite(27, LOW);
 
   digitalWrite(ACTIVITY_LED, LOW);  // show status - solid blue is in setup, flickering is run
+}
 }

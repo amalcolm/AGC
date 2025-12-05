@@ -1,3 +1,5 @@
+namespace Temp {
+
 void updateGain()
 {
   if (InZone == false) return;
@@ -20,4 +22,5 @@ void updateGain()
 
 
   potWrite(CS_GAIN   , 0, Gain   );
+}
 }
