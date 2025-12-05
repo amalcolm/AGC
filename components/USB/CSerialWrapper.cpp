@@ -89,7 +89,7 @@ void CSerialWrapper::begin() {
   }
 
 
-  if (m_handshakeComplete)
+  if (m_handshakeComplete && !TESTMODE)
     setMode(ModeType::BLOCKDATA);
   else
     setMode(ModeType::TEXT);

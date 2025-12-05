@@ -5,7 +5,7 @@
 #include <string>
 
 
-constexpr bool TESTMODE = false;  // if true, uses polled A2D mode and ProccessA2D callback by default
+extern bool TESTMODE;  // if true, uses polled A2D mode and ProccessA2D callback by default
 
 
 extern bool Ready;                // set to true once setup() is complete 
@@ -15,10 +15,9 @@ inline static std::string HOST_VERSION; // set in handshake; version of software
 
 
 extern struct ChipSelectPins CS; 
-extern struct ProbePointPins PP;
+extern struct SensorPins     SP;
 extern struct ButtonPins     BUT;
 extern struct LedPins        LED;
-extern struct Hardware       HW;
 extern class  CTimer         Timer;
 extern class  CA2D           A2D;
 extern class  CHead          Head;
@@ -32,9 +31,9 @@ struct ChipSelectPins {
   static constexpr int A2D     = 20;
 };
 
-struct ProbePointPins {
-  static constexpr int primaryOffset = PIN_A1;
-  static constexpr int preGain       = PIN_A0;
+struct SensorPins {
+  static constexpr int  preGain = PIN_A1;
+  static constexpr int postGain = PIN_A0;
 };
 
 struct ButtonPins {

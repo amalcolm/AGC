@@ -108,4 +108,3 @@ void CA2D::SPIwrite(std::initializer_list<uint8_t> data) {
   delayMicroseconds(10);
 }
 
-SPISettings    CA2D::g_settings(4800000, MSBFIRST, SPI_MODE1);

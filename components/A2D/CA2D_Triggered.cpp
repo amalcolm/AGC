@@ -1,6 +1,7 @@
 #include "CA2D.h"
 #include "Setup.h"
 #include "CHead.h"
+#include "Hardware.h"
 
 void CA2D::setMode_Triggered()
 {   uint8_t id = 0;
@@ -8,7 +9,7 @@ void CA2D::setMode_Triggered()
     SPI.begin();
     delay(2); // let SPI/rails settle
 
-    SPI.beginTransaction(g_settings);
+    SPI.beginTransaction(Hardware::SPIsettings);
     {
       // Configuration sequence per ADS1299 datasheet
       // 1) Make sure we're not in RDATAC (so writes are allowed)
@@ -76,7 +77,7 @@ DataType CA2D::getData() {
   DataType data(Head.getState());   if (getMode() != ModeType::TRIGGERED) return data;
   
 
-  SPI.beginTransaction(g_settings);
+  SPI.beginTransaction(Hardware::SPIsettings);
   {
     digitalWrite(CS.A2D, LOW);
     delayMicroseconds(5);

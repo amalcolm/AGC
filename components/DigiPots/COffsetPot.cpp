@@ -1,5 +1,5 @@
 #include "CAutoPot.h"
-
+#include "Setup.h"
 
 COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int lowThreshold, int highThreshold)
   : CAutoPot(csPin, sensorPin, samples), _lowThreshold(lowThreshold), _highThreshold(highThreshold) {
@@ -9,12 +9,12 @@ COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int lowThreshold, 
 
 void COffsetPot::update() {
   auto val =  _readSensor();
-return;
-//  val = _runningAverage.GetAverage();
+
+  //  val = _runningAverage.GetAverage();
 
   inZone = (val > _lowThreshold && val < _highThreshold);
 
-  if (val > _highThreshold) _offsetLevel(-1); 
+  if (val > _highThreshold) _offsetLevel(+1); 
   else
-  if (val <  _lowThreshold) _offsetLevel(+1);
+  if (val <  _lowThreshold) _offsetLevel(-1);
 }

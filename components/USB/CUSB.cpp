@@ -29,11 +29,12 @@ void CUSB::tick() {
 
   CSerialWrapper::tick();
  
-  auto mode = getMode(); if (mode == CSerialWrapper::ModeType::UNSET 
-                          || mode == CSerialWrapper::ModeType::INITIALISING) return;
- 
-  if (mode == CSerialWrapper::ModeType::BLOCKDATA) {
+  switch (getMode())
+  {
+    case CSerialWrapper::ModeType::BLOCKDATA:
+    {
       if (m_pBlock == NULL) return;
+      
       if (m_handshakeComplete)
         m_pBlock->writeSerial();
       else
@@ -41,48 +42,37 @@ void CUSB::tick() {
           m_pBlock->debugSerial();
 
       m_pBlock = NULL;
-      return;
-  }
+      break;
+    }
 
-  static uint32_t lastOutTime = 0;
-  static std::map<StateType, int> lastReading;
-
-  while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timeStamp;
-    DataType *pData = &m_buffer[readIndex];
-
-    switch (mode)
+    case CSerialWrapper::ModeType::TEXT:
     {
-      case CSerialWrapper::ModeType::BLOCKDATA: // handled above
-        break;
+      if (TESTMODE) {
+        BlockType block;
+        A2D.makeCallback(&block);
+      }
+      break;
+    }
 
-      case CSerialWrapper::ModeType::RAWDATA:
+    case CSerialWrapper::ModeType::RAWDATA:
+    {
+      while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timeStamp;
+        DataType *pData = &m_buffer[readIndex];
+
         if (m_handshakeComplete)
           pData->writeSerial();
         else
           pData->debugSerial();
-        break;
+      }
 
-
-      case CSerialWrapper::ModeType::TEXT:
-        lastReading[pData->state] = pData->channels[1];
-
-        // if nothing has been output for a while, switch to debug output
-        if (millis() - lastOutTime > TEXTOUT_INTERVAL) {
-          lastOutTime = millis();
-
-          printf("Amb:%d\tRED:%d\tIR:%d\n", lastReading[CHead::ALL_OFF], lastReading[CHead::RED1], lastReading[CHead::IR1]);
-        }
-
-        break;
-
-      default:
-        break;
+      readIndex = (readIndex + 1) % BUFFER_SIZE;
     }
 
-    readIndex = (readIndex + 1) % BUFFER_SIZE;
+    default:
+      break;
+    
   }
 }
-
 
 void CUSB::CrashReport(CrashReportClass& pReport)
 {

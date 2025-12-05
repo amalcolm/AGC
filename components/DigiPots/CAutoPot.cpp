@@ -1,7 +1,8 @@
-#include "CAutoPot.h" // Assumes the header file is named CAutoPot.h
+#include "CAutoPot.h"
 #include "Arduino.h"
 #include "SPI.h"
-
+#include "Hardware.h"
+#include "Setup.h"
 
 CAutoPot::CAutoPot(int csPin, int sensorPin, int samplesToAverage) {
   _csPin = csPin;
@@ -18,11 +19,10 @@ void CAutoPot::begin(int initialLevel) {
   reset(initialLevel);
 }
 
-void CAutoPot::reset(int level) { _setLevel(level);        }
-void CAutoPot::invert()         { _inverted = !_inverted;  }
-int  CAutoPot::getLevel()       { return _currentLevel;    }
-int  CAutoPot::getSensorValue() { return _lastSensorValue; }
-
+void    CAutoPot::reset(int level) { _setLevel(level);        }
+void    CAutoPot::invert()         { _inverted = !_inverted;  }
+int     CAutoPot::getLevel()       { return _currentLevel;    }
+int     CAutoPot::getSensorValue() { return _lastSensorValue; }
 
 int CAutoPot::_readSensor() {
   long totalValue = 0;
@@ -41,21 +41,39 @@ void CAutoPot::_offsetLevel(int offset) {
 }
 
 void CAutoPot::_setLevel(int newLevel) {
-  int previousLevel = _currentLevel;
-  _currentLevel = constrain(newLevel, 1, 254);
-  if (previousLevel != _currentLevel) {
+//  int previousLevel = _currentLevel;
+
+if (newLevel < 1) newLevel = 1;
+if (newLevel > 254) newLevel = 254; 
+
+  
+
+  _currentLevel = newLevel;
+
+//  if (previousLevel != _currentLevel) {
     _writeToPot(_currentLevel);
-  }
+//  }
 }
 
 
 void CAutoPot::_writeToPot(int value) {
-  static SPISettings g_settings(4000000, MSBFIRST, SPI_MODE0);
+  static SPISettings settings(4000000, MSBFIRST, SPI_MODE0);
 
-  SPI.beginTransaction(g_settings);
-  digitalWrite(_csPin, LOW);
-  SPI.transfer(0x00); // Address for wiper
-  SPI.transfer(_inverted ? 255 - value : value);
-  digitalWrite(_csPin, HIGH);
+  SPI.beginTransaction(settings);
+  {
+    digitalWrite(_csPin, LOW);
+    delayMicroseconds(5);
+
+    SPI.transfer(0x00); // Address for wiper
+    
+    int val = value;
+    if (val == 55)
+      activityLED.toggle();
+
+
+    SPI.transfer(val);
+    digitalWrite(_csPin, HIGH);
+    delayMicroseconds(5);
+  } 
   SPI.endTransaction();
 }

@@ -13,6 +13,7 @@ class CA2D {
     
     CA2D&     begin();
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
+    void      makeCallback(BlockType* pBlock) { if (m_fnCallback) m_fnCallback(pBlock); };
 
     bool      readFrame(uint8_t (&raw)[27]);
     void      dataFromFrame(uint8_t (&raw)[27], DataType& data);
@@ -38,8 +39,6 @@ class CA2D {
     int m_pinDataReady{9};
 
   private:
-    static SPISettings  g_settings;
-
     ModeType            m_Mode       = ModeType::UNSET;
     CallbackType        m_fnCallback = NULL;
 

@@ -2,6 +2,7 @@
 #include "Setup.h" 
 #include "CTimer.h"
 #include "CUSB.h"
+#include "Hardware.h"
 
 // only visible inside Continuous codebase
 static CA2D* Singleton = NULL;
@@ -16,7 +17,7 @@ void CA2D::setMode_Continuous() {
   digitalWrite(CS.A2D, HIGH);
 
   SPI.begin();
-  SPI.beginTransaction(CA2D::g_settings);
+  SPI.beginTransaction(Hardware::SPIsettings);
   {
     // 1) Stop RDATAC so we can write regs
     SPIwrite({0x11});                 // SDATAC
@@ -74,7 +75,7 @@ void CA2D::pollData() {
 
   DataType data;
 
-  SPI.beginTransaction(g_settings);
+  SPI.beginTransaction(Hardware::SPIsettings);
   {
     digitalWrite(CS.A2D, LOW);
     delayMicroseconds(2);

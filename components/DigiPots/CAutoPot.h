@@ -16,25 +16,25 @@ public:
 
   int getLevel();
   int getSensorValue();
-
+  
   RunningAverage& getRunningAverage() { return _runningAverage; }
 
 
 protected:
   int  _readSensor();
   void _offsetLevel(int offset);
+  void _setLevel(int newLevel);
 
   int _csPin;
   int _sensorPin;
   int _samplesToAverage;
-  int _currentLevel = 127;
+  int _currentLevel = -1;
   int _lastSensorValue = 0;
 
   bool _inverted = false;
   RunningAverage _runningAverage;
 
 private:
-  void _setLevel(int newLevel);
   void _writeToPot(int value);
 };
 

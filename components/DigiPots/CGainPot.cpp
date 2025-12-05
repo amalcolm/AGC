@@ -5,7 +5,10 @@ CGainPot::CGainPot(int csPin, int sensorPin, int samples)
 
 void CGainPot::update() {
   _readSensor();
+  _setLevel(1);
+  
 return;
+
   bool invalidHigh = _lastSensorValue >= 924;
   bool invalidLow  = _lastSensorValue <= 100;
 

@@ -32,7 +32,10 @@ void Hardware::tick() {
 
   offsetPot1.update();
   offsetPot2.update();
-  if (offsetPot1.inZone) gainPot.update(); 
+    gainPot .update(); 
 
 
 }
+
+
+SPISettings    Hardware::SPIsettings(4800000, MSBFIRST, SPI_MODE1);

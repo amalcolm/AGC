@@ -1,5 +1,6 @@
 #include <deque>
 #include "WString.h"
+#include <ranges>
 
 #include "CA2D.h" 
 #include "CHead.h"
@@ -10,7 +11,7 @@
 #include "Helpers.h"
 
 ChipSelectPins CS;
-ProbePointPins PP;
+SensorPins     SP;
 ButtonPins     BUT;
 LedPins        LED;
 CTimer         Timer;
@@ -29,8 +30,7 @@ PerStateHW& getPerStateHW(StateType state) {
   for (auto& hw : stateHWs) {
       if (hw.state == state) return hw;
   }
-  PerStateHW newHW(state);
-  stateHWs.push_back(newHW);
+  stateHWs.emplace_back(state);
   return stateHWs.back();
 }
 
@@ -75,7 +75,27 @@ PerStateHW& getPerStateHW(){
 
     Serial.flush();
 
-    for (;;) { digitalWrite(4, HIGH); delay(1500); digitalWrite(4, LOW); delay(500); }
+    auto view = std::views::iota(24, 42);
+    auto reverseView = view | std::views::reverse;
+    std::vector<uint8_t> pins(view.begin(), view.end());    pins.push_back(4);
+    std::vector<uint8_t> pinsReverse(reverseView.begin(), reverseView.end());    pinsReverse.push_back(4);
+
+    for (auto pin : pins) 
+      pinMode(pin, OUTPUT);
+
+    for (;;) {
+      for (auto pin : pins) {
+        digitalWrite(pin, HIGH);
+        delay(20);
+      }
+      delay(1500); 
+
+      for (auto pin : pinsReverse) {
+        digitalWrite(pin, LOW);
+        delay(20);
+      }
+      delay(500);
+    }
 }
 
 
