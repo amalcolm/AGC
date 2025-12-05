@@ -4,6 +4,9 @@ namespace Temp {
 // Function To Read the led 
 // *******************************************************************
 
+void configWrite(std::initializer_list<uint8_t> data);
+
+
 void initA2D()
 {
   
@@ -59,6 +62,17 @@ long readTheLEDData(){
   
   SPI.endTransaction();
   return data[1];
+}
+
+void configWrite(std::initializer_list<uint8_t> data) {
+  digitalWrite(CS_A2D, LOW);
+  delayMicroseconds(5);
+  for (uint8_t byte : data) {
+    SPI.transfer(byte);
+  }
+  delayMicroseconds(5);
+  digitalWrite(CS_A2D, HIGH);
+  delayMicroseconds(10);
 }
 
 }

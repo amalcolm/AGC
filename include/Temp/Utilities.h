@@ -1,16 +1,5 @@
 namespace Temp {
 
-void configWrite(std::initializer_list<uint8_t> data) {
-  digitalWrite(CS_A2D, LOW);
-  delayMicroseconds(5);
-  for (uint8_t byte : data) {
-    SPI.transfer(byte);
-  }
-  delayMicroseconds(5);
-  digitalWrite(CS_A2D, HIGH);
-  delayMicroseconds(10);
-}
-
 void potWrite(uint8_t chipSelect, int address, int value)
 {
   // gain control of the SPI port
