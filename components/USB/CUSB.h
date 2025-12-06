@@ -21,5 +21,5 @@ class CUSB : public CSerialWrapper {
     
     void tick();
 
-    void CrashReport(CrashReportClass& pReport);
+    void SendCrashReport(CrashReportClass& pReport);
 };

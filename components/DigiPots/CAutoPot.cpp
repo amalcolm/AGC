@@ -67,9 +67,6 @@ void CAutoPot::_writeToPot(int value) {
     SPI.transfer(0x00); // Address for wiper
     
     int val = value;
-    if (val == 55)
-      activityLED.toggle();
-
 
     SPI.transfer(val);
     digitalWrite(_csPin, HIGH);

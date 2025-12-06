@@ -38,7 +38,7 @@ constexpr uint8_t ACTIVITY_LED = 4;
 namespace Temp {
 
 void loop() {
-  digitalWrite(ACTIVITY_LED, !digitalRead(ACTIVITY_LED));  // show status - solid blue is in setup, flickering is run
+//  digitalWrite(ACTIVITY_LED, !digitalRead(ACTIVITY_LED));  // show status - solid blue is in setup, flickering is run
 
   updateOffset1();
 //  updateOffset2();

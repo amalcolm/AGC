@@ -59,5 +59,17 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+	"files.exclude": {
+		"**/.pio": true,
+		"**/.vscode": true,
+		"**/library.json": true,
+		"**/teensy_compat.h": true
+	},
+	"search.exclude": {
+		"**/.pio": true,
+		"**/.vscode": true,
+		"**/library.json": true,
+		"**/teensy_compat.h": true
+	}
 }

@@ -13,7 +13,7 @@ class CA2D {
     
     CA2D&     begin();
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
-    void      makeCallback(BlockType* pBlock) { if (m_fnCallback) m_fnCallback(pBlock); };
+    void      makeCallback(BlockType* pBlock) { if (m_fnCallback) m_fnCallback(pBlock); }
 
     bool      readFrame(uint8_t (&raw)[27]);
     void      dataFromFrame(uint8_t (&raw)[27], DataType& data);

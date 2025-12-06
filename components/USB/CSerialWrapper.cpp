@@ -1,5 +1,6 @@
 #include "WString.h"
 #include "CSerialWrapper.h"
+#include "CSerialStateMachine.h"
 #include "CHead.h"
 #include "CTimer.h"
 #include "Setup.h"
@@ -8,32 +9,15 @@
 #include <array>
 
 
-CSerialWrapper::CSerialWrapper() : m_Mode(ModeType::UNSET), m_handshakeComplete(false) {
-
+CSerialWrapper::CSerialWrapper() : m_Mode(ModeType::UNSET), stateMachine(SerialStateMachine::create()), m_handshakeComplete(false) {
   Serial.begin(USB_BAUDRATE);
 }
 
 void CSerialWrapper::tick() {
-  static bool lastConnected = false;
-  bool connected = (bool)Serial; // or (Serial && Serial.dtr()) if you want to be strict
+  bool connected = Serial;
+  bool hasData = Serial.available() > 0;
 
-  // Detect disconnect edge
-  if (lastConnected && !connected && getMode() != ModeType::UNSET) {
-    Pins::flash(3);
-    m_handshakeComplete = false;
-    setMode(ModeType::UNSET);
-  }
-
-  lastConnected = connected;
-
-  if (Serial.available() > 0) {
-    if (!m_handshakeComplete)
-      begin();
-    while (Serial.available() > 0) Serial.read();
-  }
-
-  if (connected && getMode() == ModeType::UNSET)
-    begin();
+  stateMachine.tick(connected, hasData, TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->begin(); });
 }
 
 void CSerialWrapper::begin() {
@@ -42,7 +26,7 @@ void CSerialWrapper::begin() {
 
   unsigned long endTime = millis() + timeout;
   m_handshakeComplete = false;
-  const char* target = "HOST_ACK";
+  const char* target = ">HOST_ACK";
   const uint8_t targetLength = strlen(target);
   uint8_t targetIndex = 0;
   
@@ -55,23 +39,27 @@ void CSerialWrapper::begin() {
         targetIndex++;
         
         if (targetIndex >= targetLength) {
+
           Serial.clear(); // clear output buffer
           while (Serial.available()) Serial.read(); // flush input buffer
           
-          Serial.write("DEVICE_ACK\n");
+          Serial.write("<DEVICE_ACK\n");
           endTime += timeout;
           Serial.send_now();
           HOST_VERSION.clear();
           HOST_VERSION.reserve(32);
           while (!m_handshakeComplete && (millis() < endTime)) {
+
             if (Serial.available())
             {
               c = Serial.read();
 
-              if (c != '\n') 
-                HOST_VERSION += c;
+              if (c != '\n') {
+                if (c != '>') HOST_VERSION += c;
+              }
               else {
-                Serial.write(DEVICE_VERSION.c_str());
+            
+                Serial.write(("<"+DEVICE_VERSION).c_str());
                 Serial.write("\n");
                 Serial.send_now();
                 m_handshakeComplete = true;
@@ -94,12 +82,12 @@ void CSerialWrapper::begin() {
   else
     setMode(ModeType::TEXT);
 
-  Serial.printf("Device Started %s v%s\n%20s\n", getSketch(), DEVICE_VERSION.c_str(), __DATE__);
-  if (m_handshakeComplete)
-    Serial.printf("Handshake complete. Host version: %s\n", HOST_VERSION.c_str());
-  else 
-    Serial.println("Handshake failed. Continuing in TEXT mode.\n");
-  
+  std::string outcome = m_handshakeComplete ? 
+    "Handshake complete. Host version: " + HOST_VERSION + (TESTMODE ? " Serial set to TEXT (by TESTMODE)" : " Binary BLOCKMODE active") + "\n" :
+    "Handshake failed. Defaulting to TEXT mode.\n";
+
+  if (m_handshakeComplete || stateMachine.getFirstCall())
+    Serial.print(outcome.c_str());  
 
   Head.clear(); // ensure all LEDs off at start
   Serial.flush(); // ensure all output sent
@@ -107,6 +95,8 @@ void CSerialWrapper::begin() {
   while (Serial.available() > 0) Serial.read(); // flush input buffer
   Timer.resetStartMillis();
 
+  stateMachine.setFirstCall(false);
+//  activityLED.clear();
 }
 
 CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) {

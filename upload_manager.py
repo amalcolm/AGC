@@ -6,8 +6,16 @@ except Exception:
     def Import(*_args, **_kwargs):  # type: ignore
         pass
     
-Import("env")   
+
+try:
+    from SCons.Script import Import  # type: ignore
+    Import("env")
+except Exception as e:
+    print(f"PlatformIO: Could not import env ({e})")
+    env = None
+    
 import socket
+import os
 
 # 1) Apply C++-only flag EARLY (script is 'pre:' so this hits all C++ TUs)
 env.Append(CXXFLAGS=["-Wno-sign-compare", "-Wno-volatile", "-Wno-deprecated-copy"])      # type: ignore
@@ -36,3 +44,11 @@ def after_upload(source, target, env):
 # 2) Keep your upload hooks (these work regardless of pre/post)
 env.AddPreAction ("upload", before_upload)  # type: ignore
 env.AddPostAction("upload", after_upload)   # type: ignore
+
+try:
+    project_dir = env['PROJECT_DIR']
+    project_name = os.path.basename(project_dir)
+    print(f"PlatformIO: Injecting PROJECT_NAME = \"{project_name}\"")
+    env.Append(CPPDEFINES=[("PROJECT_NAME", f'\\"{project_name}\\"')])
+except Exception as e:
+    print(f"PlatformIO: Could not inject project name: {e}")

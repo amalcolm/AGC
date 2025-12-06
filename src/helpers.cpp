@@ -98,28 +98,3 @@ PerStateHW& getPerStateHW(){
     }
 }
 
-
-
-const char* getSketch() {
-  static String result; // Static to ensure it lives beyond function return
- 
-  String path = __FILE__;
-  int lastSlash = path.lastIndexOf('\\');
-  
-  if (lastSlash > 0) {
-    int previousSlash = path.lastIndexOf('\\', lastSlash - 1);
-    if (previousSlash >= 0) {
-      result = path.substring(previousSlash + 1, lastSlash);
-      return result.c_str();
-    }
-  }
-  
-  if (lastSlash >= 0) {
-    path = path.substring(lastSlash + 1);
-  }
-  
-  int dot = path.lastIndexOf('.');  if (dot >= 0) path = path.substring(0, dot);
-  
-  result = path;
-  return result.c_str();
-}

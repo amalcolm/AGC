@@ -14,9 +14,7 @@ COffsetPot    offsetPot1{ CS.offset1, SP.postGain,  50, 224, 800 };
 // ProcessA2D: Callback to process A2D data blocks for debugging
 void ProccessA2D(BlockType* block) {//  if (!TESTMODE || block == nullptr || block->count == 0) return;
 
-  
-  activityLED.toggle();
-
+//  digitalWrite(4, !digitalRead(4));  // show activity on pin 4
 
 
   int A2D_value = offsetPot1.getSensorValue();
@@ -61,7 +59,7 @@ return;
   char DebugBuffer[128];
   sprintf(DebugBuffer, "SP:%d\tOff1:%d\n", pp, offsetPot1.getLevel());
 
-  activityLED.toggle();
+ // activityLED.toggle();
   Serial.print(DebugBuffer);
 
 return;
@@ -86,19 +84,19 @@ return;
 
 
 void setup() {
-  if (CrashReport) USB.CrashReport(CrashReport);
+  if (CrashReport) USB.SendCrashReport(CrashReport);
 
   Temp::setup();
   return;
 
-  activityLED.set();
+//  activityLED.set();
+  A2D.setCallback(ProccessA2D);
 
   Hardware::begin();
 
   offsetPot1.invert();
   offsetPot1.begin(120);
 
-  A2D.setCallback(ProccessA2D);
 
   Head.setSequence( {
 //    Head.ALL_OFF,
@@ -108,7 +106,7 @@ void setup() {
 });
 
   Ready = true;
-  activityLED.clear();
+ // activityLED.clear();
 }
 
 
@@ -116,8 +114,11 @@ void setup() {
 
 void loop() {  
   // Head.setNextState();
-
+  pinMode(4, OUTPUT);
   Temp::loop();
+  USB.tick();
+
+delay(50);
   return;
 
   delay(10);

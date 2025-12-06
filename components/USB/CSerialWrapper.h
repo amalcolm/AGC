@@ -30,6 +30,7 @@ class CSerialWrapper {
     void write(uint8_t* pData, uint32_t dataLen);
   private:
     ModeType m_Mode = ModeType::UNSET;
+    class SerialStateMachine& stateMachine;
 
   protected:
     bool m_handshakeComplete = false;

@@ -70,11 +70,10 @@ void CUSB::tick() {
 
     default:
       break;
-    
   }
 }
 
-void CUSB::CrashReport(CrashReportClass& pReport)
+void CUSB::SendCrashReport(CrashReportClass& pReport)
 {
   Serial.begin(115200);
   for (int i = 0; i < 50 && !Serial; ++i) delay(10); 
