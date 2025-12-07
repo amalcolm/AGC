@@ -17,10 +17,14 @@ void CSerialWrapper::tick() {
   bool connected = Serial;
   bool hasData = Serial.available() > 0;
 
-  stateMachine.tick(connected, hasData, TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->begin(); });
+  stateMachine.tick(connected, hasData, TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->doHandshake(); });
 }
 
 void CSerialWrapper::begin() {
+  tick();
+}
+
+void CSerialWrapper::doHandshake() {
   static const unsigned long timeout = 1000;  // timeout (mS)
   setMode(ModeType::INITIALISING);
 
@@ -93,7 +97,7 @@ void CSerialWrapper::begin() {
   Serial.flush(); // ensure all output sent
   Serial.clear(); // clear output buffer
   while (Serial.available() > 0) Serial.read(); // flush input buffer
-  Timer.resetStartMillis();
+  Timer.restartConnectTiming();
 
   stateMachine.setFirstCall(false);
 //  activityLED.clear();
@@ -104,9 +108,10 @@ CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) 
   return m_Mode;
 }
 
-void CSerialWrapper::write(uint8_t  byte) { put(&byte,           sizeof(byte)); }
-void CSerialWrapper::write(uint32_t data) { put((uint8_t*)&data, sizeof(data)); }
-
+void CSerialWrapper::write(uint8_t  byte  ) { put(&byte,             sizeof(byte  )); }
+void CSerialWrapper::write(uint32_t data  ) { put((uint8_t*)&data  , sizeof(data  )); }
+void CSerialWrapper::write(double   number) { put((uint8_t*)&number, sizeof(number)); }
+  
 void CSerialWrapper::write(uint8_t* pData, uint32_t dataLen) { put(pData, dataLen); }
 
 

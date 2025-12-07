@@ -63,9 +63,11 @@ void CUSB::tick() {
           pData->writeSerial();
         else
           pData->debugSerial();
-      }
 
-      readIndex = (readIndex + 1) % BUFFER_SIZE;
+        readIndex = (readIndex + 1) % BUFFER_SIZE;
+      }
+    
+      break;
     }
 
     default:

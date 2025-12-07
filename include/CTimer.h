@@ -3,40 +3,53 @@
 #include "Arduino.h"
 
 class CTimer {
+  
 private:
-  uint32_t startTick;
-  uint32_t calibration;
-  float ticksPerMS;
-  float ticksPerUS;
+   
+  uint64_t startTime;
+  uint64_t calibration;
+  double ticksPerSecond;
+  double ticksPerMS;
+  double ticksPerUS;
 
-  uint32_t startMillis;
+  static volatile uint64_t s_connectTime;
+  static volatile uint32_t s_lastReading;
+  static volatile uint64_t s_overflowCount;
 
 public:
-  CTimer() {
-    resetStartMillis();
+  CTimer();
 
-    mmio_set_bits(ARM_DWT_CTRL, ARM_DWT_CTRL_CYCCNTENA);  // Enable the counter
+  inline static uint64_t time() {
+    static const uint64_t increment = 0x1ULL << 32;
 
-    ticksPerMS = F_CPU / 1000.0f;
-    ticksPerUS = F_CPU / 1000000.0f;
+    uint32_t current = ARM_DWT_CYCCNT;
 
-    restart();
-    calibration = ticks_raw();
-  }
+    if (current < s_lastReading) {
+      __disable_irq();
+        uint64_t val = s_overflowCount + increment;
+        s_overflowCount = val;
+      __enable_irq();
+    }
 
-  inline void     restart()     { startTick = ARM_DWT_CYCCNT; }
-  inline uint32_t ticks() const { return ticks_raw() - calibration; }
-  inline float    mS() const    { return ticks() / ticksPerMS; }
-  inline float    uS() const    { return ticks() / ticksPerUS; }
+    s_lastReading = current;
 
-  inline uint32_t getTimestamp() const { return millis() - startMillis; }
-  inline void     resetStartMillis() { startMillis = millis(); }
+  return s_overflowCount + current;
+}   
 
+  inline void     restart()  { startTime = time();            }
+  inline uint64_t elapsed()  { return time() - startTime;     }
+  inline double   mS()       { return elapsed() / ticksPerMS; }
+  inline double   uS()       { return elapsed() / ticksPerUS; }
+
+
+  inline void     restartConnectTiming() { s_connectTime = time();                           }
+  inline double   getConnectTime()       { return (time() - s_connectTime) / ticksPerSecond; }
+
+  static void     gpt1Handler();
+  
 private:
-  inline uint32_t ticks_raw() const { return ARM_DWT_CYCCNT - startTick; }
+  inline uint64_t _raw() const { return ARM_DWT_CYCCNT; }
 
-  inline void mmio_set_bits(volatile uint32_t& reg, uint32_t mask) noexcept {
-    uint32_t v = reg; reg = v | mask;
-}
-
+  
+  void initGPT1();
 };

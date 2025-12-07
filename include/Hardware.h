@@ -8,7 +8,7 @@ struct PerStateHW {
   StateType state;
   PerStateHW(StateType state) : state(state) {}
 
-  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  50, 362, 652 };
+  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  50, 212, 812 };
   COffsetPot    offsetPot2{ CS.offset2, SP.postGain , 100, 224, 800 };
   CGainPot      gainPot   { CS.gain   , SP.postGain ,  10           };
 

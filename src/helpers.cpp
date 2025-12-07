@@ -27,10 +27,15 @@ PerStateHW& getPerStateHW(StateType state) {
   static std::deque<PerStateHW> stateHWs;
 
   if (state == DIRTY) state = Head.getState();
-  for (auto& hw : stateHWs) {
-      if (hw.state == state) return hw;
-  }
+  
+  for (auto& hw : stateHWs)
+      if (hw.state == state)
+       return hw;
+  
   stateHWs.emplace_back(state);
+  if (Ready)
+    stateHWs.back().begin();
+
   return stateHWs.back();
 }
 

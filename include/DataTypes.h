@@ -11,8 +11,8 @@ static constexpr uint32_t NUM_CHANNELS = 8;
 struct DataType {
 
   StateType  state;          // state of the head during this reading
-  uint32_t   timeStamp;
-  uint32_t   hardwareState;  //  (count & 0xFF) << 24 | offset1 << 24 | offset2 << 16 | gain << 8      // needs 4 byte alignment
+  double     timeStamp;      // timestamp in milliseconds since connection
+  uint32_t   hardwareState;  //  (count & 0xFF) << 24 | offset1 << 16 | offset2 << 8 | gain      // needs 4 byte alignment
   uint32_t   channels[NUM_CHANNELS];
 
   Frame frameStart = 0xEDD1FAB4;
@@ -30,7 +30,7 @@ struct BlockType {
   static constexpr uint32_t MAX_BLOCKSIZE   = 64;
   static constexpr uint32_t DEBUG_BLOCKSIZE = 16;
 
-  uint32_t timeStamp;
+  double   timeStamp;
   uint32_t state;
   uint32_t count;
   DataType data[MAX_BLOCKSIZE];
@@ -57,3 +57,4 @@ struct BlockType {
 
 
 typedef void (*CallbackType)(BlockType*);
+

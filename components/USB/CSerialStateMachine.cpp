@@ -1,5 +1,6 @@
 #include "CSerialStateMachine.h"
-#include "PinHelpers.h"
+#include "Setup.h"
+#include "CTimer.h"
 
 SerialStateMachine& SerialStateMachine::create() {
     static std::vector<SerialStateMachine> instances;
@@ -14,6 +15,7 @@ bool SerialStateMachine::handleDisconnection(bool connected, bool &handshakeComp
 {
     if (!connected) {
         Pins::flash(3);
+        activityLED.clear();
         handshakeComplete = false;
         mode = CSerialWrapper::ModeType::UNSET;
         state = State::DISCONNECTED;
@@ -24,12 +26,13 @@ bool SerialStateMachine::handleDisconnection(bool connected, bool &handshakeComp
 
 void SerialStateMachine::tick(bool connected, bool hasData, bool testMode,
                               bool &handshakeComplete, CSerialWrapper::ModeType &mode,
-                              std::function<void()> begin)
+                              std::function<void()> fnHandshake)
 {
     switch (state)
         {
         case State::DISCONNECTED:
             if (connected) {
+                activityLED.set();
                 handshakeComplete = false;
                 mode = CSerialWrapper::ModeType::UNSET;
                 state = State::CONNECTED_WAITING;
@@ -40,14 +43,20 @@ void SerialStateMachine::tick(bool connected, bool hasData, bool testMode,
         case State::CONNECTED_WAITING:
             if (handleDisconnection(connected, handshakeComplete, mode)) break;
 
-            if (hasData && (!testMode || firstCall)) {
-                begin();
-                state = State::READY;
-            }
+            if (hasData)
+                if (!testMode || firstCall) {
+                    fnHandshake();
+                    state = State::READY;
+                }
             break;
 
         case State::READY:
             if (handleDisconnection(connected, handshakeComplete, mode)) break;
+
+            if (hasData && testMode == false)
+                if (handshakeComplete == false) {
+                    fnHandshake();
+                }
             break;
     }
 }

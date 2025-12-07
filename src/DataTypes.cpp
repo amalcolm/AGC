@@ -10,14 +10,14 @@ static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 
 DataType::DataType() 
   : state(DIRTY), hardwareState(0) { 
-  timeStamp = Timer.getTimestamp();
+  timeStamp = Timer.getConnectTime();
   memset(&channels[0], 0, CHANNELS_BYTESIZE );
 }
 
 DataType::DataType(StateType state) 
   : state(state), hardwareState(0) {
 
-  timeStamp = Timer.getTimestamp();
+  timeStamp = Timer.getConnectTime();
   memset(&channels[0], 0, CHANNELS_BYTESIZE ); 
 }
 
@@ -40,13 +40,14 @@ void DataType::writeSerial(bool includeFrameMarkers) {
 
 
 
-BlockType::BlockType() : timeStamp(0), state(DIRTY), count(0), data() {
-  for (uint32_t i = 0; i < MAX_BLOCKSIZE; i++)
+BlockType::BlockType() : timeStamp(0.0), state(DIRTY), count(0), data() {
+  for (uint32_t i = 0; i < MAX_BLOCKSIZE; i++) {
     data[i] = DataType();
+  }
 
   if (Ready && TESTMODE && A2D.getMode() == CA2D::ModeType::TRIGGERED) {
     data[0] = A2D.getData();
-    timeStamp = Timer.getTimestamp();
+    timeStamp = Timer.getConnectTime();
     count = 1;
   }
 
@@ -61,6 +62,7 @@ void BlockType::writeSerial(bool includeFrameMarkers) {
   for (uint32_t i = 0; i < count; i++) {
     DataType& item = data[i];
 
+    // omit state as all data in block share same state
     USB.write(item.timeStamp);
     USB.write(item.hardwareState);
     USB.write((uint8_t*)&item.channels[0], CHANNELS_BYTESIZE);

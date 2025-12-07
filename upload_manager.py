@@ -16,12 +16,13 @@ except Exception as e:
     
 import socket
 import os
+import time
 
 # 1) Apply C++-only flag EARLY (script is 'pre:' so this hits all C++ TUs)
 env.Append(CXXFLAGS=["-Wno-sign-compare", "-Wno-volatile", "-Wno-deprecated-copy"])      # type: ignore
 env.Append(CFLAGS=  ["-Wno-sign-compare"])                                               # type: ignore
 
-# --- your UDP helpers as-is ---
+
 UDP_IP = "127.0.0.1"
 UDP_PORT = 11000
 
@@ -36,12 +37,13 @@ def send_udp_message(message):
 def before_upload(source, target, env):
     print("PlatformIO: Notifying plotter to release COM port...")
     send_udp_message("DISCONNECT")
+    time.sleep(0.5)
 
 def after_upload(source, target, env):
     print("PlatformIO: Notifying plotter to reconnect...")
     send_udp_message("RECONNECT")
 
-# 2) Keep your upload hooks (these work regardless of pre/post)
+
 env.AddPreAction ("upload", before_upload)  # type: ignore
 env.AddPostAction("upload", after_upload)   # type: ignore
 

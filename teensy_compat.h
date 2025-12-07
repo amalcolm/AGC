@@ -18,3 +18,15 @@
   char* ltoa(long, char*, int);
   char* ultoa(unsigned long, char*, int);
 #endif
+
+#ifndef GPT_SR_OC1
+#define GPT_SR_OC1   (1u << 2)
+#define GPT_SR_OC2   (1u << 3)
+#define GPT_SR_OC3   (1u << 4)
+#endif
+
+#ifndef GPT_IR_OC1IE
+#define GPT_IR_OC1IE   (1u << 2)
+#define GPT_IR_OC2IE   (1u << 3)
+#define GPT_IR_OC3IE   (1u << 4)
+#endif

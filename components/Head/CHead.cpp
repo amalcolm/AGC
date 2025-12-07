@@ -32,7 +32,7 @@ StateType CHead::setNextState() {
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
   if (reset) Pins::flashReset = false; // only use FlashReset once, and set it at start
   
-  const StateType oldState = reset ? ALL_OFF : m_State;
+  const StateType oldState = reset ? UNSET : m_State;
 
   A2D.setBlockState(oldState);  // set the current block (the one which has been filled) to the old state
                                 // this also swaps the block and sets the filled block to be sent to USB
@@ -50,9 +50,9 @@ StateType CHead::setNextState() {
   // Update only the changed LEDs using bit manipulation
   while (diff) {
       const int  i  = __builtin_ctz(diff);          // index of lowest set bit
+      
       const uint8_t led = Pins::pinForBit(i);          // corresponding pin number  
       const bool on = ((newState >> i) & 1u) ^ LED.Inverted; // desired state
-
 
       digitalWriteFast(led, on ? HIGH : LOW);
  
@@ -63,7 +63,8 @@ StateType CHead::setNextState() {
 }
 
 void CHead::clear() {
-  m_State = ALL_OFF;
+  m_State = UNSET;
+  m_sequencePosition = -1;
 
   LED.all.clear();
 }

@@ -3,6 +3,7 @@
 #include "CHead.h"
 #include "Helpers.h"
 #include "Hardware.h"
+#include "CTimer.h"
 CA2D::CA2D(ModeType mode) : m_Mode(mode) {}
 
 CA2D::CA2D(CallbackType callback) : m_Mode(CONTINUOUS), m_fnCallback(callback) {}
@@ -81,17 +82,28 @@ void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
 
 
 DataType CA2D::readData() {
+  static uint8_t sequenceNumber = 0;
 
   DataType data(Head.getState());
 
-  uint8_t raw[27]; 
+  data.timeStamp = Timer.getConnectTime();
+
+  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(data);
+
+  data.hardwareState = 
+      (sequenceNumber++      << 24) |
+      (offsetPot1.getLevel() << 16) |
+      (offsetPot2.getLevel() <<  8) |
+      (gainPot   .getLevel()      );
+
+  uint8_t raw[27];
   bool ok = readFrame(raw);
 
   if (ok) 
     dataFromFrame(raw, data);
   else
     data.state = DIRTY;
-  
+   
   return data;
 }
 

@@ -49,6 +49,7 @@ class CHead {
     static constexpr StateType ALL_ON    = 0b00000001111111110000000111111111;
 
     static constexpr StateType UNSET     = 0b10000000000000000000000000000000;
+    static constexpr StateType RESERVED  = 0b01110000000000000000000000000000;
 
 
   

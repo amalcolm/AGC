@@ -23,10 +23,13 @@ class CSerialWrapper {
     inline ModeType getMode() { return m_Mode; }
            ModeType setMode(ModeType mode);
 
+    void doHandshake();
+
     void printf(const char *pFMT, ...);
     
     void write(uint8_t byte);
     void write(uint32_t data);
+    void write(double number);
     void write(uint8_t* pData, uint32_t dataLen);
   private:
     ModeType m_Mode = ModeType::UNSET;

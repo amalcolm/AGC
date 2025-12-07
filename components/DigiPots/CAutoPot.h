@@ -16,7 +16,7 @@ public:
 
   int getLevel();
   int getSensorValue();
-  
+  int getSensorPin() const { return _sensorPin; }
   RunningAverage& getRunningAverage() { return _runningAverage; }
 
 
