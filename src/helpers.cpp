@@ -47,9 +47,6 @@ PerStateHW& getPerStateHW(DataType& data){
   return getPerStateHW(data.state);
 }
 
-PerStateHW& getPerStateHW(){
-  return getPerStateHW(DIRTY);
-}
 
 
 [[noreturn]] void error_impl(const char* file, int line, const char* func,

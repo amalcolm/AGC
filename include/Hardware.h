@@ -21,8 +21,23 @@ struct PerStateHW {
     offsetPot2.begin(120); 
     gainPot.begin(1); 
   }
-};
 
+  void set() {
+    offsetPot1.writeCurrentToPot();
+    offsetPot2.writeCurrentToPot();
+    gainPot   .writeCurrentToPot();
+  }
+
+  void update() {
+    offsetPot1.update();
+
+    if (offsetPot1.inZone)
+      offsetPot2.update();
+
+    if (offsetPot2.inZone)
+      gainPot.update();
+  }
+};
 
 struct Hardware {
   static void begin();

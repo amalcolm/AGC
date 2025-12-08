@@ -25,24 +25,20 @@ void Hardware::begin() {
 }
 
 
-
-double lastTime = 0.0;
-
 void Hardware::tick() {
-/*
-  A2D.poll();
+  static double lastTime = 0.0;
+  static constexpr double updateInterval = 0.01; // 100 Hz
+  static bool haveData = false;
 
-  if (Timer.runTime() - lastTime < 0.1) return; // 10 Hz update
-  lastTime = Timer.runTime();  LED.RED4.toggle();
-*/
+  haveData |= A2D.poll();  // main A2D polling, every cycle
 
-  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW();
+  if (Timer.upTime() - lastTime < updateInterval) return;
+  lastTime = Timer.upTime();
 
-  offsetPot1.update();
-  offsetPot2.update();
-    gainPot .update(); 
+  if (haveData)
+    getPerStateHW().update();  // update pots at 100Hz but only if we have new data
 
-
+  haveData = false;
 }
 
 

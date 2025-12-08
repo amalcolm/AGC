@@ -5,9 +5,11 @@ volatile uint64_t CTimer::s_overflowCount = 0;
 volatile uint64_t CTimer::s_connectTime   = 0;
 volatile uint32_t CTimer::s_lastReading   = 0;
 
-double CTimer::ticksPerSecond = F_CPU / 1.0f;
-double CTimer::ticksPerMS = F_CPU / 1000.0f;
-double CTimer::ticksPerUS = F_CPU / 1000000.0f;
+uint64_t CTimer::s_calibration = 0;
+
+double CTimer::s_ticksPerSecond = F_CPU / 1.0f;
+double CTimer::s_ticksPerMS = F_CPU / 1000.0f;
+double CTimer::s_ticksPerUS = F_CPU / 1000000.0f;
 
 
 CTimer::CTimer() {
@@ -16,9 +18,9 @@ CTimer::CTimer() {
   initGPT1();
   
   
-  calibration = 0;
+  s_calibration = 0;
   restart();
-  calibration = elapsed();
+  s_calibration = elapsed();
 }
 
 

@@ -19,14 +19,14 @@ class CA2D {
     void      dataFromFrame(uint8_t (&raw)[27], DataType& data);
 
     // Triggered
-    DataType getData();
+    DataType  getData();
 
     // Continuous
-    void        poll();
+    bool      poll();
     
-    void        setBlockState(StateType state);
+    void      setBlockState(StateType state);
 
-    inline ModeType   getMode()            { return m_Mode;           }
+    inline ModeType   getMode() { return m_Mode; }
     volatile bool     outputDebugBlock = true;
 
   private:
@@ -45,7 +45,7 @@ class CA2D {
     // Continuous
 
     static void ISR_Data();
-    void        pollData();
+    bool        pollData();
 
 
     volatile bool       m_dataReady = false;

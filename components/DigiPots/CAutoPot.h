@@ -17,6 +17,8 @@ public:
   int getLevel();
   int getSensorValue();
   int getSensorPin() const { return _sensorPin; }
+
+  void writeCurrentToPot() { _writeToPot(_currentLevel); }
   
   RunningAverage& getRunningAverage() { return _runningAverage; }
 

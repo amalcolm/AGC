@@ -7,10 +7,10 @@ class CTimer {
 private:
    
   uint64_t startTime;
-  uint64_t calibration;
-  static double ticksPerSecond;
-  static double ticksPerMS;
-  static double ticksPerUS;
+  static uint64_t s_calibration;
+  static double s_ticksPerSecond;
+  static double s_ticksPerMS;
+  static double s_ticksPerUS;
 
   static volatile uint64_t s_connectTime;
   static volatile uint32_t s_lastReading;
@@ -33,19 +33,18 @@ public:
 
     s_lastReading = current;
 
-  return s_overflowCount + current;
+  return s_overflowCount + current - s_calibration;
 }   
 
   inline void     restart()  { startTime = time();            }
   inline uint64_t elapsed()  { return time() - startTime;     }
-  inline double   mS()       { return elapsed() / ticksPerMS; }
-  inline double   uS()       { return elapsed() / ticksPerUS; }
+  inline double   mS()       { return elapsed() / s_ticksPerMS; }
+  inline double   uS()       { return elapsed() / s_ticksPerUS; }
 
 
   inline void     restartConnectTiming() { s_connectTime = time();                           }
-  inline double   getConnectTime()       { return (time() - s_connectTime) / ticksPerSecond; }
-
-  inline static double runTime() { return CTimer::time() / ticksPerSecond; }
+  inline double   getConnectTime()       { return (time() - s_connectTime) / s_ticksPerSecond; }
+  inline static double upTime() { return CTimer::time() / s_ticksPerSecond; }
 
   static void     gpt1Handler();
   

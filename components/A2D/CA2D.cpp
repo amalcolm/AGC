@@ -36,7 +36,11 @@ CA2D& CA2D::begin() {
 }
 
 
-void CA2D::poll() { if (m_Mode == ModeType::CONTINUOUS) pollData(); }
+bool CA2D::poll() {
+  if (m_Mode != ModeType::CONTINUOUS) return false;
+
+  return pollData();
+}
 
 // Call with CS already LOW (continuous). Return false if header not found.
 bool CA2D::readFrame(uint8_t (&raw)[27]) {

@@ -68,11 +68,10 @@ void CA2D::setMode_Continuous() {
 
 void CA2D::ISR_Data() { Singleton->m_dataReady = true; }
 
-void CA2D::pollData() { 
+bool CA2D::pollData() { 
   
-  if (!m_dataReady || getMode() != ModeType::CONTINUOUS) return;
+  if (!m_dataReady) return false;
   m_dataReady = false;
-
   SPI.beginTransaction(Hardware::SPIsettings);
   {
     digitalWrite(CS.A2D, LOW);
@@ -86,6 +85,7 @@ void CA2D::pollData() {
   }
   SPI.endTransaction();
 
+  return true;
 }
 
 void CA2D::setBlockState(StateType state) {
