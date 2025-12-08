@@ -32,6 +32,7 @@ void DataType::writeSerial(bool includeFrameMarkers) {
   USB.write(state);
   USB.write(timeStamp);
   USB.write(hardwareState);
+  USB.write(sensorState);
   USB.write((uint8_t*)&channels[0], CHANNELS_BYTESIZE);
 
   if (includeFrameMarkers) USB.write(frameEnd);
@@ -65,6 +66,7 @@ void BlockType::writeSerial(bool includeFrameMarkers) {
     // omit state as all data in block share same state
     USB.write(item.timeStamp);
     USB.write(item.hardwareState);
+    USB.write(item.sensorState);
     USB.write((uint8_t*)&item.channels[0], CHANNELS_BYTESIZE);
   }
     

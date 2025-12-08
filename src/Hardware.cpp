@@ -26,7 +26,15 @@ void Hardware::begin() {
 
 
 
+double lastTime = 0.0;
+
 void Hardware::tick() {
+/*
+  A2D.poll();
+
+  if (Timer.runTime() - lastTime < 0.1) return; // 10 Hz update
+  lastTime = Timer.runTime();  LED.RED4.toggle();
+*/
 
   auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW();
 

@@ -52,7 +52,7 @@ void setup() {
   Head.setSequence( {
 //    Head.ALL_OFF,
       Head.RED8,
-//    Head.IR1,
+      Head.IR1,
 //    Head.RED1 | Head.IR1,            // note; use OR ( | ) to combine states
 });
 

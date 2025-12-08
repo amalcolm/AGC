@@ -34,7 +34,7 @@ void CA2D::setMode_Continuous() {
     digitalWrite(CS.A2D, HIGH);
 
     // 4) Config: 2 kSPS, reserved bits correct, no CLK out
-    SPIwrite({0x41, 0x00, 0xD1});     // CONFIG1 = 0xD4 for 1 kSPS);  0xD6 = 250SPS, 0xD5 = 500SPS, OxD4 = 1kSPS, 0xD3 = 2kSPS, ... D0 = 16kSPS; 
+    SPIwrite({0x41, 0x00, 0xD3});     // CONFIG1 = 0xD4 for 1 kSPS);  0xD6 = 250SPS, 0xD5 = 500SPS, OxD4 = 1kSPS, 0xD3 = 2kSPS, ... D0 = 16kSPS; 
                                       // bits: 1 DAISY_EN=1 CLK_EN=0 1 0 DR=100 (1 kSPS)
     SPIwrite({0x42, 0x00, 0xC0});     // CONFIG2 (baseline; no internal test)
     SPIwrite({0x43, 0x00, 0xE0});     // CONFIG3 (enable internal reference buffer)

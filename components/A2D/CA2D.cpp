@@ -96,6 +96,10 @@ DataType CA2D::readData() {
       (offsetPot2.getLevel() <<  8) |
       (gainPot   .getLevel()      );
 
+  data.sensorState = 
+      (analogRead(offsetPot1.getSensorPin()) << 16) |
+      (analogRead(offsetPot2.getSensorPin())      );
+
   uint8_t raw[27];
   bool ok = readFrame(raw);
 

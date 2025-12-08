@@ -5,21 +5,24 @@ volatile uint64_t CTimer::s_overflowCount = 0;
 volatile uint64_t CTimer::s_connectTime   = 0;
 volatile uint32_t CTimer::s_lastReading   = 0;
 
+double CTimer::ticksPerSecond = F_CPU / 1.0f;
+double CTimer::ticksPerMS = F_CPU / 1000.0f;
+double CTimer::ticksPerUS = F_CPU / 1000000.0f;
+
+
 CTimer::CTimer() {
   uint32_t reg = ARM_DWT_CTRL;
   ARM_DWT_CTRL = reg | ARM_DWT_CTRL_CYCCNTENA;  // Enable the counter
-   initGPT1();
-
-  ticksPerSecond = F_CPU / 1.0f;
-  ticksPerMS     = F_CPU / 1000.0f;
-  ticksPerUS     = F_CPU / 1000000.0f;
-
+  initGPT1();
+  
+  
   calibration = 0;
   restart();
   calibration = elapsed();
 }
 
 
+bool GPT1_initialised = false;
 
 // Teensy 4.x hardware timer base (GPT1)
 extern "C" void irq_gpt1(void) {
@@ -28,6 +31,8 @@ extern "C" void irq_gpt1(void) {
 }
 
 void CTimer::initGPT1() {
+  if (GPT1_initialised) return;
+  
   // --- Enable clock for GPT1 in CCM ---
   uint32_t reg = CCM_CCGR1;
     reg |= CCM_CCGR1_GPT(CCM_CCGR_ON);
@@ -48,6 +53,9 @@ void CTimer::initGPT1() {
   attachInterruptVector(IRQ_GPT1, irq_gpt1);
   NVIC_ENABLE_IRQ(IRQ_GPT1);
   GPT1_SR = 0x3F;            // clear any pending
+  
+  GPT1_initialised = true;
+  
 }
 
 

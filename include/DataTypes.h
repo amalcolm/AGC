@@ -13,6 +13,7 @@ struct DataType {
   StateType  state;          // state of the head during this reading
   double     timeStamp;      // timestamp in milliseconds since connection
   uint32_t   hardwareState;  //  (count & 0xFF) << 24 | offset1 << 16 | offset2 << 8 | gain      // needs 4 byte alignment
+  uint32_t   sensorState;    //  preGain << 16 | postGain 
   uint32_t   channels[NUM_CHANNELS];
 
   Frame frameStart = 0xEDD1FAB4;

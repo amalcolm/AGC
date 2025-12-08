@@ -8,9 +8,9 @@ private:
    
   uint64_t startTime;
   uint64_t calibration;
-  double ticksPerSecond;
-  double ticksPerMS;
-  double ticksPerUS;
+  static double ticksPerSecond;
+  static double ticksPerMS;
+  static double ticksPerUS;
 
   static volatile uint64_t s_connectTime;
   static volatile uint32_t s_lastReading;
@@ -44,6 +44,8 @@ public:
 
   inline void     restartConnectTiming() { s_connectTime = time();                           }
   inline double   getConnectTime()       { return (time() - s_connectTime) / ticksPerSecond; }
+
+  inline static double runTime() { return CTimer::time() / ticksPerSecond; }
 
   static void     gpt1Handler();
   

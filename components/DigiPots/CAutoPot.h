@@ -17,13 +17,14 @@ public:
   int getLevel();
   int getSensorValue();
   int getSensorPin() const { return _sensorPin; }
+  
   RunningAverage& getRunningAverage() { return _runningAverage; }
 
 
 protected:
-  int  _readSensor();
-  void _offsetLevel(int offset);
-  void _setLevel(int newLevel);
+  uint32_t _readSensor();
+  void     _offsetLevel(int offset);
+  void     _setLevel(int newLevel);
 
   int _csPin;
   int _sensorPin;

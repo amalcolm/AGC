@@ -14,7 +14,7 @@ void COffsetPot::update() {
 
   inZone = (val > _lowThreshold && val < _highThreshold);
 
-  if (val > _highThreshold) _offsetLevel(+1); 
+  if (val > _highThreshold) _offsetLevel(-1); 
   else
-  if (val <  _lowThreshold) _offsetLevel(-1);
+  if (val <  _lowThreshold) _offsetLevel(+1);
 }
