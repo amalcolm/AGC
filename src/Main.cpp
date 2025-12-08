@@ -51,7 +51,7 @@ void setup() {
 
   Head.setSequence( {
 //    Head.ALL_OFF,
-      Head.RED8,
+//      Head.RED8,
       Head.IR8,
 //    Head.RED1 | Head.IR1,            // note; use OR ( | ) to combine states
 });
@@ -67,10 +67,11 @@ void loop() {
   Head.setNextState();  // Set the LEDs for the current state
 
   getPerStateHW().set(); // apply HW settings for current state
-  
+
   USB.tick(); // output previous block, and give time for system to settle
 
   while (Timer.uS() < LoopPeriod_uS) Hardware::tick(); 
-
   Timer.restart();
+
+  activityLED.toggle();
 }

@@ -8,6 +8,7 @@
 #include "CTimer.h"
 #include <map>
 
+SPISettings    Hardware::SPIsettings(4800000, MSBFIRST, SPI_MODE1);
 
 void Hardware::begin() {
     // Initialize all hardware components
@@ -24,22 +25,21 @@ void Hardware::begin() {
     Timer.restart();
 }
 
+CTimedGate gate(0.005);    // 200Hz
 
 void Hardware::tick() {
-  static double lastTime = 0.0;
-  static constexpr double updateInterval = 0.01; // 100 Hz
   static bool haveData = false;
 
   haveData |= A2D.poll();  // main A2D polling, every cycle
 
-  if (Timer.upTime() - lastTime < updateInterval) return;
-  lastTime = Timer.upTime();
+  if (gate.notDue()) return;  // update hardware at 200Hz
 
-  if (haveData)
+  if (haveData) {
     getPerStateHW().update();  // update pots at 100Hz but only if we have new data
+    delayMicroseconds(50); // small delay to allow pot settling
+  }
 
   haveData = false;
 }
 
 
-SPISettings    Hardware::SPIsettings(4800000, MSBFIRST, SPI_MODE1);
