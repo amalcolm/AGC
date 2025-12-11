@@ -6,8 +6,8 @@ using Frame = uint32_t;
 
 class CTelemetry {
 public:
-    static constexpr size_t maxCapacity = 256;
-    static constexpr size_t initialCapacity = 16;
+    static constexpr size_t maxCapacity     = 256;
+    static constexpr size_t initialCapacity =  16;
 
     static std::vector<CTelemetry*> pool;
     static CTelemetry* Rent();
@@ -27,7 +27,7 @@ public:
     };
 
     double   timeStamp;
-    
+
     Group    group;
     uint8_t  subGroup;
     uint16_t ID;

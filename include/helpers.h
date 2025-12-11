@@ -15,3 +15,7 @@ struct PerStateHW& getPerStateHW(BlockType* block = nullptr);
 inline void Tele(CTelemetry::Group group, int ID, float value) {
     CTelemetry::log(group, ID, value);
 }
+
+inline void Tele(CTelemetry::Group group, uint8_t subGroup, int ID, float value) {
+    CTelemetry::log(group, subGroup, ID, value);
+}

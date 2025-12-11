@@ -4,6 +4,10 @@
 #include "CA2D.h"
 #include "Setup.h"
 #include "DataTypes.h"
+#include "CTimer.h"
+
+const uint64_t CHead::SettleTime = static_cast<uint64_t>(50.0 / CTimer::getSecondsPerTick()); // 50uS
+const uint64_t CHead::MAXUINT64 = static_cast<uint64_t>(-1);
 
 CHead::CHead() : m_State(0), m_sequencePosition(-1) {}
 
@@ -27,8 +31,16 @@ void CHead::setSequence(std::initializer_list<StateType> il) {
   m_sequence.assign(il);  // handles resizing wheres = it; does not
 }
 
+bool CHead::isReady() const { return CTimer::time() >= m_ReadyTime; }
+
+void CHead::waitForReady() const { 
+  if (m_ReadyTime == MAXUINT64) ERROR("CHead::waitForReady called when ready time is unset");
+
+  while (CTimer::time() < m_ReadyTime) delayMicroseconds(1);
+}
 
 StateType CHead::setNextState() {
+  m_ReadyTime = Timer.time() + SettleTime;
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
   if (reset) Pins::flashReset = false; // only use FlashReset once, and set it at start
   

@@ -27,6 +27,8 @@ class CA2D {
     
     void      setBlockState(StateType state);
 
+    int getCounter(int n) { int num = count[n]; count[n] = 0; return num; }
+
     inline ModeType   getMode() { return m_Mode; }
     volatile bool     outputDebugBlock = true;
 
@@ -56,7 +58,7 @@ class CA2D {
     BlockType* volatile m_pBlockToFill;
     BlockType* volatile m_pBlockToSend;
 
-    
+    int count[8] {0,0,0,0,0,0,0,0};
 
     void SPIwrite(std::initializer_list<uint8_t> data);
 }; 

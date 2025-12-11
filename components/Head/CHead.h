@@ -67,11 +67,20 @@ class CHead {
 
     std::vector<StateType>& getSequence();
 
+    static const uint64_t SettleTime;
+
+
+    bool isReady() const;
+    void waitForReady() const;
+    void unsetReady() { m_ReadyTime = MAXUINT64; }
 
   private:
     StateType   m_State;
 
     std::vector<StateType> m_sequence;
     int   m_sequencePosition = -1;
+
+    static const uint64_t MAXUINT64;
+    uint64_t  m_ReadyTime = MAXUINT64;
   
 };

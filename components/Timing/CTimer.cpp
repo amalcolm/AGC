@@ -7,9 +7,10 @@ volatile uint32_t CTimer::s_lastReading   = 0;
 
 uint64_t CTimer::s_calibration = 0;
 
-double CTimer::s_ticksPerSecond = F_CPU / 1.0f;
-double CTimer::s_ticksPerMS = F_CPU / 1000.0f;
-double CTimer::s_ticksPerUS = F_CPU / 1000000.0f;
+double CTimer::s_SecondsPerTick      =       1.0 / F_CPU;
+double CTimer::s_MillecondsPerTick   =    1000.0 / F_CPU;
+double CTimer::s_MicrosecondsPerTick = 1000000.0 / F_CPU;
+
 
 
 CTimer::CTimer() {
@@ -17,12 +18,18 @@ CTimer::CTimer() {
   ARM_DWT_CTRL = reg | ARM_DWT_CTRL_CYCCNTENA;  // Enable the counter
   initGPT1();
   
-  
-  s_calibration = 0;
+  if (s_calibration == 0) 
+    callibrate();
+
   restart();
-  s_calibration = elapsed();
 }
 
+
+void CTimer::callibrate() {
+  s_calibration = 0;      // ensure no calibration offset
+  restart();
+  s_calibration = time(); // ie. time taken to call the time() function, which is subtracted from all future readings
+}
 
 bool GPT1_initialised = false;
 

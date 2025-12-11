@@ -3,6 +3,7 @@
 #include "CTimer.h"
 #include "CUSB.h"
 #include "Hardware.h"
+#include "CHead.h"
 
 // only visible inside Continuous codebase
 static CA2D* Singleton = NULL;
@@ -66,12 +67,20 @@ void CA2D::setMode_Continuous() {
   Serial.println(")");
 }
 
-void CA2D::ISR_Data() { Singleton->m_dataReady = true; }
+void CA2D::ISR_Data() {
+   if (Head.isReady() == false) return;
+   Singleton->m_dataReady = true;
+   Singleton->count[1]++; 
+}
+  
 
 bool CA2D::pollData() { 
   
   if (!m_dataReady) return false;
   m_dataReady = false;
+  count[2]++;
+
+  uint64_t start = CTimer::time();
   SPI.beginTransaction(Hardware::SPIsettings);
   {
     digitalWrite(CS.A2D, LOW);
@@ -84,6 +93,9 @@ bool CA2D::pollData() {
 
   }
   SPI.endTransaction();
+  uint64_t duration = CTimer::time() - start;
+
+  Tele(CTelemetry::Group::A2D, CA2D::TeleKind::TIME, 1, duration * CTimer::getSecondsPerTick());
 
   return true;
 }

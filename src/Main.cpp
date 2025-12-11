@@ -62,18 +62,23 @@ void setup() {
 
 
 
+void loop() {
+  Head.setNextState();    // Set the LEDs for the next state
 
-void loop() {  
-  Head.setNextState();   // Set the LEDs for the next state
+  getPerStateHW().set();  // apply HW settings for new state
 
-  getPerStateHW().set(); // apply HW settings for new state
+  USB.update();           // output previous block, and give time for system to settle
 
-  USB.update();            // output previous block, and give time for system to settle
+  Head.waitForReady();    // wait until Head is ready before starting A2D read
 
   while (Timer.uS() < LoopPeriod_uS) Hardware::update();  // update hardware until period elapses
   Timer.restart();
 
-  Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TICK, Timer.uS());
+  Head.unsetReady();
 
+  Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TICK, 1, A2D.getCounter(1));
+  Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TICK, 2, A2D.getCounter(2));
+
+  
   activityLED.toggle();
 }

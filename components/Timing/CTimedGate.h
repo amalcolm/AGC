@@ -6,7 +6,7 @@
 class CTimedGate {
   public:
     CTimedGate(double period) {
-      _period = static_cast<uint64_t>(period * CTimer::getTicksPerSecond());
+      _period = static_cast<uint64_t>(period * CTimer::getSecondsPerTick());
       lastTime = CTimer::time();
     }
 
