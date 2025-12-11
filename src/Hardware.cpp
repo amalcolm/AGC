@@ -6,6 +6,7 @@
 #include "CA2D.h"
 #include "CHead.h"
 #include "CTimer.h"
+#include "CTimedGate.h"
 #include <map>
 
 SPISettings    Hardware::SPIsettings(4800000, MSBFIRST, SPI_MODE1);
@@ -27,7 +28,7 @@ void Hardware::begin() {
 
 CTimedGate gate(0.005);    // 200Hz
 
-void Hardware::tick() {
+void Hardware::update() {
   static bool haveData = false;
 
   haveData |= A2D.poll();  // main A2D polling, every cycle

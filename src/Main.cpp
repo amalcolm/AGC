@@ -51,8 +51,8 @@ void setup() {
 
   Head.setSequence( {
 //    Head.ALL_OFF,
-//      Head.RED8,
-      Head.IR8,
+      Head.RED8,
+//      Head.IR8,
 //    Head.RED1 | Head.IR1,            // note; use OR ( | ) to combine states
 });
 
@@ -64,14 +64,16 @@ void setup() {
 
 
 void loop() {  
-  Head.setNextState();  // Set the LEDs for the current state
+  Head.setNextState();   // Set the LEDs for the next state
 
-  getPerStateHW().set(); // apply HW settings for current state
+  getPerStateHW().set(); // apply HW settings for new state
 
-  USB.tick(); // output previous block, and give time for system to settle
+  USB.update();            // output previous block, and give time for system to settle
 
-  while (Timer.uS() < LoopPeriod_uS) Hardware::tick(); 
+  while (Timer.uS() < LoopPeriod_uS) Hardware::update();  // update hardware until period elapses
   Timer.restart();
+
+  Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TICK, Timer.uS());
 
   activityLED.toggle();
 }

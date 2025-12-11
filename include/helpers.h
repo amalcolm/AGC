@@ -1,5 +1,6 @@
 #pragma once
 #include <DataTypes.h>
+#include <CTelemetry.h>
 
 struct PerStateHW& getPerStateHW(DataType& data);
 struct PerStateHW& getPerStateHW(BlockType* block = nullptr);
@@ -11,3 +12,6 @@ struct PerStateHW& getPerStateHW(BlockType* block = nullptr);
                              const char* fmt, ...);
 
 
+inline void Tele(CTelemetry::Group group, int ID, float value) {
+    CTelemetry::log(group, ID, value);
+}

@@ -41,7 +41,7 @@ struct PerStateHW {
 
 struct Hardware {
   static void begin();
-  static void tick();
+  static void update();
 
   static SPISettings SPIsettings;
 };

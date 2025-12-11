@@ -13,15 +13,15 @@ CSerialWrapper::CSerialWrapper() : m_Mode(ModeType::UNSET), stateMachine(SerialS
   Serial.begin(USB_BAUDRATE);
 }
 
-void CSerialWrapper::tick() {
+void CSerialWrapper::update() {
   bool connected = Serial;
   bool hasData = Serial.available() > 0;
 
-  stateMachine.tick(connected, hasData, TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->doHandshake(); });
+  stateMachine.update(connected, hasData, TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->doHandshake(); });
 }
 
 void CSerialWrapper::begin() {
-  tick();
+  update();
 }
 
 void CSerialWrapper::doHandshake() {
@@ -109,7 +109,9 @@ CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) 
 }
 
 void CSerialWrapper::write(uint8_t  byte  ) { put(&byte,             sizeof(byte  )); }
+void CSerialWrapper::write(uint16_t data  ) { put((uint8_t*)&data  , sizeof(data  )); }
 void CSerialWrapper::write(uint32_t data  ) { put((uint8_t*)&data  , sizeof(data  )); }
+void CSerialWrapper::write(float    data  ) { put((uint8_t*)&data  , sizeof(data  )); }
 void CSerialWrapper::write(double   number) { put((uint8_t*)&number, sizeof(number)); }
   
 void CSerialWrapper::write(uint8_t* pData, uint32_t dataLen) { put(pData, dataLen); }

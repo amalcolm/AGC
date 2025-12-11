@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CA2D.h"
+#include "CTelemetry.h"
 #include <array>
 
 class CSerialWrapper {
@@ -18,7 +19,7 @@ class CSerialWrapper {
     virtual ~CSerialWrapper() = default;
 
     virtual void begin();
-    virtual void tick();
+    virtual void update();
 
     inline ModeType getMode() { return m_Mode; }
            ModeType setMode(ModeType mode);
@@ -28,7 +29,9 @@ class CSerialWrapper {
     void printf(const char *pFMT, ...);
     
     void write(uint8_t byte);
+    void write(uint16_t data);
     void write(uint32_t data);
+    void write(float data);
     void write(double number);
     void write(uint8_t* pData, uint32_t dataLen);
   private:

@@ -20,7 +20,7 @@ public:
 
   void writeCurrentToPot() { _writeToPot(_currentLevel); }
   
-  RunningAverage& getRunningAverage() { return _runningAverage; }
+  RunningAverageMinMax& getRunningAverage() { return _runningAverage; }
 
 
 protected:
@@ -35,7 +35,7 @@ protected:
   int _lastSensorValue = 0;
 
   bool _inverted = false;
-  RunningAverage _runningAverage;
+  RunningAverageMinMax _runningAverage;
 
 private:
   void _writeToPot(int value);

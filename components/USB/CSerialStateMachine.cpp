@@ -24,7 +24,7 @@ bool SerialStateMachine::handleDisconnection(bool connected, bool &handshakeComp
     return false;
 }
 
-void SerialStateMachine::tick(bool connected, bool hasData, bool testMode,
+void SerialStateMachine::update(bool connected, bool hasData, bool testMode,
                               bool &handshakeComplete, CSerialWrapper::ModeType &mode,
                               std::function<void()> fnHandshake)
 {

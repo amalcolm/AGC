@@ -6,6 +6,7 @@ class CA2D {
   public:
     enum ModeType { UNSET, CONTINUOUS, TRIGGERED };
 
+    enum TeleKind { TICK = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
 
   public:
     CA2D(ModeType mode);

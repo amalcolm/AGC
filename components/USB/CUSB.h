@@ -1,6 +1,7 @@
 #pragma once
 #include "CSerialWrapper.h"
 #include "CrashReport.h"
+#include <queue>
 
 class CUSB : public CSerialWrapper {
   private:
@@ -11,6 +12,8 @@ class CUSB : public CSerialWrapper {
     volatile uint8_t writeIndex = 0;
     volatile uint8_t readIndex = 0;
 
+    std::queue<CTelemetry*> telemetryBuffer;
+
   public:
     CUSB();
 
@@ -18,8 +21,9 @@ class CUSB : public CSerialWrapper {
     
     void buffer(DataType data);
     void buffer(BlockType* block);
+    void buffer(CTelemetry* telemetry);
     
-    void tick();
+    void update();
 
     void SendCrashReport(CrashReportClass& pReport);
 };

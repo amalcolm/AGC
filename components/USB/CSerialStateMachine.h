@@ -13,7 +13,7 @@ public:
 
     SerialStateMachine() : state(State::DISCONNECTED), firstCall(true) {}
 
-    void tick(bool connected, bool hasData, bool testMode,
+    void update(bool connected, bool hasData, bool testMode,
               bool &handshakeComplete, CSerialWrapper::ModeType &mode,
               std::function<void()> beginFn);
 

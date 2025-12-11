@@ -45,33 +45,12 @@ public:
   inline void     restartConnectTiming() { s_connectTime = time();                           }
   inline double   getConnectTime()       { return (time() - s_connectTime) / s_ticksPerSecond; }
   inline static double upTime() { return CTimer::time() / s_ticksPerSecond; }
-  inline static uint32_t getTicksPerSecond() { return s_ticksPerSecond; }
+  inline static double getTicksPerSecond() { return s_ticksPerSecond; }
 
   static void     gpt1Handler();
   
 private:
   inline uint64_t _raw() const { return ARM_DWT_CYCCNT; }
-
   
   void initGPT1();
-};
-
-class CTimedGate {
-  public:
-    CTimedGate(double period) {
-      _period = static_cast<uint64_t>(period * CTimer::getTicksPerSecond());
-      lastTime = CTimer::time();
-    }
-
-  public:
-    bool notDue() { 
-      uint64_t now = CTimer::time();
-      if (now < lastTime + _period) return true;
-      lastTime += _period;
-      return false;
-    }
-
-  private:
-    uint64_t _period;
-    uint64_t lastTime;
 };

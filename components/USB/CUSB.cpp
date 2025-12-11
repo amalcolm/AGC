@@ -1,6 +1,7 @@
 #include "CUSB.h"
 #include "DataTypes.h"
 #include "CHead.h"
+#include "CTelemetry.h"
 #include <map>
 
 constexpr unsigned int TEXTOUT_INTERVAL = 10000; // 10ms
@@ -24,10 +25,14 @@ void CUSB::buffer(BlockType* pBlock) {
   m_pBlock = pBlock;
 }
 
-// Called from the main loop: sends data from the buffer.
-void CUSB::tick() {
+void CUSB::buffer(CTelemetry* telemetry) {
+  telemetryBuffer.emplace(telemetry);
+}
 
-  CSerialWrapper::tick();
+// Called from the main loop: sends data from the buffer.
+void CUSB::update() {
+
+  CSerialWrapper::update();
  
   switch (getMode())
   {
@@ -73,6 +78,17 @@ void CUSB::tick() {
     default:
       break;
   }
+
+  while (!telemetryBuffer.empty()) {
+      CTelemetry* telemetry = telemetryBuffer.front();
+
+      if (m_handshakeComplete)
+          telemetry->writeSerial();
+        
+      CTelemetry::Return(telemetry);
+      telemetryBuffer.pop();
+  }
+
 }
 
 void CUSB::SendCrashReport(CrashReportClass& pReport)
