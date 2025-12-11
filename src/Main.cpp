@@ -79,6 +79,6 @@ void loop() {
   Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TICK, 1, A2D.getCounter(1));
   Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TICK, 2, A2D.getCounter(2));
 
-  
+  Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TIME, 1, Timer.time() * CTimer::getSecondsPerTick());
   activityLED.toggle();
 }

@@ -75,7 +75,7 @@ void CA2D::ISR_Data() {
   
 
 bool CA2D::pollData() { 
-  
+  count[0]++;
   if (!m_dataReady) return false;
   m_dataReady = false;
   count[2]++;

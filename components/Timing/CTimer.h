@@ -13,7 +13,6 @@ private:
   static double s_MicrosecondsPerTick;
 
   static volatile uint64_t s_connectTime;
-  static volatile uint32_t s_lastReading;
   static volatile uint64_t s_overflowCount;
 
   static const uint64_t increment = 0x1ULL << 32;
@@ -21,23 +20,19 @@ private:
 public:
   CTimer();
 
-  inline static uint64_t time() {
-
-    uint32_t current = ARM_DWT_CYCCNT;
-
-  if (current < s_lastReading) {
+inline static uint64_t time() {
+  static volatile uint32_t s_lastReading = 0;
     __disable_irq();
-      auto val = s_overflowCount + increment;
-      s_overflowCount = val;
-      s_lastReading = current;
-    __enable_irq();
-  } 
-  else
+    uint32_t current = ARM_DWT_CYCCNT;
+    if (current < s_lastReading) {
+        auto val = s_overflowCount + increment;
+        s_overflowCount = val;
+    }
     s_lastReading = current;
-
-  return s_overflowCount + current - s_calibration;
-}   
-
+    uint64_t result = s_overflowCount + current - s_calibration;
+    __enable_irq();
+    return result;
+}
   inline void     restart()  { startTime = time();            }
   inline uint64_t elapsed()  { return time() - startTime;     }
   inline double   mS()       { return elapsed() * s_MillecondsPerTick; }

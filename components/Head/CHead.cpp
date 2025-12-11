@@ -6,7 +6,7 @@
 #include "DataTypes.h"
 #include "CTimer.h"
 
-const uint64_t CHead::SettleTime = static_cast<uint64_t>(50.0 / CTimer::getSecondsPerTick()); // 50uS
+const uint64_t CHead::SettleTime = static_cast<uint64_t>(50.0 * CTimer::getMicrosecondsPerTick()); // 50uS
 const uint64_t CHead::MAXUINT64 = static_cast<uint64_t>(-1);
 
 CHead::CHead() : m_State(0), m_sequencePosition(-1) {}

@@ -3,7 +3,7 @@
 
 volatile uint64_t CTimer::s_overflowCount = 0;
 volatile uint64_t CTimer::s_connectTime   = 0;
-volatile uint32_t CTimer::s_lastReading   = 0;
+// volatile uint32_t CTimer::s_lastReading   = 0;
 
 uint64_t CTimer::s_calibration = 0;
 
