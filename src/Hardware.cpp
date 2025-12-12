@@ -29,18 +29,17 @@ void Hardware::begin() {
 CTimedGate gate(0.005);    // 200Hz
 
 void Hardware::update() {
-  static bool haveData = false;
 
-  haveData |= A2D.poll();  // main A2D polling, every cycle
+  TeleCount[1]++;
+
+  A2D.poll();  // main A2D polling, every cycle
 
   if (gate.notDue()) return;  // update hardware at 200Hz
 
-  if (haveData) {
-    getPerStateHW().update();  // update pots at 100Hz but only if we have new data
-    delayMicroseconds(50); // small delay to allow pot settling
-  }
+  TeleCount[5]++;
 
-  haveData = false;
+  getPerStateHW().update();  // update pots at 200Hz but only if we have new data
+  delayMicroseconds(40); // small delay to allow pot settling
 }
 
 

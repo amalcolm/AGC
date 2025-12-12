@@ -6,7 +6,7 @@
 
 bool TESTMODE = false;  // if true, uses polled A2D mode and ProccessA2D callback by default
 
-constexpr float LoopPeriod_uS = 20000;  // 20ms
+constexpr double LoopPeriod_uS = 20000;  // 20ms
 
 // ProcessA2D: Callback to process A2D data blocks for debugging
 void ProccessA2D(BlockType* block) {  if (!TESTMODE || block == nullptr || block->count == 0) return;
@@ -76,9 +76,13 @@ void loop() {
 
   Head.unsetReady();
 
-  Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TICK, 1, A2D.getCounter(1));
-  Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TICK, 2, A2D.getCounter(2));
 
-  Tele(CTelemetry::Group::PROGRAM, CA2D::TeleKind::TIME, 1, Timer.time() * CTimer::getSecondsPerTick());
+  Tele(CTelemetry::Group::A2D     , CA2D::TeleKind::COUNT, 0, getCounter(0));
+  Tele(CTelemetry::Group::HARDWARE, CA2D::TeleKind::COUNT, 1, getCounter(1));
+  Tele(CTelemetry::Group::A2D     , CA2D::TeleKind::COUNT, 2, getCounter(2));
+  Tele(CTelemetry::Group::PROGRAM , CA2D::TeleKind::COUNT, 5, getCounter(5));
+
+  Tele(CTelemetry::Group::PROGRAM , CA2D::TeleKind::COUNT, 60, getCounter(60));
+
   activityLED.toggle();
 }

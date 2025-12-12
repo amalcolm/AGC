@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include "Arduino.h"
-
+#include "Helpers.h"
 class CTimer {
   
 private:
@@ -13,26 +13,37 @@ private:
   static double s_MicrosecondsPerTick;
 
   static volatile uint64_t s_connectTime;
-  static volatile uint64_t s_overflowCount;
 
-  static const uint64_t increment = 0x1ULL << 32;
 
 public:
   CTimer();
 
-inline static uint64_t time() {
-  static volatile uint32_t s_lastReading = 0;
-    __disable_irq();
-    uint32_t current = ARM_DWT_CYCCNT;
+  inline static uint64_t time() {
+    static volatile  uint32_t s_lastReading = 0;
+    static volatile  uint64_t s_offset      = 0;
+    static constexpr uint64_t s_increment   = 0x1ULL << 32;
+
+  uint32_t current = ARM_DWT_CYCCNT;
+    if (current >= s_lastReading) {
+      s_lastReading = current;
+      return s_offset + current - s_calibration;
+    }
+    // Potential overflow detected - enter critical section
+__disable_irq();
+    current = ARM_DWT_CYCCNT;  // Re-read to handle any timing edge cases
     if (current < s_lastReading) {
-        auto val = s_overflowCount + increment;
-        s_overflowCount = val;
+      uint64_t temp = s_offset;  // Read
+      temp += s_increment;       // Modify
+      s_offset = temp;           // Write    
     }
     s_lastReading = current;
-    uint64_t result = s_overflowCount + current - s_calibration;
-    __enable_irq();
+    TeleCount[60]++;
+    uint64_t result = s_offset + current - s_calibration;
+__enable_irq();
+
     return result;
-}
+  }
+
   inline void     restart()  { startTime = time();            }
   inline uint64_t elapsed()  { return time() - startTime;     }
   inline double   mS()       { return elapsed() * s_MillecondsPerTick; }

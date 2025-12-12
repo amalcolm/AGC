@@ -1,9 +1,7 @@
 #include "CTimer.h"
 #include "../teensy_compat.h"
 
-volatile uint64_t CTimer::s_overflowCount = 0;
-volatile uint64_t CTimer::s_connectTime   = 0;
-// volatile uint32_t CTimer::s_lastReading   = 0;
+volatile uint64_t CTimer::s_connectTime = 0;
 
 uint64_t CTimer::s_calibration = 0;
 
@@ -16,6 +14,7 @@ double CTimer::s_MicrosecondsPerTick = 1000000.0 / F_CPU;
 CTimer::CTimer() {
   uint32_t reg = ARM_DWT_CTRL;
   ARM_DWT_CTRL = reg | ARM_DWT_CTRL_CYCCNTENA;  // Enable the counter
+
   initGPT1();
   
   if (s_calibration == 0) 
@@ -49,8 +48,8 @@ void CTimer::initGPT1() {
 
   // --- Reset and configure GPT1 ---
   GPT1_CR = 0;               // disable while configuring
-  GPT1_PR = 0;               // no prescaler. runs at F_CPU
-  GPT1_OCR1 = F_CPU / 2;     // compare value for interrupt (0.5s)
+  GPT1_PR = 0;               // no prescaler. runs at peripheral clock (F_CPU/4)
+  GPT1_OCR1 = (F_CPU/4) / 2;   // compare value for interrupt (0.5s)
   GPT1_SR = 0x3F;            // clear all status flags
   GPT1_IR = GPT_IR_OF1IE
           | GPT_IR_OC1IE;    // enable overflow interrupt

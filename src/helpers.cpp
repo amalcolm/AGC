@@ -63,7 +63,7 @@ PerStateHW& getPerStateHW(DataType& data){
 
     // Try to make USB serial usable even during static init
     if (!Serial) {
-        Serial.begin(115200);
+        Serial.begin(115200); 
         for (int i = 0; i < 50 && !Serial; ++i) delay(10); // ~500ms max
     }
 

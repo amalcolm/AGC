@@ -31,12 +31,12 @@ void CHead::setSequence(std::initializer_list<StateType> il) {
   m_sequence.assign(il);  // handles resizing wheres = it; does not
 }
 
-bool CHead::isReady() const { return CTimer::time() >= m_ReadyTime; }
+bool CHead::isReady() const { return Timer.time() >= m_ReadyTime; }
 
 void CHead::waitForReady() const { 
   if (m_ReadyTime == MAXUINT64) ERROR("CHead::waitForReady called when ready time is unset");
 
-  while (CTimer::time() < m_ReadyTime) delayMicroseconds(1);
+  while (Timer.time() < m_ReadyTime) delayMicroseconds(1);
 }
 
 StateType CHead::setNextState() {

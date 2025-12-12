@@ -17,11 +17,13 @@ public:
     enum class Group : uint8_t {
         NONE     = 0x00,
         PROGRAM  = 0x01,
+        HARDWARE = 0x02,
 
         A2D      = 0x11,
-        HARDWARE = 0x12,
+        DIGIPOTS = 0x12,
         USB      = 0x13,
         HEAD     = 0x14,
+        TIMER    = 0x15,
 
         UNSET    = 0xFF
     };

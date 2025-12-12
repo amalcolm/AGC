@@ -6,7 +6,7 @@ class CA2D {
   public:
     enum ModeType { UNSET, CONTINUOUS, TRIGGERED };
 
-    enum TeleKind { TICK = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
+    enum TeleKind { COUNT = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
 
   public:
     CA2D(ModeType mode);
@@ -23,11 +23,8 @@ class CA2D {
     DataType  getData();
 
     // Continuous
-    bool      poll();
-    
     void      setBlockState(StateType state);
 
-    int getCounter(int n) { int num = count[n]; count[n] = 0; return num; }
 
     inline ModeType   getMode() { return m_Mode; }
     volatile bool     outputDebugBlock = true;
@@ -58,7 +55,10 @@ class CA2D {
     BlockType* volatile m_pBlockToFill;
     BlockType* volatile m_pBlockToSend;
 
-    int count[8] {0,0,0,0,0,0,0,0};
 
     void SPIwrite(std::initializer_list<uint8_t> data);
+
+    public:
+    
+    inline bool poll() { if (m_Mode != ModeType::CONTINUOUS) return false; else return pollData(); }
 }; 

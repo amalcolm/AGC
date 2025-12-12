@@ -68,19 +68,18 @@ void CA2D::setMode_Continuous() {
 }
 
 void CA2D::ISR_Data() {
-   if (Head.isReady() == false) return;
+//   if (Head.isReady() == false) return;
    Singleton->m_dataReady = true;
-   Singleton->count[1]++; 
+   TeleCount[0]++; 
 }
   
 
 bool CA2D::pollData() { 
-  count[0]++;
+
   if (!m_dataReady) return false;
   m_dataReady = false;
-  count[2]++;
 
-  uint64_t start = CTimer::time();
+//  uint64_t start = CTimer::time();
   SPI.beginTransaction(Hardware::SPIsettings);
   {
     digitalWrite(CS.A2D, LOW);
@@ -93,9 +92,10 @@ bool CA2D::pollData() {
 
   }
   SPI.endTransaction();
-  uint64_t duration = CTimer::time() - start;
+//  uint64_t duration = CTimer::time() - start;
 
-  Tele(CTelemetry::Group::A2D, CA2D::TeleKind::TIME, 1, duration * CTimer::getSecondsPerTick());
+//  Tele(CTelemetry::Group::A2D, CA2D::TeleKind::TIME, 1, duration * CTimer::getMicrosecondsPerTick());
+  TeleCount[2]++; 
 
   return true;
 }
