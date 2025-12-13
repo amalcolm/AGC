@@ -66,6 +66,8 @@ void CA2D::setMode_Continuous() {
   }
   SPI.endTransaction();
 
+  NVIC_SET_PRIORITY(IRQ_GPIO1_0_15, 32);
+
   // MCU side
   pinMode(m_pinDataReady, INPUT); // no pullups; ADS drives the line
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
@@ -82,7 +84,7 @@ void CA2D::setMode_Continuous() {
 }
 
 void CA2D::ISR_Data() {
-   if (Head.isReady() == false) return;
+//   if (Head.isReady() == false) return;  commented out for diagnosing timing issues.
    Singleton->m_dataReady = true;
    TeleCount[0]++; 
 }
