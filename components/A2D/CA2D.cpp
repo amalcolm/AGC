@@ -85,6 +85,13 @@ DataType CA2D::readData() {
 
   data.timeStamp = Timer.getConnectTime();
 
+  uint8_t raw[27];
+  bool ok = readFrame(raw);
+  if (ok) 
+    dataFromFrame(raw, data);
+  else
+    data.state = DIRTY;
+   
   auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(data);
 
   data.hardwareState = 
@@ -97,14 +104,6 @@ DataType CA2D::readData() {
       (analogRead(offsetPot1.getSensorPin()) << 16) |
       (analogRead(offsetPot2.getSensorPin())      );
 
-  uint8_t raw[27];
-  bool ok = readFrame(raw);
-
-  if (ok) 
-    dataFromFrame(raw, data);
-  else
-    data.state = DIRTY;
-   
   return data;
 }
 

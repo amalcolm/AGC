@@ -29,6 +29,21 @@ void CUSB::buffer(CTelemetry* telemetry) {
   telemetryBuffer.emplace(telemetry);
 }
 
+void filter(BlockType* block) {
+  
+  if (block == nullptr || block->count < 2) return;
+
+  // If first reading is less than 1/8 of second, remove it
+  if (block->data[0].channels[0] < block->data[1].channels[0] / 8) {
+    // delete first entry
+    for (uint32_t i = 1; i < block->count; ++i) {
+      block->data[i - 1] = block->data[i];
+    }
+    block->count--;
+  }
+  
+}
+
 // Called from the main loop: sends data from the buffer.
 void CUSB::update() {
 
@@ -40,6 +55,8 @@ void CUSB::update() {
     {
       if (m_pBlock == NULL) return;
       
+      filter(m_pBlock);
+
       if (m_handshakeComplete)
         m_pBlock->writeSerial();
       else

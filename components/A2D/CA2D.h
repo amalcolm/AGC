@@ -8,6 +8,8 @@ class CA2D {
 
     enum TeleKind { COUNT = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
 
+    inline static uint32_t SAMPLING_SPEED = 1000; // default A2D sampling speed in samples per second (only used in continuous mode)
+
   public:
     CA2D(ModeType mode);
     CA2D(CallbackType callback);

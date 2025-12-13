@@ -4,18 +4,32 @@
 #include "CUSB.h"
 #include "Hardware.h"
 #include "CHead.h"
-
+#include <vector>
+#include <tuple>
 // only visible inside Continuous codebase
 static CA2D* Singleton = NULL;
 
 
 void CA2D::setMode_Continuous() {
-  uint8_t id = 0;
+  static constexpr std::array<std::pair<uint32_t, uint8_t>, 8> speedLookup = {{
+      {16000, 0xD0}, { 8000, 0xD1}, { 4000, 0xD2}, { 2000, 0xD3},
+      { 1000, 0xD4}, {  500, 0xD5}, {  250, 0xD6}, {  125, 0xD7}
+  }};
+
+
   if (Singleton) { Serial.print("*** A2D: Single continuous instance only."); return; }
   Singleton = this;
 
   pinMode(CS.A2D, OUTPUT);
   digitalWrite(CS.A2D, HIGH);
+
+  uint8_t cfg1 = 0xD4; // default 1kSPS
+  for (const auto& [speed, value] : speedLookup)
+    if (CA2D::SAMPLING_SPEED == speed) {
+      cfg1 = value;
+      break;
+    }
+
 
   SPI.begin();
   SPI.beginTransaction(Hardware::SPIsettings);
@@ -31,11 +45,11 @@ void CA2D::setMode_Continuous() {
     digitalWrite(CS.A2D, LOW);
     SPI.transfer(0x20);               // RREG addr=0x00
     SPI.transfer(0x00);               // read 1 register
-    id = SPI.transfer(0x00);
     digitalWrite(CS.A2D, HIGH);
 
+
     // 4) Config: 2 kSPS, reserved bits correct, no CLK out
-    SPIwrite({0x41, 0x00, 0xD1});     // CONFIG1 = 0xD4 for 1 kSPS);  0xD6 = 250SPS, 0xD5 = 500SPS, OxD4 = 1kSPS, 0xD3 = 2kSPS, ... D0 = 16kSPS; 
+    SPIwrite({0x41, 0x00, cfg1});     // CONFIG1 = 0xD4 for 1 kSPS);  0xD6 = 250SPS, 0xD5 = 500SPS, OxD4 = 1kSPS, 0xD3 = 2kSPS, ... D0 = 16kSPS; 
                                       // bits: 1 DAISY_EN=1 CLK_EN=0 1 0 DR=100 (1 kSPS)
     SPIwrite({0x42, 0x00, 0xC0});     // CONFIG2 (baseline; no internal test)
     SPIwrite({0x43, 0x00, 0xE0});     // CONFIG3 (enable internal reference buffer)
@@ -62,13 +76,13 @@ void CA2D::setMode_Continuous() {
   m_BlockB.clear();
 
   m_Mode = ModeType::CONTINUOUS;
-  Serial.print("A2D: Continuous mode (id=");
-  Serial.print(id);
-  Serial.println(")");
+  Serial.print("A2D: Continuous mode (@");
+  Serial.print(CA2D::SAMPLING_SPEED);
+  Serial.println("hz)");
 }
 
 void CA2D::ISR_Data() {
-//   if (Head.isReady() == false) return;
+   if (Head.isReady() == false) return;
    Singleton->m_dataReady = true;
    TeleCount[0]++; 
 }
@@ -88,7 +102,8 @@ bool CA2D::pollData() {
     DataType data = readData();
     
     digitalWrite(CS.A2D, HIGH);
-    m_pBlockToFill->push_back(data);
+    if (data.channels[0] > 0)
+      m_pBlockToFill->push_back(data);
 
   }
   SPI.endTransaction();

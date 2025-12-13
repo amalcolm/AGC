@@ -34,12 +34,12 @@ void Hardware::update() {
 
   A2D.poll();  // main A2D polling, every cycle
 
-  if (gate.notDue()) return;  // update hardware at 200Hz
+ if (gate.notDue()) return;  // update hardware at 200Hz
 
   TeleCount[5]++;
 
   getPerStateHW().update();  // update pots at 200Hz but only if we have new data
-  delayMicroseconds(40); // small delay to allow pot settling
+//  delayMicroseconds(40); // small delay to allow pot settling
 }
 
 

@@ -69,7 +69,7 @@ void loop() {
 
   USB.update();           // output previous block, and give time for system to settle
 
-  Head.waitForReady();    // wait until Head is ready before starting A2D read
+;  Head.waitForReady();    // wait until Head is ready before starting A2D read
 
   while (Timer.uS() < LoopPeriod_uS) Hardware::update();  // update hardware until period elapses
   Timer.restart();
