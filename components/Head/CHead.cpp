@@ -16,6 +16,7 @@ CHead::~CHead() {}
 void CHead::begin() {
   m_sequencePosition = -1;
   m_State = DIRTY;
+  unsetReady();
 }
 
 
@@ -37,6 +38,7 @@ void CHead::waitForReady() const {
   if (m_ReadyTime == MAXUINT64) ERROR("CHead::waitForReady called when ready time is unset");
 
   while (Timer.time() < m_ReadyTime) delayMicroseconds(1);
+  A2D.clear(); // clear datReady to ensure fresh read on next A2D read
 }
 
 StateType CHead::setNextState() {

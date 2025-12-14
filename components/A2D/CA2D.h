@@ -26,6 +26,11 @@ class CA2D {
 
     // Continuous
     void      setBlockState(StateType state);
+    inline void clear() {
+    __disable_irq();
+      m_dataReady = false;
+    __enable_irq();
+    }
 
 
     inline ModeType   getMode() { return m_Mode; }

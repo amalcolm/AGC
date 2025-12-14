@@ -88,14 +88,14 @@ void CA2D::ISR_Data() {
    TC_ISR.increment(); 
 }
   
-//CTeleTimer TT_pollData{TeleGroup::A2D, 0x01};
+CTeleTimer TT_pollData{TeleGroup::A2D, 0x01};
 
 bool CA2D::pollData() { 
 
   if (!m_dataReady) return false;
   m_dataReady = false;
 
-//TT_pollData.start();  // cannot put before return false;
+TT_pollData.start();  // cannot put before return false;
 
 //  uint64_t start = CTimer::time();
   SPI.beginTransaction(Hardware::SPIsettings);
@@ -112,7 +112,7 @@ bool CA2D::pollData() {
   }
   SPI.endTransaction();
 
-//  TT_pollData.stop();
+TT_pollData.stop();
 
   return true;
 }

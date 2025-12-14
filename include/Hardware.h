@@ -4,12 +4,11 @@
 #include "CAutoPot.h"
 #include "DataTypes.h"
 #include "CTelemetry.h"
+#include "CHead.h"
 
 struct PerStateHW {
   StateType state;
-  PerStateHW(StateType state) : state(state) {
-    USB.printf("PerStateHW constructed for state 0x%08X at %p\n", state, this);
-  }
+  PerStateHW(StateType state) : state(state) {}
 
   COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  50, 212, 812 };
   COffsetPot    offsetPot2{ CS.offset2, SP.postGain , 100, 224, 800 };
@@ -32,9 +31,10 @@ struct PerStateHW {
   }
 
   struct Telemetry {
-    CTeleTimer TT_Offset1{TeleGroup::DIGIPOTS, 0x01};
-    CTeleTimer TT_Offset2{TeleGroup::DIGIPOTS, 0x02};
-    CTeleTimer TT_Gain   {TeleGroup::DIGIPOTS, 0x03};
+    uint16_t sequenceNumber = Head.getSequenceNumber() << 8;
+    CTeleTimer TT_Offset1{TeleGroup::DIGIPOTS, (uint16_t)(0x01 | sequenceNumber)};
+    CTeleTimer TT_Offset2{TeleGroup::DIGIPOTS, (uint16_t)(0x02 | sequenceNumber)};
+    CTeleTimer TT_Gain   {TeleGroup::DIGIPOTS, (uint16_t)(0x03 | sequenceNumber)};
   } tele;
 
   void update() {

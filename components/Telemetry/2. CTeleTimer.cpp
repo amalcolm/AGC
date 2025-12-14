@@ -6,19 +6,16 @@ CTeleTimer::CTeleTimer(TeleGroup group, uint16_t id) : CTelemetry(group, SUBGROU
   if (id == 0xFFFF) 
     ID = instanceCounter++;
     
-  USB.printf("CTeleTimer constructed %p\n", this);
-
   _register(this);
 }
 
-CTeleTimer::~CTeleTimer() {
-  USB.printf("CTeleTimer destructed %p\n", this);
-} 
 
 float CTeleTimer::getValue()  {
-  float retVal = static_cast<float>(_maxDuration * CTimer::getMicrosecondsPerTick());
+uint32_t val = (_maxDuration == 0) ? _oldMaxDuration : _maxDuration;
+  _oldMaxDuration = val;
   _maxDuration = 0;
-  return retVal;
+
+  return static_cast<float>(val * CTimer::getMicrosecondsPerTick());
 }
 
 void CTeleTimer::stop() {
@@ -26,9 +23,4 @@ void CTeleTimer::stop() {
 
     if (duration > _maxDuration)
       _maxDuration = duration;
-
-    if (first)
-      USB.printf("Timer %p stop() value = %8.3f\n", this, getValue());
-
-    first = false;
-  }
+}

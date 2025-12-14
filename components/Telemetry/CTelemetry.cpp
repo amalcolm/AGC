@@ -85,7 +85,6 @@ std::deque<CTelemetry*>& CTelemetry::getAllTelemetries() {
 }
 
 void CTelemetry::_register(CTelemetry* tele) {
-  USB.printf("Registering %p (%s)\n", tele, tele->getName());
   getAllTelemetries().push_back(tele);
 }
 

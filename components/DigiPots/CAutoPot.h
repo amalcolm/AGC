@@ -1,6 +1,7 @@
 #pragma once
 #include "RunningAverage.h"
-
+#include <utility>
+#include <deque>
 
 class CAutoPot {
 public:
@@ -28,17 +29,19 @@ protected:
   void     _offsetLevel(int offset);
   void     _setLevel(int newLevel);
 
-  int _csPin;
+  int _csPin; 
   int _sensorPin;
   int _samplesToAverage;
   int _currentLevel = -1;
   int _lastSensorValue = 0;
 
+  inline static std::deque<std::pair<uint8_t, uint8_t>> s_currentValues{};
+
   bool _inverted = false;
   RunningAverageMinMax _runningAverage;
 
 private:
-  void _writeToPot(int value);
+  void _writeToPot(uint8_t value);
 };
 
 // =================================================================

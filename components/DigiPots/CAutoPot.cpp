@@ -57,22 +57,36 @@ if (newLevel > 254) newLevel = 254;
 //  }
 }
 
+void CAutoPot::_writeToPot(uint8_t value)
+{
+  static const SPISettings settings{4'000'000, MSBFIRST, SPI_MODE0};
 
-void CAutoPot::_writeToPot(int value) {
-  static SPISettings settings(4000000, MSBFIRST, SPI_MODE0);
+  // Find existing entry for this CS pin (by reference)
+  auto it = std::find_if(s_currentValues.begin(), s_currentValues.end(),
+                        [this](const auto& entry) { return entry.first == _csPin; });
+
+  if (it != s_currentValues.end())
+  {
+    if (it->second == value) return; // No change — avoid redundant SPI write
+    it->second = value;
+  } else {
+      s_currentValues.emplace_back(_csPin, value);       // Insert new entry
+  }
 
   SPI.beginTransaction(settings);
   {
-    digitalWrite(_csPin, LOW);
-    delayMicroseconds(5);
+      digitalWrite(_csPin, LOW);
+      delayMicroseconds(5);
 
-    SPI.transfer(0x00); // Address for wiper
-    
-    int val = value;
+      SPI.transfer(0x00);  // Address for wiper
+      SPI.transfer(value);
 
-    SPI.transfer(val);
-    digitalWrite(_csPin, HIGH);
-    delayMicroseconds(5);
-  } 
+      digitalWrite(_csPin, HIGH);
+      delayMicroseconds(5);
+  }
   SPI.endTransaction();
+
+  USB.printf("Wrote pot CS pin %d value %d\n", _csPin, value);
+
 }
+

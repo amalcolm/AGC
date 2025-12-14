@@ -11,8 +11,11 @@ CTelePeriod::CTelePeriod(TeleGroup group, uint16_t id) : CTelemetry(group, SUBGR
 
 
 float CTelePeriod::getValue() {
-  float val = static_cast<float>(_maxTick * CTimer::getMicrosecondsPerTick());
   
-  _maxTick = 0;  // reset so next call skips first measurement again
-  return val;
+  uint32_t val = (_maxTick == 0) ? _oldMaxTick : _maxTick;
+  _oldMaxTick = val;
+
+  _maxTick = 0;
+  
+  return static_cast<float>(val * CTimer::getMicrosecondsPerTick());
 }

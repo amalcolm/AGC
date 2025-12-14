@@ -66,6 +66,7 @@ class CHead {
     void clear();
 
     std::vector<StateType>& getSequence();
+    uint8_t getSequenceNumber() const { return m_sequencePosition; }
 
     static const uint64_t SettleTime;
 

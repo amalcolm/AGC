@@ -14,7 +14,8 @@ public:
 protected:
   uint32_t _lastTick{};
   uint32_t _maxTick{};
-
+  uint32_t _oldMaxTick{};
+  
 public:
   inline void measure() {
     uint32_t now = ARM_DWT_CYCCNT;

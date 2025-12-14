@@ -9,7 +9,7 @@ private:
   uint64_t startTime;
   static uint64_t s_calibration;
   static double s_SecondsPerTick;
-  static double s_MillecondsPerTick;
+  static double s_MillisecondsPerTick;
   static double s_MicrosecondsPerTick;
 
   static volatile uint64_t s_connectTime;
@@ -46,7 +46,7 @@ __enable_irq();
 
   inline void     restart()  { startTime = time();            }
   inline uint64_t elapsed()  { return time() - startTime;     }
-  inline double   mS()       { return elapsed() * s_MillecondsPerTick; }
+  inline double   mS()       { return elapsed() * s_MillisecondsPerTick; }
   inline double   uS()       { return elapsed() * s_MicrosecondsPerTick; }
 
   inline void     restartConnectTiming() { s_connectTime = time();                           }
@@ -55,7 +55,7 @@ __enable_irq();
   inline static double upTime() { return CTimer::time() * s_SecondsPerTick; }
   
   inline static double      getSecondsPerTick() { return      s_SecondsPerTick; }
-  inline static double  geMillisecondsPerTick() { return   s_MillecondsPerTick; }
+  inline static double getMillisecondsPerTick() { return s_MillisecondsPerTick; }
   inline static double getMicrosecondsPerTick() { return s_MicrosecondsPerTick; }
 
   static void     gpt1Handler();

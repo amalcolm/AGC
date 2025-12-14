@@ -93,7 +93,6 @@ void CSerialWrapper::doHandshake() {
   if (m_handshakeComplete || stateMachine.getFirstCall())
     USB.printf(outcome.c_str());  
 
-  Head.clear(); // ensure all LEDs off at start
   Serial.flush(); // ensure all output sent
   Serial.clear(); // clear output buffer
   while (Serial.available() > 0) Serial.read(); // flush input buffer

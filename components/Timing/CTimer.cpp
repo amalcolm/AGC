@@ -6,7 +6,7 @@ volatile uint64_t CTimer::s_connectTime = 0;
 uint64_t CTimer::s_calibration = 0;
 
 double CTimer::s_SecondsPerTick      =       1.0 / F_CPU;
-double CTimer::s_MillecondsPerTick   =    1000.0 / F_CPU;
+double CTimer::s_MillisecondsPerTick =    1000.0 / F_CPU;
 double CTimer::s_MicrosecondsPerTick = 1000000.0 / F_CPU;
 
 

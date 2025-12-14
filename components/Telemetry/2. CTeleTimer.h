@@ -11,16 +11,14 @@ private:
 
   uint32_t _start{};
   uint32_t _maxDuration{};
-
+  uint32_t _oldMaxDuration{};
+  
 public:
   CTeleTimer(TeleGroup group = TeleGroup::PROGRAM, uint16_t id = 0xFFFF);
- ~CTeleTimer();
 
   inline void start() {
     _start = ARM_DWT_CYCCNT;
   }
-
-  bool first = true;
 
   void stop();
 

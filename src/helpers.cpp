@@ -43,7 +43,7 @@ PerStateHW& getPerStateHW(BlockType* block) {
   return getPerStateHW(block ? block->state : DIRTY);
 }
 
-PerStateHW& getPerStateHW(DataType& data){
+PerStateHW& getPerStateHW(DataType& data) {
   return getPerStateHW(data.state);
 }
 
