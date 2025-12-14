@@ -5,7 +5,7 @@
 #include <string>
 
 
-extern bool TESTMODE;  // if true, uses polled A2D mode and ProccessA2D callback by default
+extern bool TESTMODE;  // if true, uses polled A2D mode and _Callback callback by default
 
 
 extern bool Ready;                // set to true once setup() is complete 

@@ -22,6 +22,7 @@ void CUSB::buffer(DataType data) {
 }
 
 void CUSB::buffer(BlockType* pBlock) {
+  if (pBlock == nullptr || pBlock->state == DIRTY) return;
   m_pBlock = pBlock;
 }
 

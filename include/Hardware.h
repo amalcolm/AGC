@@ -7,7 +7,9 @@
 
 struct PerStateHW {
   StateType state;
-  PerStateHW(StateType state) : state(state) {}
+  PerStateHW(StateType state) : state(state) {
+    USB.printf("PerStateHW constructed for state 0x%08X at %p\n", state, this);
+  }
 
   COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  50, 212, 812 };
   COffsetPot    offsetPot2{ CS.offset2, SP.postGain , 100, 224, 800 };

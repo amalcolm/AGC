@@ -14,7 +14,7 @@ private:
 
 public:
   CTeleTimer(TeleGroup group = TeleGroup::PROGRAM, uint16_t id = 0xFFFF);
-
+ ~CTeleTimer();
 
   inline void start() {
     _start = ARM_DWT_CYCCNT;

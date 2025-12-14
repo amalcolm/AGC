@@ -67,8 +67,6 @@ inline int32_t be24_to_s32(const uint8_t b2, const uint8_t b1, const uint8_t b0)
 
 void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
 
-//  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(data);
-
   const uint8_t* p = &raw[3]; // skip status
   for (int ch=0; ch<8; ++ch) {
     int32_t val = be24_to_s32(p[0], p[1], p[2]);
@@ -89,9 +87,10 @@ DataType CA2D::readData() {
   bool ok = readFrame(raw);
   if (ok) 
     dataFromFrame(raw, data);
-  else
+  else {
     data.state = DIRTY;
-   
+    return data;
+  }
   auto& [state, offsetPot1, offsetPot2, gainPot, tele] = getPerStateHW(data);   IGNORE(tele);
 
   data.hardwareState = 

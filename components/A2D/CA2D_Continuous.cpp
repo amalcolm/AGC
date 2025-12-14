@@ -120,7 +120,9 @@ bool CA2D::pollData() {
 void CA2D::setBlockState(StateType state) {
   m_pBlockToFill->state = state;
   noInterrupts();
-  std::swap(m_pBlockToSend, m_pBlockToFill);
+  {
+    std::swap(m_pBlockToSend, m_pBlockToFill);
+  }
   interrupts();
 
   m_pBlockToFill->timeStamp = Timer.getConnectTime();

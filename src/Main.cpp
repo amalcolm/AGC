@@ -4,49 +4,19 @@
 #include "CHead.h"
 #include "CUSB.h"
 
-bool TESTMODE = false;  // if true, uses polled A2D mode and ProccessA2D callback by default
+bool TESTMODE = false;  // if true, uses polled A2D mode and _Callback by default
 
 constexpr double LoopPeriod_uS = 20000;  // 20ms
 
-// ProcessA2D: Callback to process A2D data blocks for debugging
-void ProccessA2D(BlockType* block) {  if (!TESTMODE || block == nullptr || block->count == 0) return;
-
-  // if we are outputting the A2D data, skip the debug below
-  A2D.outputDebugBlock = false;  if (A2D.outputDebugBlock) return; 
-
-  // get hardware for the block's state
-  auto& [state, offsetPot1, offsetPot2, gainPot, tele] = getPerStateHW(block);      IGNORE(tele);
-
-  // get the last data point in the block
-  DataType& data = block->data[block->count - 1];  
-
-  // Output debug info to Serial
-
-  USB.printf(     "A2D:%d"    , data.channels[0]);
-  USB.printf(  "\t Sensor1:%d", offsetPot1.getSensorValue());
-  USB.printf(  "\t Sensor2:%d", offsetPot2.getSensorValue());
-  USB.printf(  "\t offset1:%d", offsetPot1.getLevel());
-  USB.printf(  "\t offset2:%d", offsetPot2.getLevel());
-  USB.printf(  "\t Gain:%d"   ,    gainPot.getLevel());
-  USB.printf(  "\t Min:%d"    , offsetPot2.getRunningAverage().GetMin());
-  USB.printf(  "\t Max:%d"    , offsetPot2.getRunningAverage().GetMax());
-  USB.printf(  "\n"); // must end output to be parsed correctly
-
-}
-
-
-
-
-
-
-
+void _Callback(BlockType* block);
 
 void setup() {
   activityLED.set();
 
-  A2D.setCallback(ProccessA2D);
+  A2D.setCallback(_Callback);
 
   Hardware::begin();
+
 
   Head.setSequence( {
 //    Head.ALL_OFF,
@@ -55,16 +25,21 @@ void setup() {
 //    Head.RED1 | Head.IR1,            // note; use OR ( | ) to combine states
 });
 
+
   Ready = true;
   activityLED.clear();
 }
 
 
+int loopCount = 0;
 
 void loop() {
   Head.setNextState();    // Set the LEDs for the next state
 
   getPerStateHW().set();  // apply HW settings for new state
+
+  if (loopCount++ == 0)
+  USB.printf("Calling USB.update()\n "); 
 
   USB.update();           // output previous block, and give time for system to settle
 
