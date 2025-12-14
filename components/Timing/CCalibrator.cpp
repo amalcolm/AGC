@@ -1,20 +1,17 @@
 #include "CCalibrator.h"
-#include "imxrt.h"
 
-
-
-// --- SNVS_LP (Low Power) RTC Bit Definitions for Teensy 4.x (i.MX RT1062) ---
-#ifndef SNVS_RTC_BITS_DEFINED
-#define SNVS_RTC_BITS_DEFINED
-
-// SNVS_LPCR bits
-#define SNVS_LPCR_SRTC_ENV     (1u << 0)   // Enable Secure Real Time Counter
-#define SNVS_LPCR_ALARM_EN     (1u << 2)   // Enable alarm interrupt output
-
-// SNVS_LPSR bits
-#define SNVS_LPSR_ALARM        (1u << 0)   // Alarm flag
-
+#ifndef SNVS_LPCR_SRTC_ENV
+  #define SNVS_LPCR_SRTC_ENV     (1u << 0)   // Enable Secure Real Time Counter
 #endif
+
+#ifndef SNVS_LPCR_ALARM_EN
+  #define SNVS_LPCR_ALARM_EN     (1u << 2)   // Enable alarm interrupt output
+#endif
+
+#ifndef SNVS_LPSR_ALARM
+  #define SNVS_LPSR_ALARM        (1u << 0)   // Alarm flag
+#endif
+
 
 
 // Static storage

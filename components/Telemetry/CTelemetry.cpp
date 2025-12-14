@@ -42,11 +42,11 @@ void CTelemetry::init() {
         pool.push_back(new CTelemetry());
 }
 
-void CTelemetry::log(Group group, uint16_t ID, float value) {
+void CTelemetry::log(TeleGroup group, uint16_t ID, float value) {
     log(group, 0, ID, value);
 }
 
-void CTelemetry::log(Group group, uint8_t subGroup, uint16_t ID, float value) {
+void CTelemetry::log(TeleGroup group, uint8_t subGroup, uint16_t ID, float value) {
     double timestamp = CTimer::time() * CTimer::getSecondsPerTick();
 
     CTelemetry* telemetry = CTelemetry::Rent();
@@ -73,7 +73,19 @@ void CTelemetry::writeSerial(bool includeFrameMarkers) {
 
 void CTelemetry::reset() {
     timeStamp = 0.0;
-    group     = Group::PROGRAM;
+    group     = TeleGroup::PROGRAM;
     ID        = 0;
     value     = 0.0f;
+}
+
+std::deque<CTelemetry*> CTelemetry::allTelemetries;
+
+void CTelemetry::_registerCounter(CTelemetry* tele) {
+    allTelemetries.push_back(tele);
+}
+
+void CTelemetry::logAll() {
+    for (CTelemetry* telemetry : allTelemetries) {
+        telemetry->writeSerial(true);
+    }
 }

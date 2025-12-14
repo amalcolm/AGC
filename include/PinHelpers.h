@@ -5,6 +5,10 @@
 #include <vector>
 #include <atomic>
 
+
+#include "CUSB.h"
+#include <CrashReport.h>
+
 // -- Base ----------------------------------------------------------
 struct Pins {
   enum class Kind { Input, Output, LED };
@@ -23,6 +27,8 @@ protected:
   uint8_t _pin = 255; // invalid pin number
 
   explicit Pins(std::initializer_list<uint8_t> pinPerHead ) {
+    if (CrashReport) CUSB::SendCrashReport(CrashReport);
+
     int iHead = 0;
 
     if (pinPerHead.size() == 0) ERROR("At least one pin must be specified for a Pins object");

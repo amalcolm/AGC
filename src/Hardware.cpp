@@ -6,7 +6,7 @@
 #include "CA2D.h"
 #include "CHead.h"
 #include "CTimer.h"
-#include "CTimedGate.h"
+#include "CTelemetry.h"
 #include <map>
 
 SPISettings    Hardware::SPIsettings(4800000, MSBFIRST, SPI_MODE1);
@@ -26,20 +26,24 @@ void Hardware::begin() {
     Timer.restart();
 }
 
-CTimedGate gate(0.005);    // 200Hz
+CTimedGate gate(0.01);    // 100Hz
+CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
+CTeleTimer   TT_Update{TeleGroup::HARDWARE, 2};
 
 void Hardware::update() {
+  TT_Update.measure();
 
-  TeleCount[1]++;
+  TC_Update.increment();
 
   A2D.poll();  // main A2D polling, every cycle
 
- if (gate.notDue()) return;  // update hardware at 200Hz
+ if (gate.notDue()) return;  // update hardware at 100Hz
 
   TeleCount[5]++;
 
-  getPerStateHW().update();  // update pots at 200Hz but only if we have new data
+  getPerStateHW().update();  // update pots at 100Hz but only if we have new data
 //  delayMicroseconds(40); // small delay to allow pot settling
+
 }
 
 

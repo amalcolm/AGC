@@ -42,7 +42,6 @@ void ProccessA2D(BlockType* block) {  if (!TESTMODE || block == nullptr || block
 
 
 void setup() {
-  if (CrashReport) USB.SendCrashReport(CrashReport);
   activityLED.set();
 
   A2D.setCallback(ProccessA2D);
@@ -76,13 +75,7 @@ void loop() {
 
   Head.unsetReady();
 
-
-  Tele(CTelemetry::Group::A2D     , CA2D::TeleKind::COUNT, 0, getCounter(0));
-  Tele(CTelemetry::Group::HARDWARE, CA2D::TeleKind::COUNT, 1, getCounter(1));
-  Tele(CTelemetry::Group::A2D     , CA2D::TeleKind::COUNT, 2, getCounter(2));
-  Tele(CTelemetry::Group::PROGRAM , CA2D::TeleKind::COUNT, 5, getCounter(5));
-
-  Tele(CTelemetry::Group::PROGRAM , CA2D::TeleKind::COUNT, 60, getCounter(60));
+  CTelemetry::logAll();  // log all counter telemetry
 
   activityLED.toggle();
 }
