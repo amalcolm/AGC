@@ -22,9 +22,9 @@ CUSB           USB;
 OutputPin activityLED{4};
 bool Ready = false;
 
+  static std::deque<PerStateHW> stateHWs;
 
 PerStateHW& getPerStateHW(StateType state) {
-  static std::deque<PerStateHW> stateHWs;
 
   if (state == DIRTY) state = Head.getState();
   
@@ -67,6 +67,7 @@ PerStateHW& getPerStateHW(DataType& data){
         for (int i = 0; i < 50 && !Serial; ++i) delay(10); // ~500ms max
     }
 
+    
     Serial.println("Error: system halted.");
     Serial.println(hdr);
     Serial.println();

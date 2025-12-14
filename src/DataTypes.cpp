@@ -22,8 +22,7 @@ DataType::DataType(StateType state)
 }
 
 void DataType::debugSerial() {
-  Serial.print("C0:");
-  Serial.println(channels[0]);
+  USB.printf("C0:%d\n", channels[0]);
 }
 
 void DataType::writeSerial(bool includeFrameMarkers) {
@@ -74,10 +73,10 @@ void BlockType::writeSerial(bool includeFrameMarkers) {
 }
 
 void BlockType::debugSerial() {
-  Serial.print("N:"); Serial.print(count);
+  USB.printf("N:%d", count);
   for(uint32_t i = 0; i < DEBUG_BLOCKSIZE && i < count; i++) {
-    Serial.print("\t C"); Serial.print(i); Serial.print(":"); Serial.print(data[i].channels[0]);
+    USB.printf("\t C%d:%d", i, data[i].channels[0]);
   }
-  Serial.println();
+  USB.printf("\n");
 }
 

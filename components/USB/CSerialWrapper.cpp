@@ -7,7 +7,7 @@
 #include "Hardware.h"
 #include "helpers.h"
 #include <array>
-
+#include <queue>
 
 CSerialWrapper::CSerialWrapper() : m_Mode(ModeType::UNSET), stateMachine(SerialStateMachine::create()), m_handshakeComplete(false) {
   Serial.begin(USB_BAUDRATE);
@@ -91,7 +91,7 @@ void CSerialWrapper::doHandshake() {
     "Handshake failed. Defaulting to TEXT mode.\n";
 
   if (m_handshakeComplete || stateMachine.getFirstCall())
-    Serial.print(outcome.c_str());  
+    USB.printf(outcome.c_str());  
 
   Head.clear(); // ensure all LEDs off at start
   Serial.flush(); // ensure all output sent
@@ -116,8 +116,23 @@ void CSerialWrapper::write(double   number) { put((uint8_t*)&number, sizeof(numb
   
 void CSerialWrapper::write(uint8_t* pData, uint32_t dataLen) { put(pData, dataLen); }
 
+constexpr uint32_t MAX_SETUP_QUEUE_SIZE = 64;
+std::queue<std::vector<uint8_t>> setupDataQueue;
 
 inline void CSerialWrapper::put(uint8_t* pData, uint32_t dataLen) {
+  if (m_Mode == ModeType::UNSET || m_Mode == ModeType::INITIALISING)
+  {
+    if (setupDataQueue.size() >= MAX_SETUP_QUEUE_SIZE) return; // drop data if queue full
+    setupDataQueue.emplace(pData, pData + dataLen);
+    return;
+  }
+
+  while (!setupDataQueue.empty()) {
+    std::vector<uint8_t>& data = setupDataQueue.front();
+    Serial.write(data.data(), data.size());
+    setupDataQueue.pop();
+  }
+
   Serial.write(pData, dataLen); 
 }
 

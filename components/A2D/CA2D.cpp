@@ -92,7 +92,7 @@ DataType CA2D::readData() {
   else
     data.state = DIRTY;
    
-  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(data);
+  auto& [state, offsetPot1, offsetPot2, gainPot, tele] = getPerStateHW(data);   IGNORE(tele);
 
   data.hardwareState = 
       (sequenceNumber++      << 24) |

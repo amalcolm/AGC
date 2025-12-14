@@ -43,10 +43,18 @@ protected:
     CTelemetry(TeleGroup group = TeleGroup::NONE, uint8_t subGroup = 0, uint16_t ID = 0 )
         : timeStamp(0.0), group(group), subGroup(subGroup), ID(ID) {};
 
+    virtual ~CTelemetry() = default;
+
+    virtual float getValue() { return value; }
+
 public:
 
     void reset();
     void writeSerial(bool includeFrameMarkers = true);
+
+    
+    virtual const char* getName() const { return "CTelemetry"; }
+
 
     static void init();
 
@@ -56,15 +64,17 @@ public:
   	static constexpr Frame frameStart = 0xED71FAB4;  // 71/72 = Telemetry Packet
     static constexpr Frame frameEnd   = 0xED72FAB4;
 
+
     static void _register(CTelemetry* tele);
     static void logAll();
 
 private:
-    static std::deque<CTelemetry*> allTelemetries;  // all child claasses
+    static std::deque<CTelemetry*>& getAllTelemetries();
 };
 
 #include "1. CTeleCounter.h"
 #include "2. CTeleTimer.h"
+#include "3. CTelePeriod.h"
 
 
 #include "CTimedGate.h" // not stricly needed here, but helps to minimize #includes

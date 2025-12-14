@@ -113,9 +113,10 @@ void CUSB::SendCrashReport(CrashReportClass& pReport)
   Serial.begin(115200);
   for (int i = 0; i < 50 && !Serial; ++i) delay(10); 
 
+  char header[] = "\n\n--- CRASH REPORT ---\n";
 
   while (true) {
-    Serial.println("\\n\n\n--- CRASH REPORT ---\n");
+    Serial.write((uint8_t*)header, sizeof(header) - 1);
     pReport.printTo(Serial);
     Pins::flash(5);
     delay(1000);

@@ -1,45 +1,31 @@
 #pragma once
 #include <CTelemetry.h>
+#include <Arduino.h>
 #include <cstdint>
-#include "Arduino.h"
 
 class CTeleTimer : public CTelemetry {
-protected:
-    constexpr static uint8_t SUBGROUP = 0x01;
-    inline static uint32_t instanceCounter{};
+private:
+  constexpr static uint8_t SUBGROUP = 0x00;
+  inline static uint32_t instanceCounter{};
+
+
+  uint32_t _start{};
+  uint32_t _maxDuration{};
 
 public:
-  CTeleTimer(TeleGroup group = TeleGroup::TIMER, uint16_t id = 0xFFFF) : CTelemetry(group, SUBGROUP, id) {
-    
-    if (ID == 0xFFFF) ID = instanceCounter++;
+  CTeleTimer(TeleGroup group = TeleGroup::PROGRAM, uint16_t id = 0xFFFF);
 
-    _register(this);
+
+  inline void start() {
+    _start = ARM_DWT_CYCCNT;
   }
 
-protected:
-  uint32_t _lastTick{};
-  uint32_t _maxTick{};
+  bool first = true;
 
-public:
-  inline void measure() {
-    uint32_t now = ARM_DWT_CYCCNT;
-    uint32_t last = _lastTick;
-    _lastTick = now;
+  void stop();
 
-    if (_maxTick == 0) {     // first call
-      _maxTick = 1;        // mark initialized
-      return;
-    }
 
-    uint32_t duration = now - last;
-    if (duration > _maxTick)
-      _maxTick = duration;
-  }
+  float getValue() override;
 
-  inline uint32_t getTeleMax() {
-    uint32_t val = _maxTick;
-    _maxTick = 0;  // reset so next call skips first measurement again
-    return val;
-  }
-
+  const char* getName() const override { return "CTeleTimer"; }
 };

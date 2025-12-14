@@ -60,6 +60,11 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp"
     },
+	{
+	    "editor.tabSize": 2,
+	    "editor.insertSpaces": true,
+	    "editor.detectIndentation": true
+	},
 	"files.exclude": {
 		"**/.pio": true,
 		"**/.vscode": true,

@@ -15,22 +15,22 @@ void ProccessA2D(BlockType* block) {  if (!TESTMODE || block == nullptr || block
   A2D.outputDebugBlock = false;  if (A2D.outputDebugBlock) return; 
 
   // get hardware for the block's state
-  auto& [state, offsetPot1, offsetPot2, gainPot] = getPerStateHW(block);
+  auto& [state, offsetPot1, offsetPot2, gainPot, tele] = getPerStateHW(block);      IGNORE(tele);
 
   // get the last data point in the block
   DataType& data = block->data[block->count - 1];  
 
   // Output debug info to Serial
 
-  Serial.print(     "A2D:");      Serial.print(data.channels[0]);
-  Serial.print(  "\t Sensor1:");  Serial.print(offsetPot1.getSensorValue());
-  Serial.print(  "\t Sensor2:");  Serial.print(offsetPot2.getSensorValue());
-  Serial.print(  "\t offset1:");  Serial.print(offsetPot1.getLevel());
-  Serial.print(  "\t offset2:");  Serial.print(offsetPot2.getLevel());
-  Serial.print(  "\t Gain:");     Serial.print(   gainPot.getLevel());
-  Serial.print(  "\t Min:");      Serial.print(offsetPot2.getRunningAverage().GetMin());
-  Serial.print(  "\t Max:");      Serial.print(offsetPot2.getRunningAverage().GetMax());
-  Serial.println(); // must end output to be parsed correctly
+  USB.printf(     "A2D:%d"    , data.channels[0]);
+  USB.printf(  "\t Sensor1:%d", offsetPot1.getSensorValue());
+  USB.printf(  "\t Sensor2:%d", offsetPot2.getSensorValue());
+  USB.printf(  "\t offset1:%d", offsetPot1.getLevel());
+  USB.printf(  "\t offset2:%d", offsetPot2.getLevel());
+  USB.printf(  "\t Gain:%d"   ,    gainPot.getLevel());
+  USB.printf(  "\t Min:%d"    , offsetPot2.getRunningAverage().GetMin());
+  USB.printf(  "\t Max:%d"    , offsetPot2.getRunningAverage().GetMax());
+  USB.printf(  "\n"); // must end output to be parsed correctly
 
 }
 

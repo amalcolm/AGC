@@ -40,7 +40,7 @@ protected:
       case 0: ERROR("At least one pin must be specified for a Pins object"); break;
 
       case 1:
-        // Serial.print("Pins: Using static pin "); Serial.print(pinStatic); Serial.println(" for all heads"); not an error, just a note
+        // USB.printf("Pins: Using static pin %u for all heads", pinStatic); not an error, just a note
         for (iHead = 1; iHead < MAX_HEADS; ++iHead) {
          
           if (pinMap[iHead][pinStatic] != nullptr) 

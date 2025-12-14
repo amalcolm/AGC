@@ -2,6 +2,8 @@
 #include <DataTypes.h>
 #include <CTelemetry.h>
 
+#define IGNORE(x) (void)(x)
+
 struct PerStateHW& getPerStateHW(DataType& data);
 struct PerStateHW& getPerStateHW(BlockType* block = nullptr);
 

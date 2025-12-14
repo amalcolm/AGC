@@ -17,7 +17,7 @@ void CA2D::setMode_Continuous() {
   }};
 
 
-  if (Singleton) { Serial.print("*** A2D: Single continuous instance only."); return; }
+  if (Singleton) { USB.printf("*** A2D: Single continuous instance only."); return; }
   Singleton = this;
 
   pinMode(CS.A2D, OUTPUT);
@@ -78,22 +78,24 @@ void CA2D::setMode_Continuous() {
   m_BlockB.clear();
 
   m_Mode = ModeType::CONTINUOUS;
-  Serial.print("A2D: Continuous mode (@");
-  Serial.print(CA2D::SAMPLING_SPEED);
-  Serial.println("hz)");
+  USB.printf("A2D: Continuous mode (@%d)", CA2D::SAMPLING_SPEED);
 }
 
+CTeleCounter TC_ISR{TeleGroup::A2D, 0x00};
 void CA2D::ISR_Data() {
 //   if (Head.isReady() == false) return;  commented out for diagnosing timing issues.
    Singleton->m_dataReady = true;
-   TeleCount[0]++; 
+   TC_ISR.increment(); 
 }
   
+//CTeleTimer TT_pollData{TeleGroup::A2D, 0x01};
 
 bool CA2D::pollData() { 
 
   if (!m_dataReady) return false;
   m_dataReady = false;
+
+//TT_pollData.start();  // cannot put before return false;
 
 //  uint64_t start = CTimer::time();
   SPI.beginTransaction(Hardware::SPIsettings);
@@ -109,10 +111,8 @@ bool CA2D::pollData() {
 
   }
   SPI.endTransaction();
-//  uint64_t duration = CTimer::time() - start;
 
-//  Tele(CTelemetry::Group::A2D, CA2D::TeleKind::TIME, 1, duration * CTimer::getMicrosecondsPerTick());
-  TeleCount[2]++; 
+//  TT_pollData.stop();
 
   return true;
 }

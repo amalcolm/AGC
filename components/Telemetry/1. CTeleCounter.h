@@ -21,10 +21,11 @@ public:
         _count++;
     }
 
-    inline uint32_t getCount() {
+    float getValue() override {
         uint32_t retVal = _count;
         _count = 0;
         return retVal;
     }
-
+    
+    const char* getName() const override { return "CTeleCounter"; }
 };
