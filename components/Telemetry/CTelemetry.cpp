@@ -80,7 +80,7 @@ void CTelemetry::reset() {
 
 std::deque<CTelemetry*> CTelemetry::allTelemetries;
 
-void CTelemetry::_registerCounter(CTelemetry* tele) {
+void CTelemetry::_register(CTelemetry* tele) {
     allTelemetries.push_back(tele);
 }
 

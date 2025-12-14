@@ -13,7 +13,7 @@ public:
         if (id == 0xFFFF) 
             ID = instanceCounter++;
         
-        _registerCounter(this);
+        _register(this);
     }
 
 

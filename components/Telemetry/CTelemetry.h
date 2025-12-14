@@ -56,13 +56,11 @@ public:
   	static constexpr Frame frameStart = 0xED71FAB4;  // 71/72 = Telemetry Packet
     static constexpr Frame frameEnd   = 0xED72FAB4;
 
-    static void _registerCounter(CTelemetry* counter);
+    static void _register(CTelemetry* tele);
     static void logAll();
 
 private:
-    static std::deque<CTelemetry*> allTelemetries;
-
-
+    static std::deque<CTelemetry*> allTelemetries;  // all child claasses
 };
 
 #include "1. CTeleCounter.h"
