@@ -2,7 +2,7 @@
 #include <CTelemetry.h>
 class CTeleCounter : public CTelemetry {
 private:
-    constexpr static uint8_t SUBGROUP = 0x00;
+    constexpr static uint8_t SUBGROUP = 0x01;
     inline static uint32_t instanceCounter{};
 
 

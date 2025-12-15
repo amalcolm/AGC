@@ -72,6 +72,7 @@ private:
     static std::deque<CTelemetry*>& getAllTelemetries();
 };
 
+#include "0. CTeleValue.h"
 #include "1. CTeleCounter.h"
 #include "2. CTeleTimer.h"
 #include "3. CTelePeriod.h"

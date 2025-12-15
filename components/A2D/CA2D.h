@@ -8,7 +8,9 @@ class CA2D {
 
     enum TeleKind { COUNT = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
 
-    inline static uint32_t SAMPLING_SPEED = 1000; // default A2D sampling speed in samples per second (only used in continuous mode)
+    inline static uint32_t SAMPLING_SPEED = 8'000; // default A2D sampling speed in samples per second (only used in continuous mode)
+
+    enum ReadState { IDLE, IGNORE, PREPARE, READ };
 
   public:
     CA2D(ModeType mode);
@@ -26,11 +28,8 @@ class CA2D {
 
     // Continuous
     void      setBlockState(StateType state);
-    inline void clear() {
-    __disable_irq();
-      m_dataReady = false;
-    __enable_irq();
-    }
+    void      prepareForRead() { m_ReadState = ReadState::PREPARE; };
+    void      startRead() { m_ReadState = ReadState::READ; };
 
 
     inline ModeType   getMode() { return m_Mode; }
@@ -48,11 +47,13 @@ class CA2D {
   private:
     ModeType            m_Mode       = ModeType::UNSET;
     CallbackType        m_fnCallback = NULL;
+    ReadState           m_ReadState  = ReadState::IDLE;
 
     // Continuous
 
     static void ISR_Data();
     bool        pollData();
+
 
 
     volatile bool       m_dataReady = false;

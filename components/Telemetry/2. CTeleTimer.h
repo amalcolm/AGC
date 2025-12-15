@@ -5,7 +5,7 @@
 
 class CTeleTimer : public CTelemetry {
 private:
-  constexpr static uint8_t SUBGROUP = 0x00;
+  constexpr static uint8_t SUBGROUP = 0x02;
   inline static uint32_t instanceCounter{};
 
 

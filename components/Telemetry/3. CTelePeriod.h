@@ -5,7 +5,7 @@
 
 class CTelePeriod : public CTelemetry {
 protected:
-    constexpr static uint8_t SUBGROUP = 0x01;
+    constexpr static uint8_t SUBGROUP = 0x03;
     inline static uint32_t instanceCounter{};
 
 public:

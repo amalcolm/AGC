@@ -6,7 +6,7 @@
 #include "DataTypes.h"
 #include "CTimer.h"
 
-const uint64_t CHead::SettleTime = static_cast<uint64_t>(50.0 * CTimer::getMicrosecondsPerTick()); // 50uS
+const uint64_t CHead::SettleTime = static_cast<uint64_t>(100.0 / CTimer::getMicrosecondsPerTick()); // 100uS
 const uint64_t CHead::MAXUINT64 = static_cast<uint64_t>(-1);
 
 CHead::CHead() : m_State(0), m_sequencePosition(-1) {}
@@ -34,11 +34,18 @@ void CHead::setSequence(std::initializer_list<StateType> il) {
 
 bool CHead::isReady() const { return Timer.time() >= m_ReadyTime; }
 
+CTeleTimer TT_waitForReady{TeleGroup::HEAD, 0x20};
+
+
 void CHead::waitForReady() const { 
   if (m_ReadyTime == MAXUINT64) ERROR("CHead::waitForReady called when ready time is unset");
 
+
+  TT_waitForReady.start();
+  A2D.prepareForRead();
   while (Timer.time() < m_ReadyTime) delayMicroseconds(1);
-  A2D.clear(); // clear datReady to ensure fresh read on next A2D read
+  A2D.startRead(); // clear datReady to ensure fresh read on next A2D read
+  TT_waitForReady.stop();
 }
 
 StateType CHead::setNextState() {

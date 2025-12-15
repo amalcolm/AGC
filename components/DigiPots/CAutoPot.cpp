@@ -86,7 +86,7 @@ void CAutoPot::_writeToPot(uint8_t value)
   }
   SPI.endTransaction();
 
-  USB.printf("Wrote pot CS pin %d value %d\n", _csPin, value);
+//  USB.printf("Wrote pot CS pin %d value %d\n", _csPin, value);
 
 }
 

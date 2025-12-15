@@ -30,14 +30,16 @@ void setup() {
   activityLED.clear();
 }
 
-
+CTeleTimer TT_loop{TeleGroup::TIMER, 0x07};
 
 void loop() {
   Head.setNextState();    // Set the LEDs for the next state
+  TT_loop.start();
 
   getPerStateHW().set();  // apply HW settings for new state
 
   USB.update();           // output previous block, and give time for system to settle
+  TT_loop.stop();
 
   Head.waitForReady();    // wait until Head is ready before starting A2D read
 

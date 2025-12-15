@@ -83,7 +83,7 @@ void CA2D::setMode_Continuous() {
 
 CTeleCounter TC_ISR{TeleGroup::A2D, 0x00};
 void CA2D::ISR_Data() {
-//   if (Head.isReady() == false) return;  commented out for diagnosing timing issues.
+  if (Singleton->m_ReadState == ReadState::IDLE) return;
    Singleton->m_dataReady = true;
    TC_ISR.increment(); 
 }
@@ -94,6 +94,8 @@ bool CA2D::pollData() {
 
   if (!m_dataReady) return false;
   m_dataReady = false;
+  
+  if (m_ReadState == ReadState::IGNORE) return false;
 
 TT_pollData.start();  // cannot put before return false;
 
@@ -106,7 +108,8 @@ TT_pollData.start();  // cannot put before return false;
     DataType data = readData();
     
     digitalWrite(CS.A2D, HIGH);
-    if (data.channels[0] > 0)
+    
+    if (m_ReadState == ReadState::READ)
       m_pBlockToFill->push_back(data);
 
   }
