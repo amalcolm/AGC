@@ -43,7 +43,7 @@ void CHead::waitForReady() const {
 
   TT_waitForReady.start();
   A2D.prepareForRead();
-  while (Timer.time() < m_ReadyTime) delayMicroseconds(1);
+  while (Timer.time() < m_ReadyTime) A2D.poll();
   A2D.startRead(); // clear datReady to ensure fresh read on next A2D read
   TT_waitForReady.stop();
 }
