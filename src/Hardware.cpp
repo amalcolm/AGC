@@ -26,22 +26,22 @@ void Hardware::begin() {
     Timer.restart();
 }
 
-CTimedGate gate(0.01);    // 100Hz
+CTimedGate gate(0.01); // 100hz
 CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
+
 
 void Hardware::update() {
   TP_Update.measure();
   TC_Update.increment();
+  
+  A2D.poll();
 
-  A2D.poll();  // main A2D polling, every cycle
-
- if (gate.notDue()) return;  // update hardware at 100Hz
-
-
+//  if (gate.block()) return;
+  
   getPerStateHW().update();  // update pots at 100Hz but only if we have new data
-//  delayMicroseconds(40); // small delay to allow pot settling
-
+  delayMicroseconds(5); // small delay to allow pot settling
+  
 }
 
 

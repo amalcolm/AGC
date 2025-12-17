@@ -6,7 +6,8 @@ class CTimedGate {
     CTimedGate(double period);
 
   public:
-    bool notDue();
+    bool pass();
+    bool block();
     
   private:
     uint64_t _period;

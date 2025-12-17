@@ -47,7 +47,7 @@ private:
 // =================================================================
 class COffsetPot : public CAutoPot {
 public:
-  COffsetPot(int csPin, int sensorPin, int samples, int lowThreshold, int highThreshold);
+  COffsetPot(int csPin, int sensorPin, int samples, int windowSize);
   COffsetPot& operator=(const COffsetPot&) = default;
   void update() override;
 

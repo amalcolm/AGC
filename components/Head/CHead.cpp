@@ -34,18 +34,14 @@ void CHead::setSequence(std::initializer_list<StateType> il) {
 
 bool CHead::isReady() const { return Timer.time() >= m_ReadyTime; }
 
-CTeleTimer TT_waitForReady{TeleGroup::HEAD, 0x20};
-
 
 void CHead::waitForReady() const { 
   if (m_ReadyTime == MAXUINT64) ERROR("CHead::waitForReady called when ready time is unset");
 
 
-  TT_waitForReady.start();
   A2D.prepareForRead();
   while (Timer.time() < m_ReadyTime) A2D.poll();
   A2D.startRead(); // clear datReady to ensure fresh read on next A2D read
-  TT_waitForReady.stop();
 }
 
 StateType CHead::setNextState() {

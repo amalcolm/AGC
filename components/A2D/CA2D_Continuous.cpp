@@ -81,22 +81,28 @@ void CA2D::setMode_Continuous() {
   USB.printf("A2D: Continuous mode (@%d)", CA2D::SAMPLING_SPEED);
 }
 
-CTeleCounter TC_ISR{TeleGroup::A2D, 0x00};
+CTeleCounter TC_ISR{TeleGroup::A2D, 0x42};
 void CA2D::ISR_Data() {
+   TC_ISR.increment(); 
   if (Singleton->m_ReadState == ReadState::IDLE) return;
    Singleton->m_dataReady = true;
-   TC_ISR.increment(); 
 }
   
-CTeleTimer TT_pollData{TeleGroup::A2D, 0x01};
+CTeleTimer TT_pollData{TeleGroup::A2D, 0x10};
+CTeleCounter TC_pollData{TeleGroup::A2D, 0x11};
 
 bool CA2D::pollData() { 
 
-  if (!m_dataReady) return false;
+  if (!m_dataReady) {
+    yield();  // serve other tasks while waiting for data
+    return false;
+  }
+
   m_dataReady = false;
-  
+
   if (m_ReadState == ReadState::IGNORE) return false;
 
+TC_pollData.increment();
 TT_pollData.start();  // cannot put before return false;
 
 //  uint64_t start = CTimer::time();

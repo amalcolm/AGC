@@ -1,8 +1,8 @@
 #include "CAutoPot.h"
 #include "Setup.h"
 
-COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int lowThreshold, int highThreshold)
-  : CAutoPot(csPin, sensorPin, samples), _lowThreshold(lowThreshold), _highThreshold(highThreshold) {
+COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int windowSize)
+  : CAutoPot(csPin, sensorPin, samples), _lowThreshold(512 - windowSize), _highThreshold(512 + windowSize) {
 
     _runningAverage.Reset(160);
 }

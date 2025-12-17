@@ -78,4 +78,5 @@ private:
 #include "3. CTelePeriod.h"
 
 
-#include "CTimedGate.h" // not stricly needed here, but helps to minimize #includes
+#include "CTimedGate.h"     // not stricly needed here, but helps to minimize #includes
+#include "CDataTimedGate.h"

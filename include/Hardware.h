@@ -10,9 +10,9 @@ struct PerStateHW {
   StateType state;
   PerStateHW(StateType state) : state(state) {}
 
-  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  50, 212, 812 };
-  COffsetPot    offsetPot2{ CS.offset2, SP.postGain , 100, 224, 800 };
-  CGainPot      gainPot   { CS.gain   , SP.postGain ,  10           };
+  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  10, 300 };
+  COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  10, 300 };
+  CGainPot      gainPot   { CS.gain   , SP.postGain ,  10      };
 
   void begin() { 
     offsetPot1.invert();
@@ -32,32 +32,26 @@ struct PerStateHW {
 
   struct Telemetry {
     uint16_t sequenceNumber = Head.getSequenceNumber() << 8;
-    CTeleTimer TT_Offset1{TeleGroup::DIGIPOTS, (uint16_t)(0x01 | sequenceNumber)};
-    CTeleTimer TT_Offset2{TeleGroup::DIGIPOTS, (uint16_t)(0x02 | sequenceNumber)};
-    CTeleTimer TT_Gain   {TeleGroup::DIGIPOTS, (uint16_t)(0x03 | sequenceNumber)};
+  //  CTeleTimer TT_Offset1{TeleGroup::DIGIPOTS, (uint16_t)(0x01 | sequenceNumber)};
+  //  CTeleTimer TT_Offset2{TeleGroup::DIGIPOTS, (uint16_t)(0x02 | sequenceNumber)};
+  //  CTeleTimer TT_Gain   {TeleGroup::DIGIPOTS, (uint16_t)(0x03 | sequenceNumber)};
   } tele;
 
   void update() {
 
-    tele.TT_Offset1.start();
-    {
-      offsetPot1.update();
-    }
-    tele.TT_Offset1.stop();
+//  tele.TT_Offset1.start();
+    offsetPot1.update();
+//  tele.TT_Offset1.stop();
 
-    tele.TT_Offset2.start();
-    {
+//  tele.TT_Offset2.start();
     if (offsetPot1.inZone)
       offsetPot2.update();
-    }
-    tele.TT_Offset2.stop();
+//  tele.TT_Offset2.stop();
 
-    tele.TT_Gain.start();
-    {
-      if (offsetPot2.inZone)
+//  tele.TT_Gain.start();
+    if (offsetPot2.inZone)
       gainPot.update();
-    }
-    tele.TT_Gain.stop();
+//  tele.TT_Gain.stop();
   }
   
 };

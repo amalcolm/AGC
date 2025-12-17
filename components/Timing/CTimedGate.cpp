@@ -6,8 +6,14 @@ CTimedGate::CTimedGate(double period) {
   nextTime = CTimer::time() + _period;
 }
 
-bool CTimedGate::notDue() { 
+bool CTimedGate::block() { 
   if (CTimer::time() < nextTime) return true;
   nextTime += _period;
   return false;
+}
+
+bool CTimedGate::pass() { 
+  if (CTimer::time() < nextTime) return false;
+  nextTime += _period;
+  return true;
 }
