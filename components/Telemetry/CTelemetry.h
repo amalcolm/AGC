@@ -30,7 +30,7 @@ public:
 
 public:
 
-    double    timeStamp;
+    double    timestamp;
 
     TeleGroup group;
     uint8_t   subGroup;
@@ -41,7 +41,7 @@ public:
 
 protected:  
     CTelemetry(TeleGroup group = TeleGroup::NONE, uint8_t subGroup = 0, uint16_t ID = 0 )
-        : timeStamp(0.0), group(group), subGroup(subGroup), ID(ID) {};
+        : timestamp(0.0), group(group), subGroup(subGroup), ID(ID) {};
 
     virtual ~CTelemetry() = default;
 

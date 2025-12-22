@@ -81,8 +81,9 @@ DataType CA2D::readData() {
 
   DataType data(Head.getState());
 
-  data.timeStamp = Timer.getConnectTime();
-
+  data.timestamp = Timer.getConnectTime();
+  data.stateTime = Timer.getStateTime();
+  
   uint8_t raw[27];
   bool ok = readFrame(raw);
   if (ok) 

@@ -51,7 +51,7 @@ void CTelemetry::log(TeleGroup group, uint8_t subGroup, uint16_t ID, float value
   double timestamp = CTimer::time() * CTimer::getSecondsPerTick();
 
   CTelemetry* telemetry = CTelemetry::Rent();
-  telemetry->timeStamp = timestamp;
+  telemetry->timestamp = timestamp;
   telemetry->group = group;
   telemetry->subGroup = subGroup;
   telemetry->ID = ID;
@@ -63,7 +63,7 @@ void CTelemetry::log(TeleGroup group, uint8_t subGroup, uint16_t ID, float value
 void CTelemetry::writeSerial(bool includeFrameMarkers) {
   if (includeFrameMarkers) USB.write(frameStart);
     
-  USB.write(timeStamp);
+  USB.write(timestamp);
   USB.write(static_cast<uint8_t>(group));
   USB.write(static_cast<uint8_t>(subGroup));
   USB.write(ID);
@@ -73,7 +73,7 @@ void CTelemetry::writeSerial(bool includeFrameMarkers) {
 }
 
 void CTelemetry::reset() {
-  timeStamp = 0.0;
+  timestamp = 0.0;
   group     = TeleGroup::PROGRAM;
   ID        = 0;
   value     = 0.0f;

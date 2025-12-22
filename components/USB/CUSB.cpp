@@ -79,7 +79,7 @@ void CUSB::update() {
 
     case CSerialWrapper::ModeType::RAWDATA:
     {
-      while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timeStamp;
+      while (readIndex != writeIndex) {//  if (firstOut == 0) firstOut = m_buffer[readIndex].timestamp;
         DataType *pData = &m_buffer[readIndex];
 
         if (m_handshakeComplete)

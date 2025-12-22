@@ -9,15 +9,15 @@ static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 
 
 DataType::DataType() 
-  : state(DIRTY), hardwareState(0) { 
-  timeStamp = Timer.getConnectTime();
+  : state(DIRTY), stateTime(0.0), hardwareState(0), sensorState(0) { 
+  timestamp = Timer.getConnectTime();
   memset(&channels[0], 0, CHANNELS_BYTESIZE );
 }
 
 DataType::DataType(StateType state) 
-  : state(state), hardwareState(0) {
+  : state(state), stateTime(0.0), hardwareState(0), sensorState(0) {
 
-  timeStamp = Timer.getConnectTime();
+  timestamp = Timer.getConnectTime();
   memset(&channels[0], 0, CHANNELS_BYTESIZE ); 
 }
 
@@ -29,7 +29,8 @@ void DataType::writeSerial(bool includeFrameMarkers) {
   if (includeFrameMarkers) USB.write(frameStart);
   
   USB.write(state);
-  USB.write(timeStamp);
+  USB.write(timestamp);
+  USB.write(stateTime);
   USB.write(hardwareState);
   USB.write(sensorState);
   USB.write((uint8_t*)&channels[0], CHANNELS_BYTESIZE);
@@ -40,14 +41,14 @@ void DataType::writeSerial(bool includeFrameMarkers) {
 
 
 
-BlockType::BlockType() : timeStamp(0.0), state(DIRTY), count(0), data() {
+BlockType::BlockType() : timestamp(0.0), state(DIRTY), count(0), data() {
   for (uint32_t i = 0; i < MAX_BLOCKSIZE; i++) {
     data[i] = DataType();
   }
 
   if (Ready && TESTMODE && A2D.getMode() == CA2D::ModeType::TRIGGERED) {
     data[0] = A2D.getData();
-    timeStamp = Timer.getConnectTime();
+    timestamp = Timer.getConnectTime();
     count = 1;
   }
 
@@ -56,14 +57,15 @@ void BlockType::writeSerial(bool includeFrameMarkers) {
   if (includeFrameMarkers) USB.write(frameStart);
 
   USB.write(state);
-  USB.write(timeStamp);
+  USB.write(timestamp);
   USB.write(count);
 
   for (uint32_t i = 0; i < count; i++) {
     DataType& item = data[i];
 
     // omit state as all data in block share same state
-    USB.write(item.timeStamp);
+    USB.write(item.timestamp);
+    USB.write(item.stateTime);
     USB.write(item.hardwareState);
     USB.write(item.sensorState);
     USB.write((uint8_t*)&item.channels[0], CHANNELS_BYTESIZE);

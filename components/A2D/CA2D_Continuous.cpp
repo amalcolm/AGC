@@ -134,7 +134,7 @@ void CA2D::setBlockState(StateType state) {
   }
   interrupts();
 
-  m_pBlockToFill->timeStamp = Timer.getConnectTime();
+  m_pBlockToFill->timestamp = Timer.getConnectTime();
   m_pBlockToFill->clear();
 
   USB.buffer(m_pBlockToSend);

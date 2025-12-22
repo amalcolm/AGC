@@ -6,10 +6,12 @@
 #include "DataTypes.h"
 #include "CTimer.h"
 
-const uint64_t CHead::SettleTime = static_cast<uint64_t>(100.0 / CTimer::getMicrosecondsPerTick()); // 100uS
 const uint64_t CHead::MAXUINT64 = static_cast<uint64_t>(-1);
 
-CHead::CHead() : m_State(0), m_sequencePosition(-1) {}
+CHead::CHead() : m_State(0), m_sequencePosition(-1) {
+  // start with 100 microseconds settle time
+  m_settleTime = static_cast<uint64_t>(100.0 / CTimer::getMicrosecondsPerTick());
+}
 
 CHead::~CHead() {}
 
@@ -20,17 +22,18 @@ void CHead::begin() {
 }
 
 
-void CHead::setSequence( std::vector<StateType> data ) {
-  m_sequence = std::move(data);
-}
+void CHead::setSequence( std::vector<StateType> data ) { m_sequence = std::move(data);}
 
-std::vector<StateType>& CHead::getSequence() {
-  return m_sequence;
-}
+std::vector<StateType>& CHead::getSequence() {  return m_sequence;}
 
-void CHead::setSequence(std::initializer_list<StateType> il) {
-  m_sequence.assign(il);  // handles resizing wheres = it; does not
-}
+void CHead::setSequence(std::initializer_list<StateType> il) { m_sequence.assign(il); } // handles resizing wheres = it; does not
+
+ double CHead::getSettleTime() const { return m_settleTime * CTimer::getMicrosecondsPerTick(); }
+
+ void CHead::setSettleTime(uint64_t microseconds) {
+    m_settleTime = static_cast<uint64_t>(microseconds / CTimer::getMicrosecondsPerTick());
+  }
+
 
 bool CHead::isReady() const { return Timer.time() >= m_ReadyTime; }
 
@@ -45,7 +48,7 @@ void CHead::waitForReady() const {
 }
 
 StateType CHead::setNextState() {
-  m_ReadyTime = Timer.time() + SettleTime;
+  m_ReadyTime = Timer.time() + m_settleTime;
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
   if (reset) Pins::flashReset = false; // only use FlashReset once, and set it at start
   
@@ -75,6 +78,8 @@ StateType CHead::setNextState() {
  
       diff &= diff - 1;                             // clear LOWEST bit using magic
   }
+
+  Timer.markStateChange(); // inform timer of state change for stateTime tracking
 
   return m_State;
 }

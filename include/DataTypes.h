@@ -11,7 +11,8 @@ static constexpr uint32_t NUM_CHANNELS = 8;
 struct DataType {
 
   StateType  state;          // state of the head during this reading
-  double     timeStamp;      // timestamp in milliseconds since connection
+  double     timestamp;      // timestamp in milliseconds since connection
+  double     stateTime;      // time in milliseconds since last state change
   uint32_t   hardwareState;  //  (count & 0xFF) << 24 | offset1 << 16 | offset2 << 8 | gain      // needs 4 byte alignment
   uint32_t   sensorState;    //  preGain << 16 | postGain 
   uint32_t   channels[NUM_CHANNELS];
@@ -31,7 +32,7 @@ struct BlockType {
   static constexpr uint32_t MAX_BLOCKSIZE   = 64;
   static constexpr uint32_t DEBUG_BLOCKSIZE = 16;
 
-  double   timeStamp;
+  double   timestamp;
   uint32_t state;
   uint32_t count;
   DataType data[MAX_BLOCKSIZE];

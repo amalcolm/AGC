@@ -14,6 +14,7 @@ private:
 
   static volatile uint64_t s_connectTime;
 
+  volatile uint32_t stateChange = 0;
 
 public:
   CTimer();
@@ -46,8 +47,10 @@ __enable_irq();
 
   inline void     restart()  { startTime = time();            }
   inline uint64_t elapsed()  { return time() - startTime;     }
+  inline double   Seconds()  { return elapsed() * s_SecondsPerTick;      }
   inline double   mS()       { return elapsed() * s_MillisecondsPerTick; }
   inline double   uS()       { return elapsed() * s_MicrosecondsPerTick; }
+
 
   inline void     restartConnectTiming() { s_connectTime = time();                           }
   inline double   getConnectTime()       { return (time() - s_connectTime) * s_SecondsPerTick; }
@@ -57,6 +60,10 @@ __enable_irq();
   inline static double      getSecondsPerTick() { return      s_SecondsPerTick; }
   inline static double getMillisecondsPerTick() { return s_MillisecondsPerTick; }
   inline static double getMicrosecondsPerTick() { return s_MicrosecondsPerTick; }
+
+
+  inline void   markStateChange() { stateChange = ARM_DWT_CYCCNT; }
+  inline double getStateTime() { return static_cast<double>(ARM_DWT_CYCCNT - stateChange) * s_SecondsPerTick; }
 
   static void     gpt1Handler();
   
