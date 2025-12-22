@@ -18,6 +18,12 @@ uint32_t val = (_maxDuration == 0) ? _oldMaxDuration : _maxDuration;
   return static_cast<float>(val * CTimer::getMicrosecondsPerTick());
 }
 
+void CTeleTimer::set(double duration) {
+
+    if (duration > _maxDuration)
+      _maxDuration = duration;
+}
+
 void CTeleTimer::stop() {
     uint32_t duration = ARM_DWT_CYCCNT - _start;
 

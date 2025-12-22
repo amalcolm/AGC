@@ -17,7 +17,7 @@ void setup() {
 
   Hardware::begin();
 
-  Head.setSettleTime(50); // 100 microseconds settle time
+  Head.setSettleTime(500); // 500 microseconds settle time
 
   Head.setSequence( {
 //    Head.ALL_OFF,

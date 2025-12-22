@@ -21,6 +21,7 @@ public:
   }
 
   void stop();
+  void set(double duration);
 
 
   float getValue() override;

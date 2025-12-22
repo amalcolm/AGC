@@ -37,8 +37,6 @@ CA2D& CA2D::begin() {
 
 // Call with CS already LOW (continuous). Return false if header not found.
 bool CA2D::readFrame(uint8_t (&raw)[27]) {
-  // ensure status bits are set
-  delayMicroseconds(2);
   
   // Read status first
   for (int i=0;i<3;i++) raw[i] = SPI.transfer(0x00);
@@ -92,6 +90,7 @@ DataType CA2D::readData() {
     data.state = DIRTY;
     return data;
   }
+
   auto& [state, offsetPot1, offsetPot2, gainPot, tele] = getPerStateHW(data);   IGNORE(tele);
 
   data.hardwareState = 
@@ -99,11 +98,11 @@ DataType CA2D::readData() {
       (offsetPot1.getLevel() << 16) |
       (offsetPot2.getLevel() <<  8) |
       (gainPot   .getLevel()      );
-
-  data.sensorState = 
+/*
+  data.sensorState =
       (analogRead(offsetPot1.getSensorPin()) << 16) |
       (analogRead(offsetPot2.getSensorPin())      );
-
+*/
   return data;
 }
 

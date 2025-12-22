@@ -9,7 +9,7 @@
 #include "CTelemetry.h"
 #include <map>
 
-SPISettings    Hardware::SPIsettings(4800000, MSBFIRST, SPI_MODE1);
+SPISettings    Hardware::SPIsettings(6000000, MSBFIRST, SPI_MODE1);
 
 void Hardware::begin() {
     // Initialize all hardware components
@@ -37,10 +37,10 @@ void Hardware::update() {
   
   A2D.poll();
 
-  if (gate.block()) return;
+//  if (gate.block()) return;
   
-  getPerStateHW().update();  // update pots at 100Hz but only if we have new data
-  delayMicroseconds(5); // small delay to allow pot settling
+//  getPerStateHW().update();  // update pots at 100Hz but only if we have new data
+//  delayMicroseconds(5); // small delay to allow pot settling
   
 }
 

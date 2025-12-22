@@ -81,15 +81,20 @@ void CA2D::setMode_Continuous() {
   USB.printf("A2D: Continuous mode (@%d)", CA2D::SAMPLING_SPEED);
 }
 
-CTeleCounter TC_ISR{TeleGroup::A2D, 0x42};
+CTimer minTimer;
+
+CTeleCounter TC_ISR{TeleGroup::A2D, 0x40};
 void CA2D::ISR_Data() {
-   TC_ISR.increment(); 
-  if (Singleton->m_ReadState == ReadState::IDLE) return;
+   minTimer.restart();
+   TC_ISR.increment(); if (Singleton->m_ReadState == ReadState::IDLE) return;
    Singleton->m_dataReady = true;
 }
-  
-CTeleTimer TT_pollData{TeleGroup::A2D, 0x10};
-CTeleCounter TC_pollData{TeleGroup::A2D, 0x11};
+
+CTeleCounter TC_delayCnt{TeleGroup::A2D, 0x51};
+CTeleTimer TT_delayCnt{TeleGroup::A2D, 0x52};
+
+CTeleCounter TC_readData{TeleGroup::A2D, 0x42};
+CTeleTimer   TT_readData{TeleGroup::A2D, 0x43};
 
 bool CA2D::pollData() { 
 
@@ -99,17 +104,18 @@ bool CA2D::pollData() {
   }
 
   m_dataReady = false;
-
   if (m_ReadState == ReadState::IGNORE) return false;
 
-TC_pollData.increment();
-TT_pollData.start();  // cannot put before return false;
+TT_delayCnt.set(minTimer.uS());
+while (minTimer.uS() < 2) {TC_delayCnt.increment(); yield(); }
+TC_readData.increment();
 
-//  uint64_t start = CTimer::time();
+TT_readData.start();
+
   SPI.beginTransaction(Hardware::SPIsettings);
   {
     digitalWrite(CS.A2D, LOW);
-    delayMicroseconds(5);
+    delayMicroseconds(2);
 
     DataType data = readData();
     
@@ -120,8 +126,7 @@ TT_pollData.start();  // cannot put before return false;
 
   }
   SPI.endTransaction();
-
-TT_pollData.stop();
+TT_readData.stop();
 
   return true;
 }
