@@ -64,6 +64,10 @@ inline int32_t be24_to_s32(const uint8_t b2, const uint8_t b1, const uint8_t b0)
 }
 
 void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
+  static uint8_t sequenceNumber = 0;
+
+  data.timestamp = Timer.getConnectTime();
+  data.stateTime = Timer.getStateTime();
 
   const uint8_t* p = &raw[3]; // skip status
   for (int ch=0; ch<8; ++ch) {
@@ -71,17 +75,26 @@ void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
     p += 3;
     data.channels[ch] = val;
   }
+
+  auto& [state, offsetPot1, offsetPot2, gainPot, tele] = getPerStateHW(data);   IGNORE(tele);
+  
+  data.hardwareState = 
+      (sequenceNumber++      << 24) |
+      (offsetPot1.getLevel() << 16) |
+      (offsetPot2.getLevel() <<  8) |
+      (gainPot   .getLevel()      );
+
+  data.sensorState =
+      (analogRead(offsetPot1.getSensorPin()) << 16) |
+      (analogRead(offsetPot2.getSensorPin())      );
+
 }
 
 
 DataType CA2D::readData() {
-  static uint8_t sequenceNumber = 0;
 
   DataType data(Head.getState());
 
-  data.timestamp = Timer.getConnectTime();
-  data.stateTime = Timer.getStateTime();
-  
   uint8_t raw[27];
   bool ok = readFrame(raw);
   if (ok) 
@@ -91,18 +104,6 @@ DataType CA2D::readData() {
     return data;
   }
 
-  auto& [state, offsetPot1, offsetPot2, gainPot, tele] = getPerStateHW(data);   IGNORE(tele);
-
-  data.hardwareState = 
-      (sequenceNumber++      << 24) |
-      (offsetPot1.getLevel() << 16) |
-      (offsetPot2.getLevel() <<  8) |
-      (gainPot   .getLevel()      );
-/*
-  data.sensorState =
-      (analogRead(offsetPot1.getSensorPin()) << 16) |
-      (analogRead(offsetPot2.getSensorPin())      );
-*/
   return data;
 }
 

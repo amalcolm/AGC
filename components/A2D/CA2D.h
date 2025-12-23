@@ -55,10 +55,12 @@ class CA2D {
     bool        pollData();
     
  // DMA / continuous mode support
-    static void onSpiDmaComplete(void);      // DMA completion callback
+   static EventResponder m_spiEvent;
+    static void onSpiDmaComplete(EventResponderRef);
     static volatile bool m_dmaActive;        // true while DMA SPI in progress
     static volatile bool m_dataArrived;      // true when DMA frame finished
     static uint8_t m_rxBuffer[27];           // DMA receive buffer
+    static uint8_t m_txBuffer[27];           // DMA transmit buffer
     static uint8_t m_frameBuffer[27];        // Buffer copied out at completion
 
 

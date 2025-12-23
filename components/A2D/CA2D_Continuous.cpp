@@ -11,7 +11,9 @@ static CA2D* Singleton = NULL;
 
 volatile bool    CA2D::m_dmaActive       = false;
 volatile bool    CA2D::m_dataArrived     = false;
+  EventResponder CA2D::m_spiEvent{};
          uint8_t CA2D::m_rxBuffer[27]    = {0};
+         uint8_t CA2D::m_txBuffer[27]    = {0};
          uint8_t CA2D::m_frameBuffer[27] = {0};
 
 void CA2D::setMode_Continuous() {
@@ -95,20 +97,20 @@ void CA2D::ISR_Data() {
 }
 
 CTeleCounter TC_delayCnt{TeleGroup::A2D, 0x51};
-CTeleTimer TT_delayCnt{TeleGroup::A2D, 0x52};
+CTeleTimer   TT_delayCnt{TeleGroup::A2D, 0x52};
 
 CTeleCounter TC_readData{TeleGroup::A2D, 0x42};
 CTeleTimer   TT_readData{TeleGroup::A2D, 0x43};
 
 bool CA2D::pollData() { 
- 
-  if (m_dataArrived) {
-    m_dataArrived = false;
 
-    DataType data;
+  if (m_dataArrived)
+  {
+    m_dataArrived = false;
+    DataType data(Head.getState());
     dataFromFrame(m_frameBuffer, data);
     m_pBlockToFill->push_back(data);
-}
+  }
 
   if (!m_dataReady) {
     yield();  // serve other tasks while waiting for data
@@ -124,34 +126,35 @@ TC_readData.increment();
 
 TT_readData.start();
 
-if (m_dataReady && !m_dmaActive) {
+//if (m_dataReady && !m_dmaActive) {
     m_dataReady = false;
     m_dmaActive = true;
 
     SPI.beginTransaction(Hardware::SPIsettings);
     digitalWriteFast(CS.A2D, LOW);
 
-    static uint8_t dummyTx[27] = {0};
-    SPI.transfer(dummyTx, m_rxBuffer, sizeof(m_rxBuffer));
+    m_spiEvent.attachImmediate(onSpiDmaComplete);
+    SPI.transfer(m_txBuffer, m_rxBuffer, sizeof(m_rxBuffer), m_spiEvent);
 
-    digitalWriteFast(CS.A2D, HIGH);
-    SPI.endTransaction();
 
-    memcpy(m_frameBuffer, m_rxBuffer, sizeof(m_rxBuffer));
-}
+//}
   return true;
 }
 
-void CA2D::onSpiDmaComplete(void)
+void CA2D::onSpiDmaComplete(EventResponderRef)
 {
+    arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
+    memcpy(m_frameBuffer,
+           m_rxBuffer,
+           sizeof(m_rxBuffer));
+
     digitalWriteFast(CS.A2D, HIGH);
     SPI.endTransaction();
-
-    memcpy((void*)m_frameBuffer, (const void*)m_rxBuffer, sizeof(m_rxBuffer));
 
     m_dmaActive = false;
     m_dataArrived = true;
 }
+
 
 
 void CA2D::setBlockState(StateType state) {

@@ -37,10 +37,10 @@ void Hardware::update() {
   
   A2D.poll();
 
-//  if (gate.block()) return;
+  if (gate.block()) return;
   
-//  getPerStateHW().update();  // update pots at 100Hz but only if we have new data
-//  delayMicroseconds(5); // small delay to allow pot settling
+  getPerStateHW().update();  // update pots at 100Hz but only if we have new data
+     delayMicroseconds(5); // small delay to allow pot settling
   
 }
 
