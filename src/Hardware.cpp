@@ -9,7 +9,7 @@
 #include "CTelemetry.h"
 #include <map>
 
-SPISettings    Hardware::SPIsettings(4800000, MSBFIRST, SPI_MODE1);
+SPISettings    Hardware::SPIsettings(6000000, MSBFIRST, SPI_MODE1);
 
 void Hardware::begin() {
     // Initialize all hardware components
@@ -38,12 +38,12 @@ void Hardware::update() {
   A2D.poll();
 
   if (gate.block() || A2D.IsDMAActive()) return;
-
+  
   A2D.pauseRead();
-  
+
   getPerStateHW().update();  // update pots at 100Hz but only if we have new data
-  
-  A2D.resumeRead();
+
+  A2D.resumeRead(); // resume A2D continuous read
 }
 
 
