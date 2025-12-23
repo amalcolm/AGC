@@ -64,6 +64,7 @@ class CA2D {
     static volatile bool s_dataArrived;      // true when DMA frame finished
   
     void setRead(bool enable);
+    void setDebugData(DataType& data);
 
     volatile bool       m_dataReady = false;
     BlockType           m_BlockA;

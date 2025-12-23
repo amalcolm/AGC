@@ -11,6 +11,8 @@ static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 DataType::DataType() 
   : state(DIRTY), stateTime(0.0), hardwareState(0), sensorState(0) { 
   timestamp = Timer.getConnectTime();
+  stateTime = Timer.getStateTime();
+
   memset(&channels[0], 0, CHANNELS_BYTESIZE );
 }
 
@@ -18,6 +20,8 @@ DataType::DataType(StateType state)
   : state(state), stateTime(0.0), hardwareState(0), sensorState(0) {
 
   timestamp = Timer.getConnectTime();
+  stateTime = Timer.getStateTime();
+
   memset(&channels[0], 0, CHANNELS_BYTESIZE ); 
 }
 

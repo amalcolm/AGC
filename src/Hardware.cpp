@@ -9,7 +9,7 @@
 #include "CTelemetry.h"
 #include <map>
 
-SPISettings    Hardware::SPIsettings(6000000, MSBFIRST, SPI_MODE1);
+SPISettings    Hardware::SPIsettings(4800000, MSBFIRST, SPI_MODE1);
 
 void Hardware::begin() {
     // Initialize all hardware components
@@ -26,7 +26,7 @@ void Hardware::begin() {
     Timer.restart();
 }
 
-CTimedGate gate(0.01); // 100hz
+CTimedGate gate(1/250.0);
 CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
 
@@ -37,11 +37,11 @@ void Hardware::update() {
   
   A2D.poll();
 
-  if (gate.block() || A2D.IsDMAActive()) return;
+  if (gate.block() || A2D.IsDMAActive()) return;  // limit update rate to gate frequency
   
   A2D.pauseRead();
 
-  getPerStateHW().update();  // update pots at 100Hz but only if we have new data
+  getPerStateHW().update();  // update pots
 
   A2D.resumeRead(); // resume A2D continuous read
 }

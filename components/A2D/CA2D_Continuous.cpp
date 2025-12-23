@@ -1,11 +1,8 @@
 #include "CA2D.h"
 #include "Setup.h" 
 #include "CTimer.h"
-#include "CUSB.h"
 #include "Hardware.h"
-#include "CHead.h"
-#include <vector>
-#include <tuple>
+
 // only visible inside Continuous codebase
 static CA2D* Singleton = NULL;
 
@@ -89,15 +86,6 @@ void CA2D::setMode_Continuous() {
   m_Mode = ModeType::CONTINUOUS;
   USB.printf("A2D: Continuous mode (@%d)", CA2D::SAMPLING_SPEED);
 }
-void CA2D::setRead(bool enable)
-{
-  if (enable) {
-    attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
-  } else {
-    detachInterrupt(digitalPinToInterrupt(m_pinDataReady));
-    while (s_dmaActive) yield(); // wait for any active DMA to finish
-  }
-}
 
 CTimer minTimer;
 
@@ -114,15 +102,8 @@ CTeleTimer   TT_delayCnt{TeleGroup::A2D, 0x52};
 CTeleCounter TC_readData{TeleGroup::A2D, 0x42};
 CTeleTimer   TT_readData{TeleGroup::A2D, 0x43};
 
-bool CA2D::pollData() { 
 
-  if (s_dataArrived)
-  {
-    s_dataArrived = false;
-    DataType data(Head.getState());
-    dataFromFrame(m_frBuffer, data);
-    m_pBlockToFill->push_back(data);
-  }
+bool CA2D::pollData() { 
 
   if (s_dmaActive) return false;
 
@@ -133,6 +114,8 @@ bool CA2D::pollData() {
 
   m_dataReady = false;
   if (m_ReadState == ReadState::IGNORE) return false;
+
+  DataType data(Head.getState());  // sets timestamp and stateTime
 
   TT_delayCnt.set(minTimer.uS());
   while (minTimer.uS() < 2) {TC_delayCnt.increment(); yield(); }
@@ -146,10 +129,19 @@ bool CA2D::pollData() {
     SPI.beginTransaction(Hardware::SPIsettings);
     digitalWriteFast(CS.A2D, LOW);
 
-
     arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
     arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
     SPI.transfer(m_txBuffer, m_rxBuffer, sizeof(m_rxBuffer), s_spiEvent);
+
+    setDebugData(data);
+
+    while (s_dmaActive) yield(); // wait for DMA complete
+
+    dataFromFrame(m_frBuffer, data);
+
+    m_pBlockToFill->push_back(data);
+    TT_readData.stop();
+
   }
 
   return true;
@@ -165,6 +157,7 @@ void CA2D::onSpiDmaComplete(EventResponderRef)
 
     s_dmaActive = false;
     s_dataArrived = true;
+    TT_readData.stop();
 }
 
 
@@ -183,4 +176,16 @@ void CA2D::setBlockState(StateType state) {
   USB.buffer(m_pBlockToSend);
 
   if (m_fnCallback) m_fnCallback(m_pBlockToSend);
+}
+
+void CA2D::setRead(bool enable)
+{
+  if (enable) {
+    delayMicroseconds(50);
+    attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
+  } else {
+    detachInterrupt(digitalPinToInterrupt(m_pinDataReady));
+    while (s_dmaActive) yield(); // wait for any active DMA to finish
+    delayMicroseconds(10);
+  }
 }
