@@ -89,20 +89,14 @@ void CA2D::setMode_Continuous() {
   m_Mode = ModeType::CONTINUOUS;
   USB.printf("A2D: Continuous mode (@%d)", CA2D::SAMPLING_SPEED);
 }
-void CA2D::setRead(bool enable) {
-  digitalWriteFast(CS.A2D, LOW);
-  delayMicroseconds(2);
-
+void CA2D::setRead(bool enable)
+{
   if (enable) {
-    SPI.transfer(0x08);  // START
-    delayMicroseconds(2);
-    SPI.transfer(0x04);  // SYNC (optional but recommended)
+    attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
   } else {
-    SPI.transfer(0x0A);  // STOP
+    detachInterrupt(digitalPinToInterrupt(m_pinDataReady));
+    while (s_dmaActive) yield(); // wait for any active DMA to finish
   }
-
-  delayMicroseconds(2);
-  digitalWriteFast(CS.A2D, HIGH);
 }
 
 CTimer minTimer;
@@ -129,6 +123,8 @@ bool CA2D::pollData() {
     dataFromFrame(m_frBuffer, data);
     m_pBlockToFill->push_back(data);
   }
+
+  if (s_dmaActive) return false;
 
   if (!m_dataReady) {
     yield();  // serve other tasks while waiting for data
