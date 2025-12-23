@@ -9,12 +9,12 @@
 // only visible inside Continuous codebase
 static CA2D* Singleton = NULL;
 
-volatile bool    CA2D::m_dmaActive       = false;
-volatile bool    CA2D::m_dataArrived     = false;
-  EventResponder CA2D::m_spiEvent{};
-         uint8_t CA2D::m_rxBuffer[27]    = {0};
-         uint8_t CA2D::m_txBuffer[27]    = {0};
-         uint8_t CA2D::m_frameBuffer[27] = {0};
+volatile bool    CA2D::s_dmaActive       = false;
+volatile bool    CA2D::s_dataArrived     = false;
+  EventResponder CA2D::s_spiEvent{};
+   alignas(32) uint8_t m_rxBuffer[32];
+   alignas(32) uint8_t m_txBuffer[32];
+   alignas(32) uint8_t m_frBuffer[32];
 
 void CA2D::setMode_Continuous() {
   static constexpr std::array<std::pair<uint32_t, uint8_t>, 8> speedLookup = {{
@@ -78,6 +78,9 @@ void CA2D::setMode_Continuous() {
   pinMode(m_pinDataReady, INPUT); // no pullups; ADS drives the line
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
 
+  s_spiEvent.attachImmediate(onSpiDmaComplete);
+
+
   m_pBlockToFill = &m_BlockA;
   m_pBlockToSend = &m_BlockB;
   m_BlockA.clear();
@@ -85,6 +88,21 @@ void CA2D::setMode_Continuous() {
 
   m_Mode = ModeType::CONTINUOUS;
   USB.printf("A2D: Continuous mode (@%d)", CA2D::SAMPLING_SPEED);
+}
+void CA2D::setRead(bool enable) {
+  digitalWriteFast(CS.A2D, LOW);
+  delayMicroseconds(2);
+
+  if (enable) {
+    SPI.transfer(0x08);  // START
+    delayMicroseconds(2);
+    SPI.transfer(0x04);  // SYNC (optional but recommended)
+  } else {
+    SPI.transfer(0x0A);  // STOP
+  }
+
+  delayMicroseconds(2);
+  digitalWriteFast(CS.A2D, HIGH);
 }
 
 CTimer minTimer;
@@ -104,11 +122,11 @@ CTeleTimer   TT_readData{TeleGroup::A2D, 0x43};
 
 bool CA2D::pollData() { 
 
-  if (m_dataArrived)
+  if (s_dataArrived)
   {
-    m_dataArrived = false;
+    s_dataArrived = false;
     DataType data(Head.getState());
-    dataFromFrame(m_frameBuffer, data);
+    dataFromFrame(m_frBuffer, data);
     m_pBlockToFill->push_back(data);
   }
 
@@ -120,39 +138,37 @@ bool CA2D::pollData() {
   m_dataReady = false;
   if (m_ReadState == ReadState::IGNORE) return false;
 
-TT_delayCnt.set(minTimer.uS());
-while (minTimer.uS() < 2) {TC_delayCnt.increment(); yield(); }
-TC_readData.increment();
+  TT_delayCnt.set(minTimer.uS());
+  while (minTimer.uS() < 2) {TC_delayCnt.increment(); yield(); }
+  TC_readData.increment();
 
-TT_readData.start();
+  TT_readData.start();
 
-//if (m_dataReady && !m_dmaActive) {
-    m_dataReady = false;
-    m_dmaActive = true;
+  if (!s_dmaActive) {
+    s_dmaActive = true;
 
     SPI.beginTransaction(Hardware::SPIsettings);
     digitalWriteFast(CS.A2D, LOW);
 
-    m_spiEvent.attachImmediate(onSpiDmaComplete);
-    SPI.transfer(m_txBuffer, m_rxBuffer, sizeof(m_rxBuffer), m_spiEvent);
 
+    arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
+    arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
+    SPI.transfer(m_txBuffer, m_rxBuffer, sizeof(m_rxBuffer), s_spiEvent);
+  }
 
-//}
   return true;
 }
 
 void CA2D::onSpiDmaComplete(EventResponderRef)
 {
-    arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
-    memcpy(m_frameBuffer,
-           m_rxBuffer,
-           sizeof(m_rxBuffer));
+    arm_dcache_delete( m_rxBuffer, sizeof(m_rxBuffer));
+    memcpy(m_frBuffer, m_rxBuffer, sizeof(m_rxBuffer));
 
     digitalWriteFast(CS.A2D, HIGH);
     SPI.endTransaction();
 
-    m_dmaActive = false;
-    m_dataArrived = true;
+    s_dmaActive = false;
+    s_dataArrived = true;
 }
 
 

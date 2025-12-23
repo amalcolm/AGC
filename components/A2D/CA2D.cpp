@@ -36,7 +36,7 @@ CA2D& CA2D::begin() {
 }
 
 // Call with CS already LOW (continuous). Return false if header not found.
-bool CA2D::readFrame(uint8_t (&raw)[27]) {
+bool CA2D::readFrame(uint8_t (&raw)[32]) {
   
   // Read status first
   for (int i=0;i<3;i++) raw[i] = SPI.transfer(0x00);
@@ -63,7 +63,7 @@ inline int32_t be24_to_s32(const uint8_t b2, const uint8_t b1, const uint8_t b0)
   return v;
 }
 
-void CA2D::dataFromFrame(uint8_t (&raw)[27], DataType& data) {
+void CA2D::dataFromFrame(uint8_t (&raw)[32], DataType& data) {
   static uint8_t sequenceNumber = 0;
 
   data.timestamp = Timer.getConnectTime();
@@ -95,7 +95,7 @@ DataType CA2D::readData() {
 
   DataType data(Head.getState());
 
-  uint8_t raw[27];
+  uint8_t raw[32];
   bool ok = readFrame(raw);
   if (ok) 
     dataFromFrame(raw, data);

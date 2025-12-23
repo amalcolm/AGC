@@ -20,8 +20,8 @@ class CA2D {
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
     void      makeCallback(BlockType* pBlock) { if (m_fnCallback) m_fnCallback(pBlock); }
 
-    bool      readFrame(uint8_t (&raw)[27]);
-    void      dataFromFrame(uint8_t (&raw)[27], DataType& data);
+    bool      readFrame(uint8_t (&raw)[32]);
+    void      dataFromFrame(uint8_t (&raw)[32], DataType& data);
 
     // Triggered
     DataType  getData();
@@ -30,6 +30,9 @@ class CA2D {
     void      setBlockState(StateType state);
     void      prepareForRead() { m_ReadState = ReadState::PREPARE; };
     void      startRead() { m_ReadState = ReadState::READ; };
+    inline bool IsDMAActive() const  { return s_dmaActive; }
+    inline void pauseRead () { setRead(false); }
+    inline void resumeRead() { setRead(true); }
 
 
     inline ModeType   getMode() { return m_Mode; }
@@ -55,14 +58,12 @@ class CA2D {
     bool        pollData();
     
  // DMA / continuous mode support
-   static EventResponder m_spiEvent;
+   static EventResponder s_spiEvent;
     static void onSpiDmaComplete(EventResponderRef);
-    static volatile bool m_dmaActive;        // true while DMA SPI in progress
-    static volatile bool m_dataArrived;      // true when DMA frame finished
-    static uint8_t m_rxBuffer[27];           // DMA receive buffer
-    static uint8_t m_txBuffer[27];           // DMA transmit buffer
-    static uint8_t m_frameBuffer[27];        // Buffer copied out at completion
-
+    static volatile bool s_dmaActive;        // true while DMA SPI in progress
+    static volatile bool s_dataArrived;      // true when DMA frame finished
+  
+    void setRead(bool enable);
 
     volatile bool       m_dataReady = false;
     BlockType           m_BlockA;
