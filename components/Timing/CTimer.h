@@ -5,6 +5,7 @@
 class CTimer {
   
 private:
+  static inline uint32_t s_instanceCount = 0;
    
   uint64_t startTime;
   static uint64_t s_calibration;
@@ -44,6 +45,8 @@ __enable_irq();
 
     return result;
   }
+
+  inline uint32_t getInstanceCount() const { return s_instanceCount; }
 
   inline void     restart()  { startTime = time();            }
   inline uint64_t elapsed()  { return time() - startTime;     }

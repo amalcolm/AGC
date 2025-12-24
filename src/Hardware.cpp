@@ -26,10 +26,9 @@ void Hardware::begin() {
     Timer.restart();
 }
 
-CTimedGate gate(1/250.0);
+CA2DTimedGate gate(1/250.0);  // 250 Hz gate; also ensures A2D is not busy 
 CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
-
 
 void Hardware::update() {
   TP_Update.measure();
@@ -37,8 +36,8 @@ void Hardware::update() {
   
   A2D.poll();
 
-  if (gate.block() || A2D.IsDMAActive()) return;  // limit update rate to gate frequency
-  
+  if (gate.block()) return;  // limit update rate to gate frequency
+
   A2D.pauseRead();
 
   getPerStateHW().update();  // update pots

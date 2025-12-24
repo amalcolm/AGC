@@ -7,7 +7,6 @@
 static CA2D* Singleton = NULL;
 
 volatile bool    CA2D::s_dmaActive       = false;
-volatile bool    CA2D::s_dataArrived     = false;
   EventResponder CA2D::s_spiEvent{};
    alignas(32) uint8_t m_rxBuffer[32];
    alignas(32) uint8_t m_txBuffer[32];
@@ -96,16 +95,11 @@ void CA2D::ISR_Data() {
    Singleton->m_dataReady = true;
 }
 
-CTeleCounter TC_delayCnt{TeleGroup::A2D, 0x51};
-CTeleTimer   TT_delayCnt{TeleGroup::A2D, 0x52};
+CTeleTimer TT_A2DRead{TeleGroup::A2D, 0x41};
 
-CTeleCounter TC_readData{TeleGroup::A2D, 0x42};
-CTeleTimer   TT_readData{TeleGroup::A2D, 0x43};
-
-
+CTimer Nuts;
+double maxISRTime = 0.0;
 bool CA2D::pollData() { 
-
-  if (s_dmaActive) return false;
 
   if (!m_dataReady) {
     yield();  // serve other tasks while waiting for data
@@ -113,18 +107,25 @@ bool CA2D::pollData() {
   }
 
   m_dataReady = false;
+
+  
+  if (Nuts.Seconds() >= 2.0) {
+    maxISRTime = std::max(maxISRTime, minTimer.uS());
+    Nuts.restart();
+//    USB.printf("A2D: ISR time: %.2f us. Number of CTimers: %u\n", maxISRTime, minTimer.getInstanceCount());
+    maxISRTime = 0.0;
+  }
+
   if (m_ReadState == ReadState::IGNORE) return false;
+
 
   DataType data(Head.getState());  // sets timestamp and stateTime
 
-  TT_delayCnt.set(minTimer.uS());
-  while (minTimer.uS() < 2) {TC_delayCnt.increment(); yield(); }
-  TC_readData.increment();
-
-  TT_readData.start();
+  while (minTimer.uS() < 2.0) yield();  // ensure at least 2us after DRDY before starting SPI
 
   if (!s_dmaActive) {
     s_dmaActive = true;
+    TT_A2DRead.start();
 
     SPI.beginTransaction(Hardware::SPIsettings);
     digitalWriteFast(CS.A2D, LOW);
@@ -133,22 +134,27 @@ bool CA2D::pollData() {
     arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
     SPI.transfer(m_txBuffer, m_rxBuffer, sizeof(m_rxBuffer), s_spiEvent);
 
+    digitalWriteFast(CS.A2D, HIGH);
+    SPI.endTransaction();
+
     setDebugData(data);
 
     while (s_dmaActive) yield(); // wait for DMA complete
 
     dataFromFrame(m_frBuffer, data);
 
-    m_pBlockToFill->push_back(data);
-    TT_readData.stop();
-
+    m_pBlockToFill->tryAdd(data);
   }
+
+
 
   return true;
 }
 
 void CA2D::onSpiDmaComplete(EventResponderRef)
 {
+
+    TT_A2DRead.stop();
     arm_dcache_delete( m_rxBuffer, sizeof(m_rxBuffer));
     memcpy(m_frBuffer, m_rxBuffer, sizeof(m_rxBuffer));
 
@@ -156,8 +162,6 @@ void CA2D::onSpiDmaComplete(EventResponderRef)
     SPI.endTransaction();
 
     s_dmaActive = false;
-    s_dataArrived = true;
-    TT_readData.stop();
 }
 
 

@@ -6,9 +6,9 @@
 
 bool TESTMODE = false;  // if true, uses polled A2D mode and _Callback by default
 
-constexpr double LoopPeriod_uS = 20000;  // 20ms
+constexpr double LoopPeriod_mS = 20;  // 20ms
 
-void _Callback(BlockType* block);
+void _Callback(BlockType* block);  // forward declaration of _Callback.cpp
 
 void setup() {
   activityLED.set();
@@ -17,12 +17,12 @@ void setup() {
 
   Hardware::begin();
 
-  Head.setSettleTime(500); // 500 microseconds settle time
+  Head.setSettleTime(0.5); // 500 microseconds settle time
 
   Head.setSequence( {
 //    Head.ALL_OFF,
       Head.RED8,
-      Head.IR8,
+      Head.IR7,
 //    Head.RED1 | Head.IR1,            // note; use OR ( | ) to combine states
 });
 
@@ -31,20 +31,17 @@ void setup() {
   activityLED.clear();
 }
 
-CTeleTimer TT_loop{TeleGroup::TIMER, 0x07};
 
 void loop() {
   Head.setNextState();    // Set the LEDs for the next state
-  TT_loop.start();
 
   getPerStateHW().set();  // apply HW settings for new state
 
   USB.update();           // output previous block, and give time for system to settle
-  TT_loop.stop();
 
   Head.waitForReady();    // wait until Head is ready before starting A2D read
 
-  while (Timer.uS() < LoopPeriod_uS) Hardware::update();  // update hardware until period elapses
+  while (Timer.mS() < LoopPeriod_mS) Hardware::update();  // update hardware until period elapses
   Timer.restart();
 
   CTelemetry::logAll();  // log all counter telemetry

@@ -28,10 +28,10 @@ std::vector<StateType>& CHead::getSequence() {  return m_sequence;}
 
 void CHead::setSequence(std::initializer_list<StateType> il) { m_sequence.assign(il); } // handles resizing wheres = it; does not
 
- double CHead::getSettleTime() const { return m_settleTime * CTimer::getMicrosecondsPerTick(); }
+ double CHead::getSettleTime() const { return m_settleTime * CTimer::getMillisecondsPerTick(); }
 
- void CHead::setSettleTime(uint64_t microseconds) {
-    m_settleTime = static_cast<uint64_t>(microseconds / CTimer::getMicrosecondsPerTick());
+ void CHead::setSettleTime(double milliseconds) {
+    m_settleTime = static_cast<uint64_t>(milliseconds / CTimer::getMillisecondsPerTick());
   }
 
 

@@ -69,7 +69,7 @@ class CHead {
     uint8_t getSequenceNumber() const { return m_sequencePosition; }
 
     double getSettleTime() const;
-    void setSettleTime(uint64_t microseconds);
+    void setSettleTime(double milliseconds);
 
 
     bool isReady() const;

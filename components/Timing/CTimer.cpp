@@ -12,6 +12,7 @@ double CTimer::s_MicrosecondsPerTick = 1000000.0 / F_CPU;
 
 
 CTimer::CTimer() {
+  s_instanceCount++;
   uint32_t reg = ARM_DWT_CTRL;
   ARM_DWT_CTRL = reg | ARM_DWT_CTRL_CYCCNTENA;  // Enable the counter
 

@@ -30,7 +30,7 @@ class CA2D {
     void      setBlockState(StateType state);
     void      prepareForRead() { m_ReadState = ReadState::PREPARE; };
     void      startRead() { m_ReadState = ReadState::READ; };
-    inline bool IsDMAActive() const  { return s_dmaActive; }
+    inline bool isBusy() const  { return s_dmaActive || m_dataReady; }
     inline void pauseRead () { setRead(false); }
     inline void resumeRead() { setRead(true); }
 
@@ -61,7 +61,6 @@ class CA2D {
    static EventResponder s_spiEvent;
     static void onSpiDmaComplete(EventResponderRef);
     static volatile bool s_dmaActive;        // true while DMA SPI in progress
-    static volatile bool s_dataArrived;      // true when DMA frame finished
   
     void setRead(bool enable);
     void setDebugData(DataType& data);

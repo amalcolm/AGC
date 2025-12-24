@@ -29,7 +29,7 @@ struct DataType {
 };
 
 struct BlockType {
-  static constexpr uint32_t MAX_BLOCKSIZE   = 64;
+  static constexpr uint32_t MAX_BLOCKSIZE   = 164;
   static constexpr uint32_t DEBUG_BLOCKSIZE = 16;
 
   double   timestamp;
@@ -47,7 +47,7 @@ struct BlockType {
     state = DIRTY;
   }
 
-  inline bool push_back(const DataType& item) { if (count >= MAX_BLOCKSIZE) return false;
+  inline bool tryAdd(const DataType& item) { if (count >= MAX_BLOCKSIZE) return false;
     data[count++] = item;
     return true;
   }

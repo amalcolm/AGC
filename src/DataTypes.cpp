@@ -46,6 +46,7 @@ void DataType::writeSerial(bool includeFrameMarkers) {
 
 
 BlockType::BlockType() : timestamp(0.0), state(DIRTY), count(0), data() {
+
   for (uint32_t i = 0; i < MAX_BLOCKSIZE; i++) {
     data[i] = DataType();
   }
@@ -80,7 +81,8 @@ void BlockType::writeSerial(bool includeFrameMarkers) {
 
 void BlockType::debugSerial() {
   USB.printf("N:%d", count);
-  for(uint32_t i = 0; i < DEBUG_BLOCKSIZE && i < count; i++) {
+  uint32_t limit = std::min(count, DEBUG_BLOCKSIZE);
+  for(uint32_t i = 0; i < limit; i++) {
     USB.printf("\t C%d:%d", i, data[i].channels[0]);
   }
   USB.printf("\n");
