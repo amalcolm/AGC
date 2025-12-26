@@ -25,6 +25,7 @@ class CSerialWrapper {
            ModeType setMode(ModeType mode);
 
     void doHandshake();
+    void writeHandshakeResponse();
 
     void printf(const char *pFMT, ...);
     

@@ -2,6 +2,7 @@
 #include "DataTypes.h"
 #include "CHead.h"
 #include "CTelemetry.h"
+#include "Config.h"
 #include <map>
 
 constexpr unsigned int TEXTOUT_INTERVAL = 10000; // 10ms
@@ -70,7 +71,7 @@ void CUSB::update() {
 
     case CSerialWrapper::ModeType::TEXT:
     {
-      if (TESTMODE) {
+      if (CFG::TESTMODE) {
         BlockType block;
         A2D.makeCallback(&block);
       }

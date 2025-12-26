@@ -2,7 +2,7 @@
 #include "Setup.h" 
 #include "CTimer.h"
 #include "Hardware.h"
-
+#include "Config.h"
 
 volatile bool    CA2D::s_dmaActive       = false;
   EventResponder CA2D::s_spiEvent{};
@@ -67,7 +67,7 @@ void CA2D::setMode_Continuous() {
   m_BlockB.clear();
 
   m_Mode = ModeType::CONTINUOUS;
-  USB.printf("A2D: Continuous mode (@%d)", CA2D::SAMPLING_SPEED);
+  USB.printf("A2D: Continuous mode (@%d)", CFG::SAMPLING_SPEED);
 }
 
 //CTeleCounter TC_ISR{TeleGroup::A2D, 0x40};

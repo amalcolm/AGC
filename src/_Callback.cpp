@@ -1,11 +1,11 @@
-
 #include "DataTypes.h"
 #include "Setup.h"
 #include "Hardware.h"
 #include "CUSB.h"
+#include "Config.h"
 
 // ProcessA2D: Callback to process A2D data blocks for debugging
-void _Callback(BlockType* block) {  if (!TESTMODE || block == nullptr || block->count == 0) return;
+void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || block->count == 0) return;
 
   // if we are outputting the A2D data, skip the debug below
   A2D.outputDebugBlock = false;  if (A2D.outputDebugBlock) return; 

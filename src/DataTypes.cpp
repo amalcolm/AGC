@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include "CUSB.h"
 #include "CHead.h"
+#include "Config.h"
 
 static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 
@@ -47,11 +48,11 @@ void DataType::writeSerial(bool includeFrameMarkers) {
 
 BlockType::BlockType() : timestamp(0.0), state(DIRTY), count(0), data() {
 
-  for (uint32_t i = 0; i < MAX_BLOCKSIZE; i++) {
+  for (uint32_t i = 0; i < CFG::MAX_BLOCKSIZE; i++) {
     data[i] = DataType();
   }
 
-  if (Ready && TESTMODE && A2D.getMode() == CA2D::ModeType::TRIGGERED) {
+  if (Ready && CFG::TESTMODE && A2D.getMode() == CA2D::ModeType::TRIGGERED) {
     data[0] = A2D.getData();
     timestamp = Timer.getConnectTime();
     count = 1;

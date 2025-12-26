@@ -2,6 +2,7 @@
 #include "Setup.h"
 #include "CHead.h"
 #include "CTimer.h"
+#include "Config.h"
 
 void CA2D::setMode_Triggered()
 {
@@ -89,7 +90,7 @@ DataType CA2D::getData() {
 }
 
 const uint64_t PERIOD_TICKS = static_cast<uint64_t>(
-  std::round(1.0 / (CTimer::getSecondsPerTick() * 400))  // Fixed rate testing...
+  std::round(1.0 / (CTimer::getSecondsPerTick() * CFG::READING_SPEED))  // Fixed rate testing...
 );
 
 

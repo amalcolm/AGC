@@ -3,12 +3,7 @@
 #include "CMasterTimer.h"
 #include "CHead.h"
 #include "CUSB.h"
-
-bool TESTMODE = false;  // if true, uses polled A2D mode and _Callback by default
-
-constexpr int LoopPeriod_mS = 20;  // 20ms
-
-void _Callback(BlockType* block);  // forward declaration of _Callback.cpp
+#include "Config.h"
 
 void setup() {
   activityLED.set();
@@ -29,7 +24,7 @@ void setup() {
 
   Ready = true;
   activityLED.clear();
-  Timer.setPeriodMS(LoopPeriod_mS);
+  Timer.setPeriodMS(CFG::LoopPeriod_mS);
 }
 
 

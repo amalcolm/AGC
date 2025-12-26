@@ -4,6 +4,7 @@
 #include "Helpers.h"
 #include "Hardware.h"
 #include "CTimer.h"
+#include "Config.h"
 
 CA2D* CA2D::Singleton = nullptr;
 
@@ -133,7 +134,7 @@ uint8_t CA2D::getConfig1() const {
 
   // Set speed bits based on SAMPLING_SPEED
   for (const auto& [speed, code] : CA2D::SpeedLookup) {
-    if (CA2D::SAMPLING_SPEED >= speed) {
+    if (CFG::SAMPLING_SPEED >= speed) {
       config1 = code;
       break;
     }

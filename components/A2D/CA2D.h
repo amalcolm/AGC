@@ -8,11 +8,10 @@ class CA2D {
 
     enum TeleKind { COUNT = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
 
-    inline static uint32_t SAMPLING_SPEED = 1'000; // A2D sampling speed in samples per second
-
+    
     enum ReadState { IDLE, IGNORE, PREPARE, READ };
 
-    SPISettings spiSettings{200'000, MSBFIRST, SPI_MODE1};
+    SPISettings spiSettings{4'800'000, MSBFIRST, SPI_MODE1};
 
     static const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup;
     static CA2D* Singleton;

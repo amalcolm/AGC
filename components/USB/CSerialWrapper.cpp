@@ -6,6 +6,7 @@
 #include "Setup.h"
 #include "Hardware.h"
 #include "helpers.h"
+#include "Config.h"
 #include <array>
 #include <queue>
 
@@ -17,7 +18,7 @@ void CSerialWrapper::update() {
   bool connected = Serial;
   bool hasData = Serial.available() > 0;
 
-  stateMachine.update(connected, hasData, TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->doHandshake(); });
+  stateMachine.update(connected, hasData, CFG::TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->doHandshake(); });
 }
 
 void CSerialWrapper::begin() {
@@ -50,8 +51,8 @@ void CSerialWrapper::doHandshake() {
           Serial.write("<DEVICE_ACK\n");
           endTime += timeout;
           Serial.send_now();
-          HOST_VERSION.clear();
-          HOST_VERSION.reserve(32);
+          memset(CFG::HOST_VERSION, 0, sizeof(CFG::HOST_VERSION));
+          int index = 0;
           while (!m_handshakeComplete && (millis() < endTime)) {
 
             if (Serial.available())
@@ -59,12 +60,11 @@ void CSerialWrapper::doHandshake() {
               c = Serial.read();
 
               if (c != '\n') {
-                if (c != '>') HOST_VERSION += c;
+                if (c != '>') CFG::HOST_VERSION[index++] = c;
               }
               else {
-            
-                Serial.write(("<"+DEVICE_VERSION).c_str());
-                Serial.write("\n");
+                writeHandshakeResponse();
+
                 Serial.send_now();
                 m_handshakeComplete = true;
               }
@@ -81,14 +81,20 @@ void CSerialWrapper::doHandshake() {
   }
 
 
-  if (m_handshakeComplete && !TESTMODE)
+  if (m_handshakeComplete && !CFG::TESTMODE)
     setMode(ModeType::BLOCKDATA);
   else
     setMode(ModeType::TEXT);
 
-  std::string outcome = m_handshakeComplete ? 
-    "Handshake complete. Host version: " + HOST_VERSION + (TESTMODE ? " Serial set to TEXT (by TESTMODE)" : " Binary BLOCKMODE active") + "\n" :
-    "Handshake failed. Defaulting to TEXT mode.\n";
+  std::string outcome{};
+  if (m_handshakeComplete)
+    outcome = std::string("Handshake complete. ")
+            +   "Host: "   + std::string(CFG::HOST_VERSION) 
+            + ", Device: " + std::string(CFG::DEVICE_NAME) + " v" + std::string(CFG::DEVICE_VERSION)
+            + (CFG::TESTMODE ? " Serial set to TEXT (by TESTMODE)" : " Binary BLOCKMODE active") + "\n";
+  else
+    outcome = "Handshake failed. Defaulting to TEXT mode.\n";
+  
 
   if (m_handshakeComplete || stateMachine.getFirstCall())
     USB.printf(outcome.c_str());  
@@ -159,3 +165,16 @@ void CSerialWrapper::printf(const char *pFMT, ...) {
 
 
  
+#include "Config.h"
+
+void CSerialWrapper::writeHandshakeResponse() {
+  char buffer[128];
+
+  snprintf(buffer, sizeof(buffer)-1, "<DEVICE_VERSION=%s:MAX_BLOCKSIZE=%lu:LOOP_MS=%lu\n",
+    CFG::DEVICE_VERSION,
+    CFG::MAX_BLOCKSIZE,
+    CFG::LoopPeriod_mS
+  );
+
+  Serial.write((uint8_t*)buffer, strlen(buffer));
+}

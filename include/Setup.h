@@ -5,12 +5,9 @@
 #include "CMasterTimer.h"
 #include <string>
 
-extern bool TESTMODE;  // if true, uses polled A2D mode and _Callback callback by default
+void _Callback(BlockType* block);  // forward declaration of _Callback.cpp
 
-extern bool Ready;                // set to true once setup() is complete 
-
-inline static std::string DEVICE_VERSION = "0.1";
-inline static std::string HOST_VERSION; // set in handshake; version of software on host PC
+extern bool Ready;                 // set to true once setup() is complete 
 
 
 extern struct ChipSelectPins CS; 

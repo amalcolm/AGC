@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <array>
+#include "Config.h"
 
 using StateType = uint32_t;
 using Frame = uint32_t;
@@ -29,13 +30,12 @@ struct DataType {
 };
 
 struct BlockType {
-  static constexpr uint32_t MAX_BLOCKSIZE   = 164;
   static constexpr uint32_t DEBUG_BLOCKSIZE = 16;
 
   double   timestamp;
   uint32_t state;
   uint32_t count;
-  DataType data[MAX_BLOCKSIZE];
+  DataType data[CFG::MAX_BLOCKSIZE];
 
   Frame frameStart = 0xEDB1FAB4;
   Frame frameEnd   = 0xEDB2FAB4;
@@ -47,7 +47,7 @@ struct BlockType {
     state = DIRTY;
   }
 
-  inline bool tryAdd(const DataType& item) { if (count >= MAX_BLOCKSIZE) return false;
+  inline bool tryAdd(const DataType& item) { if (count >= CFG::MAX_BLOCKSIZE) return false;
     data[count++] = item;
     return true;
   }
