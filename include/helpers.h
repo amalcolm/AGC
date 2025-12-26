@@ -13,9 +13,6 @@ struct PerStateHW& getPerStateHW(BlockType* block = nullptr);
 [[noreturn]] void error_impl(const char* file, int line, const char* func,
                              const char* fmt, ...);
 
-inline uint32_t TeleCount[256]{};
-inline uint32_t getCounter(uint8_t n) { uint32_t num = TeleCount[n]; TeleCount[n] = 0; return num; }
-
 
 inline void Tele(TeleGroup group, int ID, float value) {
     CTelemetry::log(group, ID, value);

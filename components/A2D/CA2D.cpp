@@ -4,9 +4,20 @@
 #include "Helpers.h"
 #include "Hardware.h"
 #include "CTimer.h"
-CA2D::CA2D(ModeType mode) : m_Mode(mode) {}
 
-CA2D::CA2D(CallbackType callback) : m_Mode(CONTINUOUS), m_fnCallback(callback) {}
+CA2D* CA2D::Singleton = nullptr;
+
+const std::array<std::pair<uint32_t, uint8_t>, 8> CA2D::SpeedLookup = {{
+    {16000, 0x90}, { 8000, 0x91}, { 4000, 0x92}, { 2000, 0x93},
+    { 1000, 0x94}, {  500, 0x95}, {  250, 0x96}, {  125, 0x97}
+}};
+
+CA2D::CA2D(ModeType mode) : m_Mode(mode) {
+  
+  if (Singleton) { USB.printf("*** A2D: Single continuous instance only."); return; }
+  Singleton = this;
+
+}
 
 void CA2D::setMode(CA2D::ModeType mode) {
   pinMode(PIN_SPI_SCK   , OUTPUT); // SPI SCK
@@ -45,11 +56,20 @@ bool CA2D::readFrame(uint8_t (&raw)[32]) {
   if ((raw[0] & 0xF0) != 0xC0) {
     // Drain remaining bytes for this bad frame so we realign next time
     for (int i=3;i<27;i++) (void)SPI.transfer(0x00);
+    LED.RED5.set();
     return false;
   }
 
   // Read 8 channels × 3 bytes
   for (int i=3;i<27;i++) raw[i] = SPI.transfer(0x00);
+
+  bool isZero = (raw[3] == 0 && raw[4] == 0 && raw[5] == 0);
+  
+  if (isZero) {
+    LED.RED6.set();
+    return false;
+  }
+  LED.RED6.clear();
   return true;
 }
 
@@ -72,7 +92,6 @@ void CA2D::dataFromFrame(uint8_t (&raw)[32], DataType& data) {
     data.channels[ch] = val;
   }
 }
-
 
 DataType CA2D::readData() {
 
@@ -106,10 +125,22 @@ void CA2D::setDebugData(DataType& data) {
   data.sensorState =
       (analogRead(offsetPot1.getSensorPin()) << 16) |
       (analogRead(offsetPot2.getSensorPin())      );
-
-
 }
 
+
+uint8_t CA2D::getConfig1() const {
+  uint8_t config1 = 0x94;
+
+  // Set speed bits based on SAMPLING_SPEED
+  for (const auto& [speed, code] : CA2D::SpeedLookup) {
+    if (CA2D::SAMPLING_SPEED >= speed) {
+      config1 = code;
+      break;
+    }
+  }
+
+  return config1;
+}
 
 void CA2D::SPIwrite(std::initializer_list<uint8_t> data) {
   digitalWrite(CS.A2D, LOW);
@@ -122,3 +153,22 @@ void CA2D::SPIwrite(std::initializer_list<uint8_t> data) {
   delayMicroseconds(10);
 }
 
+
+
+
+
+void CA2D::setBlockState(StateType state) {
+  m_pBlockToFill->state = state;
+  noInterrupts();
+  {
+    std::swap(m_pBlockToSend, m_pBlockToFill);
+  }
+  interrupts();
+
+  m_pBlockToFill->timestamp = Timer.getConnectTime();
+  m_pBlockToFill->clear();
+
+  USB.buffer(m_pBlockToSend);
+
+  if (m_fnCallback) m_fnCallback(m_pBlockToSend);
+}

@@ -2,7 +2,7 @@
 #include "CSerialWrapper.h"
 #include "CSerialStateMachine.h"
 #include "CHead.h"
-#include "CTimer.h"
+#include "CMasterTimer.h"
 #include "Setup.h"
 #include "Hardware.h"
 #include "helpers.h"
@@ -145,7 +145,14 @@ void CSerialWrapper::printf(const char *pFMT, ...) {
   va_start(args, pFMT);
   vsnprintf(buffer, sizeof(buffer)-1, pFMT, args);
   va_end(args);
-  put((uint8_t*)buffer, strlen(buffer));
+
+  int len = strlen(buffer);
+
+  if (buffer[len-1] != '\n')
+    buffer[len++] = '\n'; // ensure newline
+
+  put((uint8_t*)buffer, len);
+  
 
   setMode(previousMode);
 }

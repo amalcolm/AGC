@@ -3,8 +3,6 @@
 #include "CTimer.h"
 #include "Hardware.h"
 
-// only visible inside Continuous codebase
-static CA2D* Singleton = NULL;
 
 volatile bool    CA2D::s_dmaActive       = false;
   EventResponder CA2D::s_spiEvent{};
@@ -13,28 +11,14 @@ volatile bool    CA2D::s_dmaActive       = false;
    alignas(32) uint8_t m_frBuffer[32];
 
 void CA2D::setMode_Continuous() {
-  static constexpr std::array<std::pair<uint32_t, uint8_t>, 8> speedLookup = {{
-      {16000, 0xD0}, { 8000, 0xD1}, { 4000, 0xD2}, { 2000, 0xD3},
-      { 1000, 0xD4}, {  500, 0xD5}, {  250, 0xD6}, {  125, 0xD7}
-  }};
-
-
-  if (Singleton) { USB.printf("*** A2D: Single continuous instance only."); return; }
-  Singleton = this;
 
   pinMode(CS.A2D, OUTPUT);
   digitalWrite(CS.A2D, HIGH);
 
-  uint8_t cfg1 = 0xD4; // default 1kSPS
-  for (const auto& [speed, value] : speedLookup)
-    if (CA2D::SAMPLING_SPEED == speed) {
-      cfg1 = value;
-      break;
-    }
-
+  uint8_t cfg1 = getConfig1();
 
   SPI.begin();
-  SPI.beginTransaction(Hardware::SPIsettings);
+  SPI.beginTransaction(spiSettings);
   {
     // 1) Stop RDATAC so we can write regs
     SPIwrite({0x11});                 // SDATAC
@@ -74,7 +58,7 @@ void CA2D::setMode_Continuous() {
   pinMode(m_pinDataReady, INPUT); // no pullups; ADS drives the line
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
 
-  s_spiEvent.attachImmediate(onSpiDmaComplete);
+  s_spiEvent.attach(onSpiDmaComplete);
 
 
   m_pBlockToFill = &m_BlockA;
@@ -86,56 +70,34 @@ void CA2D::setMode_Continuous() {
   USB.printf("A2D: Continuous mode (@%d)", CA2D::SAMPLING_SPEED);
 }
 
-CTimer minTimer;
-
-CTeleCounter TC_ISR{TeleGroup::A2D, 0x40};
-void CA2D::ISR_Data() {
-   minTimer.restart();
-   TC_ISR.increment(); if (Singleton->m_ReadState == ReadState::IDLE) return;
+//CTeleCounter TC_ISR{TeleGroup::A2D, 0x40};
+//CTeleTimer TT_A2DRead{TeleGroup::A2D, 0x41};
+void CA2D::ISR_Data() {// TC_ISR.increment();
+   if (Singleton->m_ReadState == ReadState::IDLE) return;
    Singleton->m_dataReady = true;
 }
 
-CTeleTimer TT_A2DRead{TeleGroup::A2D, 0x41};
 
-CTimer Nuts;
-double maxISRTime = 0.0;
-bool CA2D::pollData() { 
+bool CA2D::poll_Continuous() { 
 
-  if (!m_dataReady) {
-    yield();  // serve other tasks while waiting for data
-    return false;
-  }
+  if (!m_dataReady) { yield(); return false; }
 
   m_dataReady = false;
-
   
-  if (Nuts.Seconds() >= 2.0) {
-    maxISRTime = std::max(maxISRTime, minTimer.uS());
-    Nuts.restart();
-//    USB.printf("A2D: ISR time: %.2f us. Number of CTimers: %u\n", maxISRTime, minTimer.getInstanceCount());
-    maxISRTime = 0.0;
-  }
-
   if (m_ReadState == ReadState::IGNORE) return false;
-
 
   DataType data(Head.getState());  // sets timestamp and stateTime
 
-  while (minTimer.uS() < 2.0) yield();  // ensure at least 2us after DRDY before starting SPI
-
   if (!s_dmaActive) {
     s_dmaActive = true;
-    TT_A2DRead.start();
+//  TT_A2DRead.start();
 
-    SPI.beginTransaction(Hardware::SPIsettings);
+    SPI.beginTransaction(spiSettings);
     digitalWriteFast(CS.A2D, LOW);
 
     arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
     arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
-    SPI.transfer(m_txBuffer, m_rxBuffer, sizeof(m_rxBuffer), s_spiEvent);
-
-    digitalWriteFast(CS.A2D, HIGH);
-    SPI.endTransaction();
+    SPI.transfer(m_txBuffer, m_rxBuffer, 32, s_spiEvent);
 
     setDebugData(data);
 
@@ -144,17 +106,16 @@ bool CA2D::pollData() {
     dataFromFrame(m_frBuffer, data);
 
     m_pBlockToFill->tryAdd(data);
+
   }
-
-
 
   return true;
 }
 
 void CA2D::onSpiDmaComplete(EventResponderRef)
 {
+//  TT_A2DRead.stop();
 
-    TT_A2DRead.stop();
     arm_dcache_delete( m_rxBuffer, sizeof(m_rxBuffer));
     memcpy(m_frBuffer, m_rxBuffer, sizeof(m_rxBuffer));
 
@@ -164,26 +125,11 @@ void CA2D::onSpiDmaComplete(EventResponderRef)
     s_dmaActive = false;
 }
 
-
-
-void CA2D::setBlockState(StateType state) {
-  m_pBlockToFill->state = state;
-  noInterrupts();
-  {
-    std::swap(m_pBlockToSend, m_pBlockToFill);
-  }
-  interrupts();
-
-  m_pBlockToFill->timestamp = Timer.getConnectTime();
-  m_pBlockToFill->clear();
-
-  USB.buffer(m_pBlockToSend);
-
-  if (m_fnCallback) m_fnCallback(m_pBlockToSend);
-}
-
+bool errorOutput = false;
 void CA2D::setRead(bool enable)
 {
+  if (m_Mode != ModeType::CONTINUOUS) {  if (!errorOutput) { USB.printf("*** A2D: Cannot setRead() when not in continuous mode."); errorOutput = true; } return; }
+
   if (enable) {
     delayMicroseconds(50);
     attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);

@@ -5,6 +5,7 @@
 #include "CA2D.h" 
 #include "CHead.h"
 #include "CTimer.h"
+#include "CMasterTimer.h"
 #include "CUSB.h"
 #include "Setup.h"
 #include "Hardware.h"
@@ -14,8 +15,8 @@ ChipSelectPins CS;
 SensorPins     SP;
 ButtonPins     BUT;
 LedPins        LED;
-CTimer         Timer;
-CA2D           A2D( TESTMODE ? CA2D::ModeType::TRIGGERED : CA2D::ModeType::CONTINUOUS );
+CMasterTimer   Timer;
+CA2D           A2D( CA2D::ModeType::TRIGGERED );
 CHead          Head;
 CUSB           USB;
 

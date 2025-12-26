@@ -48,7 +48,7 @@ void CTelemetry::log(TeleGroup group, uint16_t ID, float value) {
 }
 
 void CTelemetry::log(TeleGroup group, uint8_t subGroup, uint16_t ID, float value) {
-  double timestamp = CTimer::time() * CTimer::getSecondsPerTick();
+  double timestamp = CTimer::timeAbsolute() * CTimer::getSecondsPerTick();
 
   CTelemetry* telemetry = CTelemetry::Rent();
   telemetry->timestamp = timestamp;

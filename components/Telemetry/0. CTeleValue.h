@@ -6,7 +6,7 @@ private:
     inline static uint32_t instanceCounter{};
 
 
-    uint32_t _value{};
+    float _value{};
 
 public:
     CTeleValue(TeleGroup group = TeleGroup::PROGRAM, uint16_t id = 0xFFFF) : CTelemetry(group, SUBGROUP, id) {
@@ -21,8 +21,9 @@ public:
         _value = value;
     }
 
+
     float getValue() override {
-        uint32_t retVal = _value;
+        float retVal = _value;
         _value = 0;  // need to reset value after reading
         return retVal;
     }

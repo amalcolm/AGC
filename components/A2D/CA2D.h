@@ -8,14 +8,18 @@ class CA2D {
 
     enum TeleKind { COUNT = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
 
-    inline static uint32_t SAMPLING_SPEED = 8'000; // default A2D sampling speed in samples per second (only used in continuous mode)
+    inline static uint32_t SAMPLING_SPEED = 1'000; // A2D sampling speed in samples per second
 
     enum ReadState { IDLE, IGNORE, PREPARE, READ };
 
+    SPISettings spiSettings{200'000, MSBFIRST, SPI_MODE1};
+
+    static const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup;
+    static CA2D* Singleton;
+
   public:
     CA2D(ModeType mode);
-    CA2D(CallbackType callback);
-    
+  
     CA2D&     begin();
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
     void      makeCallback(BlockType* pBlock) { if (m_fnCallback) m_fnCallback(pBlock); }
@@ -24,6 +28,7 @@ class CA2D {
     void      dataFromFrame(uint8_t (&raw)[32], DataType& data);
 
     // Triggered
+    void      setNextReadTime(uint64_t time);
     DataType  getData();
 
     // Continuous
@@ -47,15 +52,21 @@ class CA2D {
 
     int m_pinDataReady{9};
 
-  private:
+  public:
     ModeType            m_Mode       = ModeType::UNSET;
     CallbackType        m_fnCallback = NULL;
     ReadState           m_ReadState  = ReadState::IDLE;
 
+    // Triggered
+    static void ISR_Mark();
+    bool        poll_Triggered();
+    uint64_t    m_dataTime = 0;
+    uint64_t    m_nextReadTime = 0;
+
     // Continuous
 
     static void ISR_Data();
-    bool        pollData();
+    bool        poll_Continuous();
     
  // DMA / continuous mode support
    static EventResponder s_spiEvent;
@@ -64,6 +75,7 @@ class CA2D {
   
     void setRead(bool enable);
     void setDebugData(DataType& data);
+    uint8_t getConfig1() const;
 
     volatile bool       m_dataReady = false;
     BlockType           m_BlockA;
@@ -77,5 +89,5 @@ class CA2D {
 
     public:
     
-    inline bool poll() { if (m_Mode != ModeType::CONTINUOUS) return false; else return pollData(); }
+    inline bool poll() { return ((m_Mode == ModeType::CONTINUOUS) ? poll_Continuous() : poll_Triggered()); }
 }; 

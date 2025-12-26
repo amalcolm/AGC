@@ -1,5 +1,5 @@
 #include "DataTypes.h"
-#include "CTimer.h"
+#include "CMasterTimer.h"
 #include "Setup.h"
 #include "Arduino.h"
 #include "CUSB.h"

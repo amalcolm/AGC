@@ -26,4 +26,7 @@ class CUSB : public CSerialWrapper {
     void update();
 
     static void SendCrashReport(CrashReportClass& pReport);
+    class CStringPrinter;
+
+    
 };

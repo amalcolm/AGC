@@ -8,12 +8,16 @@ class CTimedGate {
   public:
     virtual bool pass();
     virtual bool block();
+
+    void setNextTime(uint64_t time) { _nextTime = time + _period; }
     
   private:
     uint64_t _period;
-    uint64_t nextTime;
+    uint64_t _nextTime;
 };
 
+
+/*
 class CA2DTimedGate : public CTimedGate {
   private:
     bool passed = false;
@@ -24,3 +28,4 @@ class CA2DTimedGate : public CTimedGate {
     bool pass() override;
     bool block() override;
 };
+*/

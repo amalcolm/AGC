@@ -5,20 +5,23 @@
 
 CTimedGate::CTimedGate(double period) {
   _period = static_cast<uint64_t>(period / CTimer::getSecondsPerTick());
-  nextTime = CTimer::time() + _period;
+  _nextTime = Timer.elapsed() + _period;
 }
 
 bool CTimedGate::block() { 
-  if (CTimer::time() < nextTime) return true;
-  nextTime += _period;
+  if (Timer.elapsed() < _nextTime) return true;
+  _nextTime += _period;
   return false;
 }
 
 bool CTimedGate::pass() { 
-  if (CTimer::time() < nextTime) return false;
-  nextTime += _period;
+  if (Timer.elapsed() < _nextTime) return false;
+  _nextTime += _period;
   return true;
 }
+
+
+/* CA2DTimedGate implementation - NOT USED
 
 CA2DTimedGate::CA2DTimedGate(double period) : CTimedGate(period) {}  // default 250 Hz
 
@@ -37,3 +40,4 @@ bool CA2DTimedGate::pass() {
    if (result) passed = false;
    return result;
 }
+*/

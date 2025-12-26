@@ -60,5 +60,7 @@ struct Hardware {
   static void begin();
   static void update();
 
-  static SPISettings SPIsettings;
+  inline static SPISettings SPIsettings{4800000, MSBFIRST, SPI_MODE1};
+  inline static CTimedGate  gate{1/250.0};  // 250 Hz gate; also ensures A2D is not busy 
+
 };

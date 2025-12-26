@@ -35,7 +35,7 @@ void CHead::setSequence(std::initializer_list<StateType> il) { m_sequence.assign
   }
 
 
-bool CHead::isReady() const { return Timer.time() >= m_ReadyTime; }
+bool CHead::isReady() const { return Timer.elapsed() >= m_ReadyTime; }
 
 
 void CHead::waitForReady() const { 
@@ -43,12 +43,16 @@ void CHead::waitForReady() const {
 
 
   A2D.prepareForRead();
-  while (Timer.time() < m_ReadyTime) A2D.poll();
+  while (Timer.elapsed() < m_ReadyTime) A2D.poll();
   A2D.startRead(); // clear datReady to ensure fresh read on next A2D read
 }
 
 StateType CHead::setNextState() {
-  m_ReadyTime = Timer.time() + m_settleTime;
+  Timer.markStateChange(); // inform timer of state change for stateTime tracking
+
+  m_ReadyTime = Timer.elapsed() + m_settleTime;
+  A2D.setNextReadTime(m_ReadyTime);
+
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
   if (reset) Pins::flashReset = false; // only use FlashReset once, and set it at start
   
@@ -62,7 +66,8 @@ StateType CHead::setNextState() {
   const StateType newState = m_sequence[m_sequencePosition];
 
   StateType diff = (newState ^ oldState) & VALIDBITS;
-  
+
+
   if (!diff) return m_State;
   m_State = newState;
 
@@ -79,7 +84,6 @@ StateType CHead::setNextState() {
       diff &= diff - 1;                             // clear LOWEST bit using magic
   }
 
-  Timer.markStateChange(); // inform timer of state change for stateTime tracking
 
   return m_State;
 }

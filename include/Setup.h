@@ -2,11 +2,10 @@
 #include <Arduino.h>
 #include "PinHelpers.h"
 #include "helpers.h"
+#include "CMasterTimer.h"
 #include <string>
 
-
 extern bool TESTMODE;  // if true, uses polled A2D mode and _Callback callback by default
-
 
 extern bool Ready;                // set to true once setup() is complete 
 
@@ -18,7 +17,7 @@ extern struct ChipSelectPins CS;
 extern struct SensorPins     SP;
 extern struct ButtonPins     BUT;
 extern struct LedPins        LED;
-extern class  CTimer         Timer;
+extern class  CMasterTimer   Timer;
 extern class  CA2D           A2D;
 extern class  CHead          Head;
 extern class  CUSB           USB;

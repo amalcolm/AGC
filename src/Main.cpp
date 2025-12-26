@@ -1,12 +1,12 @@
 #include "Setup.h"
 #include "Hardware.h"
-#include "CTimer.h"
+#include "CMasterTimer.h"
 #include "CHead.h"
 #include "CUSB.h"
 
 bool TESTMODE = false;  // if true, uses polled A2D mode and _Callback by default
 
-constexpr double LoopPeriod_mS = 20;  // 20ms
+constexpr int LoopPeriod_mS = 20;  // 20ms
 
 void _Callback(BlockType* block);  // forward declaration of _Callback.cpp
 
@@ -29,10 +29,12 @@ void setup() {
 
   Ready = true;
   activityLED.clear();
+  Timer.setPeriodMS(LoopPeriod_mS);
 }
 
 
 void loop() {
+
   Head.setNextState();    // Set the LEDs for the next state
 
   getPerStateHW().set();  // apply HW settings for new state
@@ -41,9 +43,8 @@ void loop() {
 
   Head.waitForReady();    // wait until Head is ready before starting A2D read
 
-  while (Timer.mS() < LoopPeriod_mS) Hardware::update();  // update hardware until period elapses
-  Timer.restart();
-
+  while (Timer.isProcessingState()) Hardware::update();  // update hardware until period elapses
+  
   CTelemetry::logAll();  // log all counter telemetry
 
   activityLED.toggle();
