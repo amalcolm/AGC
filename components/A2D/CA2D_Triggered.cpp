@@ -95,7 +95,7 @@ const uint64_t PERIOD_TICKS = static_cast<uint64_t>(
 
 
 void CA2D::setNextReadTime(uint64_t time) {
-  m_nextReadTime = time + PERIOD_TICKS / 8;
+  m_nextReadTime = time + PERIOD_TICKS * 2/6;
 } 
 
 bool CA2D::poll_Triggered() {
@@ -114,4 +114,9 @@ bool CA2D::poll_Triggered() {
   m_pBlockToFill->tryAdd(data);
 
   return true;
+}
+
+void CA2D::getAndAdd() {
+  DataType data = getData();
+  m_pBlockToFill->tryAdd(data);
 }

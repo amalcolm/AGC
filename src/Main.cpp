@@ -12,7 +12,6 @@ void setup() {
 
   Hardware::begin();
 
-  Head.setSettleTime(0.5); // 500 microseconds settle time
 
   Head.setSequence( {
 //    Head.ALL_OFF,
@@ -24,7 +23,7 @@ void setup() {
 
   Ready = true;
   activityLED.clear();
-  Timer.setPeriodMS(CFG::LoopPeriod_mS);
+  
 }
 
 

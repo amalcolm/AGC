@@ -45,7 +45,6 @@ public:
   inline double   mS()       { return elapsed() * CTimerBase::s_MillisecondsPerTick; }
   inline double   uS()       { return elapsed() * CTimerBase::s_MicrosecondsPerTick; }
 
-
   
 private:
   void callibrate();

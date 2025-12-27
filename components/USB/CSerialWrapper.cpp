@@ -170,10 +170,10 @@ void CSerialWrapper::printf(const char *pFMT, ...) {
 void CSerialWrapper::writeHandshakeResponse() {
   char buffer[128];
 
-  snprintf(buffer, sizeof(buffer)-1, "<DEVICE_VERSION=%s:MAX_BLOCKSIZE=%lu:LOOP_MS=%lu\n",
+  snprintf(buffer, sizeof(buffer)-1, "<DEVICE_VERSION=%s:MAX_BLOCKSIZE=%lu:LOOP_uS=%lu\n",
     CFG::DEVICE_VERSION,
     CFG::MAX_BLOCKSIZE,
-    CFG::LoopPeriod_mS
+    CFG::LoopPeriod_uS
   );
 
   Serial.write((uint8_t*)buffer, strlen(buffer));

@@ -4,20 +4,14 @@ class CMasterTimer : public CTimer {
   
 private:
   inline static uint64_t s_connectTime = 0;
+         static uint32_t s_loopTicks;       // note; 32bit for use with ARM_DWT_CYCCNT, not elapsed();
 
-  uint32_t m_loopTicks = 0;  // note; 32bit for use with ARM_DWT_CYCCNT, not elapsed();
   uint32_t m_stateChange = 0; // ditto; wraps with ARM_DWT_CYCCNT
 
 
 
 public:
   CMasterTimer();
-
-
-  void setPeriodTicks(uint64_t   ticks);
-  void setPeriodUS   (int microseconds);
-  void setPeriodMS   (int milliseconds);
-  void setPeriod     (double   seconds);
 
   inline void   restartConnectTiming() { s_connectTime = CTimer::time();                                         }
   inline double getConnectTime()       { return (CTimer::time() - s_connectTime) * CTimerBase::s_SecondsPerTick; }
@@ -29,12 +23,13 @@ public:
   
   inline bool isProcessingState() {
     uint32_t stateTicks = ARM_DWT_CYCCNT - m_stateChange;
-    if (stateTicks >= m_loopTicks) {
-      m_stateChange += m_loopTicks; 
-      return false;
-    }
-    return true;
+    if (stateTicks < s_loopTicks) return true;
+
+    m_stateChange += s_loopTicks; 
+    return false;
   }
+
+  void Delay_uS(uint32_t microseconds);
 
   
 private:

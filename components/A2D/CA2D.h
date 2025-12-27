@@ -59,6 +59,7 @@ class CA2D {
     // Triggered
     static void ISR_Mark();
     bool        poll_Triggered();
+    void        getAndAdd();
     uint64_t    m_dataTime = 0;
     uint64_t    m_nextReadTime = 0;
 

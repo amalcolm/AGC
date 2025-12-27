@@ -5,13 +5,12 @@
 #include "Setup.h"
 #include "DataTypes.h"
 #include "CTimer.h"
+#include "Config.h"
 
 const uint64_t CHead::MAXUINT64 = static_cast<uint64_t>(-1);
+const uint64_t CHead::s_settleTime = static_cast<uint64_t>(CFG::HEAD_SETTLE_TIME_uS / CTimer::getMicrosecondsPerTick());
 
-CHead::CHead() : m_State(0), m_sequencePosition(-1) {
-  // start with 100 microseconds settle time
-  m_settleTime = static_cast<uint64_t>(100.0 / CTimer::getMicrosecondsPerTick());
-}
+CHead::CHead() : m_State(0), m_sequencePosition(-1) { }
 
 CHead::~CHead() {}
 
@@ -28,11 +27,6 @@ std::vector<StateType>& CHead::getSequence() {  return m_sequence;}
 
 void CHead::setSequence(std::initializer_list<StateType> il) { m_sequence.assign(il); } // handles resizing wheres = it; does not
 
- double CHead::getSettleTime() const { return m_settleTime * CTimer::getMillisecondsPerTick(); }
-
- void CHead::setSettleTime(double milliseconds) {
-    m_settleTime = static_cast<uint64_t>(milliseconds / CTimer::getMillisecondsPerTick());
-  }
 
 
 bool CHead::isReady() const { return Timer.elapsed() >= m_ReadyTime; }
@@ -50,7 +44,7 @@ void CHead::waitForReady() const {
 StateType CHead::setNextState() {
   Timer.markStateChange(); // inform timer of state change for stateTime tracking
 
-  m_ReadyTime = Timer.elapsed() + m_settleTime;
+  m_ReadyTime = Timer.elapsed() + s_settleTime;
   A2D.setNextReadTime(m_ReadyTime);
 
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
