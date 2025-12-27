@@ -90,7 +90,7 @@ DataType CA2D::getData() {
 }
 
 const uint64_t PERIOD_TICKS = static_cast<uint64_t>(
-  std::round(1.0 / (CTimer::getSecondsPerTick() * CFG::READING_SPEED))  // Fixed rate testing...
+  std::round(1.0 / (CTimer::getSecondsPerTick() * CFG::READING_SPEED_Hz))  // Fixed rate testing...
 );
 
 
@@ -116,7 +116,7 @@ bool CA2D::poll_Triggered() {
   return true;
 }
 
-void CA2D::getAndAdd() {
+void CA2D::readThenStore() {
   DataType data = getData();
   m_pBlockToFill->tryAdd(data);
 }

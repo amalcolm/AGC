@@ -4,9 +4,12 @@ class CMasterTimer : public CTimer {
   
 private:
   inline static uint64_t s_connectTime = 0;
-         static uint32_t s_loopTicks;       // note; 32bit for use with ARM_DWT_CYCCNT, not elapsed();
 
-  uint32_t m_stateChange = 0; // ditto; wraps with ARM_DWT_CYCCNT
+  static uint32_t s_loopTicks;       // note; 32bit for use with ARM_DWT_CYCCNT, not elapsed();
+  static uint32_t s_readPeriod;
+  static uint32_t s_lastTick;
+
+         uint32_t m_stateChange = 0; // ditto; wraps with ARM_DWT_CYCCNT
 
 
 
@@ -29,9 +32,7 @@ public:
     return false;
   }
 
-  void Delay_uS(uint32_t microseconds);
+  inline void setLastTick() { s_lastTick = ARM_DWT_CYCCNT; }
 
-  
-private:
-  void callibrate();
+  void postReadDelay();
 };

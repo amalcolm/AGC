@@ -38,7 +38,8 @@ void CHead::waitForReady() const {
 
   A2D.prepareForRead();
   while (Timer.elapsed() < m_ReadyTime) A2D.poll();
-  A2D.startRead(); // clear datReady to ensure fresh read on next A2D read
+  A2D.startRead(); // clear dataReady to ensure fresh read on next A2D read
+  Timer.setLastTick(); // align master timer last tick to now
 }
 
 StateType CHead::setNextState() {
