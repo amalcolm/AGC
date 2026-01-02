@@ -76,7 +76,3 @@ private:
 #include "1. CTeleCounter.h"
 #include "2. CTeleTimer.h"
 #include "3. CTelePeriod.h"
-
-
-#include "CTimedGate.h"     // not stricly needed here, but helps to minimize #includes
-#include "CDataTimedGate.h"

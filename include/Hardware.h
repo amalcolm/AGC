@@ -62,6 +62,5 @@ struct Hardware {
   static void update();
 
   inline static SPISettings SPIsettings{4800000, MSBFIRST, SPI_MODE1};
-  inline static CTimedGate  gate{2.0/CFG::READING_SPEED_Hz};  // 250 Hz gate; also ensures A2D is not busy 
 
 };

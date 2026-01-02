@@ -1,26 +1,25 @@
 #include "CMasterTimer.h"
-#include "Hardware.h"
-#include "../teensy_compat.h"
+#include <cstdint>
 
-uint32_t CMasterTimer::s_loopTicks  = (uint32_t)std::ceil(CFG::LOOP_PERIOD_uS / CTimerBase::s_MicrosecondsPerTick);
 uint32_t CMasterTimer::s_readPeriod = (uint32_t)std::ceil(1.0 / (CFG::READING_SPEED_Hz * CTimerBase::s_SecondsPerTick));
+
+uint32_t HW_DELAY_TICKS = (uint32_t)std::ceil(
+  (CFG::POT_UPDATE_OFFSET_uS + CFG::HEAD_SETTLE_TIME_uS) / CTimerBase::getMicrosecondsPerTick());
 
 uint32_t CMasterTimer::s_lastTick = 0;
 
 CMasterTimer::CMasterTimer() : CTimer() { }
 
-void   CMasterTimer::markStateChange() { 
-  m_stateChange = ARM_DWT_CYCCNT; 
-  Hardware::gate.setNextTime(Timer.elapsed());
+void CMasterTimer::markStateChange() { 
+  state.reset();
+  HW.resetAfter(HW_DELAY_TICKS); // align A2D read timing
 }
 
 void CMasterTimer::postReadDelay() {
   
   while ((uint32_t)(ARM_DWT_CYCCNT - s_lastTick) < s_readPeriod) {
 
-    uint32_t stateTicks = ARM_DWT_CYCCNT - m_stateChange;
-    if (stateTicks > s_loopTicks) break;
-    
+    if (state.passed()) break;
     yield();
   }
 

@@ -33,7 +33,7 @@ void Hardware::update() {
   
   A2D.poll();
 
-  if (gate.block()) return;  // limit update rate to gate frequency
+  if (Timer.HW.waiting()) return;  // limit update rate to gate frequency
 
   getPerStateHW().update();  // update pots
 }

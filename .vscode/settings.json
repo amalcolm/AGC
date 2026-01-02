@@ -60,23 +60,26 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp"
     },
-	{
-	    "editor.tabSize": 2,
-	    "editor.insertSpaces": true,
-	    "editor.detectIndentation": true
-	},
-	"files.exclude": {
-		"**/.pio": true,
-		"**/.vscode": true,
-		"**/library.json": true,
-		"**/teensy_compat.h": true
-	},
-	"search.exclude": {
-		"**/.pio": true,
-		"**/.vscode": true,
-		"**/.gitignore", true,
-		"**/一 Scripts", true,
-		"**/library.json": true,
-		"**/teensy_compat.h": true
-	}
-}
+
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+
+  "files.exclude": {
+    "**/.pio": true,
+    "**/.vscode": true,
+    "**/.gitignore": true,
+    "**/一 Scripts": true,
+    "**/library.json": true,
+    "**/teensy_compat.h": true,
+  },
+
+  "search.exclude": {
+    "**/.pio": true,
+    "**/.vscode": true,
+    "**/.gitignore": true,
+    "**/一 Scripts": true,
+    "**/library.json": true,
+    "**/teensy_compat.h": true
+  }
+}}
