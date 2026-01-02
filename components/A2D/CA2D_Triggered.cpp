@@ -89,34 +89,23 @@ DataType CA2D::getData() {
   return data;
 }
 
-const uint64_t PERIOD_TICKS = static_cast<uint64_t>(
-  std::round(1.0 / (CTimer::getSecondsPerTick() * CFG::READING_SPEED_Hz))  // Fixed rate testing...
-);
+const uint32_t PERIOD_TICKS = Timer.A2D.getPeriodTicks();
 
 
 void CA2D::setNextReadTime(uint64_t time) {
-  m_nextReadTime = time + PERIOD_TICKS * 2/6;
+  Timer.A2D.resetAt(time + PERIOD_TICKS * 2/6);
 } 
 
 bool CA2D::poll_Triggered() {
   
-  uint64_t now = Timer.elapsed();
-
-  if (now < m_nextReadTime || m_ReadState == ReadState::IDLE) {
+  if (Timer.A2D.waiting() || m_ReadState == ReadState::IDLE) {
       yield();
       return false;
   }
-
-  m_nextReadTime = (m_nextReadTime == 0) ? now + PERIOD_TICKS : m_nextReadTime + PERIOD_TICKS;
- 
+  
   // Fetch the fresh data (RDATA grabs whatever's latest at this moment)
   DataType data = getData();
   m_pBlockToFill->tryAdd(data);
 
   return true;
-}
-
-void CA2D::readThenStore() {
-  DataType data = getData();
-  m_pBlockToFill->tryAdd(data);
 }

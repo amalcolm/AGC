@@ -61,6 +61,11 @@ public:
     _nextMarker = _lastMarker + futureTime;
   }
 
+  inline void resetAt(uint32_t time) const {
+    _lastMarker = ARM_DWT_CYCCNT;
+    _nextMarker = time;
+  }
+
   inline void sync(uint32_t now = ARM_DWT_CYCCNT) const {
     _nextMarker = now - ((now - _lastMarker) % _period);
     _lastMarker = _nextMarker - _period;

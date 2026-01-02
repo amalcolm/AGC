@@ -67,7 +67,7 @@ void CA2D::setMode_Continuous() {
   m_BlockB.clear();
 
   m_Mode = ModeType::CONTINUOUS;
-  USB.printf("A2D: Continuous mode (@%d)", CFG::SAMPLING_SPEED_Hz);
+  USB.printf("A2D: Continuous mode (@%d)", CFG::A2D_SAMPLING_SPEED_Hz);
 }
 
 //CTeleCounter TC_ISR{TeleGroup::A2D, 0x40};

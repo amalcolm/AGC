@@ -68,12 +68,10 @@ class CHead {
     std::vector<StateType>& getSequence();
     uint8_t getSequenceNumber() const { return m_sequencePosition; }
 
-    bool isReady() const;
     void waitForReady() const;
      void unsetReady() { m_ReadyTime = MAXUINT64; }
 
   private:
-    static const uint64_t s_settleTime;
     StateType   m_State;
   
     std::vector<StateType> m_sequence;

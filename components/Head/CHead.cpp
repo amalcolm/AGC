@@ -8,7 +8,6 @@
 #include "Config.h"
 
 const uint64_t CHead::MAXUINT64 = static_cast<uint64_t>(-1);
-const uint64_t CHead::s_settleTime = static_cast<uint64_t>(CFG::HEAD_SETTLE_TIME_uS / CTimer::getMicrosecondsPerTick());
 
 CHead::CHead() : m_State(0), m_sequencePosition(-1) { }
 
@@ -29,9 +28,6 @@ void CHead::setSequence(std::initializer_list<StateType> il) { m_sequence.assign
 
 
 
-bool CHead::isReady() const { return Timer.elapsed() >= m_ReadyTime; }
-
-
 void CHead::waitForReady() const { 
   if (m_ReadyTime == MAXUINT64) ERROR("CHead::waitForReady called when ready time is unset");
 
@@ -45,7 +41,7 @@ void CHead::waitForReady() const {
 StateType CHead::setNextState() {
   Timer.markStateChange(); // inform timer of state change for stateTime tracking
 
-  m_ReadyTime = Timer.elapsed() + s_settleTime;
+  m_ReadyTime = Timer.elapsed() + CFG::HEAD_SETTLE_TIME_uS / CTimer::getMicrosecondsPerTick();
   A2D.setNextReadTime(m_ReadyTime);
 
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;

@@ -134,7 +134,7 @@ uint8_t CA2D::getConfig1() const {
 
   // Set speed bits based on SAMPLING_SPEED
   for (const auto& [speed, code] : CA2D::SpeedLookup) {
-    if (CFG::SAMPLING_SPEED_Hz >= speed) {
+    if (CFG::A2D_SAMPLING_SPEED_Hz == speed) {
       config1 = code;
       break;
     }

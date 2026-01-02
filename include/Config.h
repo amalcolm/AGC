@@ -11,11 +11,11 @@ public:
 
     inline static constexpr uint32_t HEAD_SETTLE_TIME_uS   =    550;  // delay between Head change and first A2D read
     
-    inline static constexpr uint32_t POT_UPDATE_PERIOD_uS  =  2'222;  // Potentiometer update rate (450 Hz)
+    inline static constexpr uint32_t POT_UPDATE_PERIOD_uS  =  1'111;  // Potentiometer update rate (450 Hz)
     inline static constexpr uint32_t POT_UPDATE_OFFSET_uS  =    667;  // A2D -> Potentiometer update offset, minimizes interference
 
-    inline static constexpr uint32_t SAMPLING_SPEED_Hz     =  2'000;  // A2D sampling speed 
-    inline static constexpr uint32_t READING_SPEED_Hz      =    900;  // A2D reading speed when in triggered mode
+    inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz =  2'000;  // A2D sampling speed 
+    inline static constexpr uint32_t A2D_READING_SPEED_Hz  =    900;  // A2D reading speed when in triggered mode
  
     inline static constexpr uint32_t MAX_BLOCKSIZE         =    164;  // max number of DataType entries in a BlockType
 
