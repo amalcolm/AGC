@@ -41,5 +41,7 @@ void loop() {
   
   CTelemetry::logAll();  // log all counter telemetry
 
+  USB.printf("Time: %.3f ms\r\n", Timer.Seconds());
+
   activityLED.toggle();
 }
