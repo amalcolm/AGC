@@ -69,7 +69,6 @@ class CHead {
     uint8_t getSequenceNumber() const { return m_sequencePosition; }
 
     void waitForReady() const;
-     void unsetReady() { m_ReadyTime = MAXUINT64; }
 
   private:
     StateType   m_State;
@@ -78,6 +77,5 @@ class CHead {
     int   m_sequencePosition = -1;
 
     static const uint64_t MAXUINT64;
-    uint64_t  m_ReadyTime = MAXUINT64;
   
 };

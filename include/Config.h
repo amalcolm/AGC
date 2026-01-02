@@ -7,11 +7,11 @@ public:
     inline static constexpr bool TESTMODE = false;  // if true, uses polled A2D mode and _Callback by default
 
 
-    inline static constexpr uint32_t STATE_DURATION_uS     = 20'000;  // 20ms for each atate, mean's loop will be slightly longer than this
+    inline static constexpr uint32_t STATE_DURATION_uS     = 12'500;  // 20ms for each atate, mean's loop will be slightly longer than this
 
     inline static constexpr uint32_t HEAD_SETTLE_TIME_uS   =    550;  // delay between Head change and first A2D read
     
-    inline static constexpr uint32_t POT_UPDATE_PERIOD_uS  =  1'111;  // Potentiometer update rate (450 Hz)
+    inline static constexpr uint32_t POT_UPDATE_PERIOD_uS  =  1'111;  // Potentiometer update rate (900 Hz or 1/A2D_READING_SPEED_Hz)
     inline static constexpr uint32_t POT_UPDATE_OFFSET_uS  =    667;  // A2D -> Potentiometer update offset, minimizes interference
 
     inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz =  2'000;  // A2D sampling speed 

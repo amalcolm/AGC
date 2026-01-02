@@ -2,15 +2,6 @@
 #include "../teensy_compat.h"
 
 
-double CTimerBase::s_SecondsPerTick      =         1.0 / F_CPU;
-double CTimerBase::s_MillisecondsPerTick =     1'000.0 / F_CPU;
-double CTimerBase::s_MicrosecondsPerTick = 1'000'000.0 / F_CPU;
-
-uint64_t CTimerBase::s_TicksPerSecond      = F_CPU;
-uint64_t CTimerBase::s_TicksPerMillisecond = F_CPU / 1'000;
-uint64_t CTimerBase::s_TicksPerMicrosecond = F_CPU / 1'000'000;
-
-
 CTimerBase::CTimerBase(void(* isrHandler)()) {
   s_instanceCount++;
   if (s_instanceCount == 1) {

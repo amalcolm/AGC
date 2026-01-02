@@ -91,10 +91,7 @@ DataType CA2D::getData() {
 
 const uint32_t PERIOD_TICKS = Timer.A2D.getPeriodTicks();
 
-
-void CA2D::setNextReadTime(uint64_t time) {
-  Timer.A2D.resetAt(time + PERIOD_TICKS * 2/6);
-} 
+ 
 
 bool CA2D::poll_Triggered() {
   

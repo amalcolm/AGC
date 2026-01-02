@@ -16,8 +16,7 @@ CHead::~CHead() {}
 void CHead::begin() {
   m_sequencePosition = -1;
   m_State = DIRTY;
-  unsetReady();
-}
+ }
 
 
 void CHead::setSequence( std::vector<StateType> data ) { m_sequence = std::move(data);}
@@ -29,20 +28,16 @@ void CHead::setSequence(std::initializer_list<StateType> il) { m_sequence.assign
 
 
 void CHead::waitForReady() const { 
-  if (m_ReadyTime == MAXUINT64) ERROR("CHead::waitForReady called when ready time is unset");
-
 
   A2D.prepareForRead();
-  while (Timer.elapsed() < m_ReadyTime) A2D.poll();
+ 
+  while (Timer.Head.waiting()) A2D.poll();
+ 
   A2D.startRead(); // clear dataReady to ensure fresh read on next A2D read
-  Timer.setLastTick(); // align master timer last tick to now
-}
+ }
 
 StateType CHead::setNextState() {
   Timer.markStateChange(); // inform timer of state change for stateTime tracking
-
-  m_ReadyTime = Timer.elapsed() + CFG::HEAD_SETTLE_TIME_uS / CTimer::getMicrosecondsPerTick();
-  A2D.setNextReadTime(m_ReadyTime);
 
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
   if (reset) Pins::flashReset = false; // only use FlashReset once, and set it at start

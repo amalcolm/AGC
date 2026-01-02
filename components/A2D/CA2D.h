@@ -27,7 +27,6 @@ class CA2D {
     void      dataFromFrame(uint8_t (&raw)[32], DataType& data);
 
     // Triggered
-    void      setNextReadTime(uint64_t time);
     DataType  getData();
 
     // Continuous
@@ -60,8 +59,7 @@ class CA2D {
     static void ISR_Mark();
     bool        poll_Triggered();
     uint64_t    m_dataTime = 0;
-    uint64_t    m_nextReadTime = 0;
-
+  
     // Continuous
 
     static void ISR_Data();

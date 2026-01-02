@@ -56,9 +56,9 @@ public:
     _nextMarker = _lastMarker + _period;
   }
 
-  inline void resetAfter(uint32_t futureTime) const {
+  inline void resetAfter(uint32_t delta) const {
     _lastMarker = ARM_DWT_CYCCNT;
-    _nextMarker = _lastMarker + futureTime;
+    _nextMarker = _lastMarker + delta;
   }
 
   inline void resetAt(uint32_t time) const {
