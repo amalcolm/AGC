@@ -7,7 +7,7 @@ public:
     inline static constexpr bool TESTMODE = false;  // if true, uses polled A2D mode and _Callback by default
 
 
-    inline static constexpr uint32_t STATE_DURATION_uS     = 20'000;  // 20ms for each atate, mean's loop will be slightly longer than this
+    inline static constexpr uint32_t STATE_DURATION_uS     =  4'000;  // 20ms for each atate, mean's loop will be slightly longer than this
 
     inline static constexpr uint32_t HEAD_SETTLE_TIME_uS   =    550;  // delay between Head change and first A2D read
     
@@ -20,7 +20,7 @@ public:
     inline static constexpr uint32_t MAX_BLOCKSIZE         =    164;  // max number of DataType entries in a BlockType
 
     
-    inline static constexpr char DEVICE_VERSION[]  = "0.6.0+" BUILD_STR;  // this is a #define from the build system
+    inline static constexpr char DEVICE_VERSION[]  = "0.1.1+" BUILD_STR;  // this is a #define from the build system
     inline static constexpr char DEVICE_NAME[]     = "AGC";
     inline static           char HOST_VERSION[16]  = "[unknown]";
 

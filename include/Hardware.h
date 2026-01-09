@@ -11,8 +11,8 @@ struct PerStateHW {
   StateType state;
   PerStateHW(StateType state) : state(state) {}
 
-  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  10, 300 };
-  COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  10, 300 };
+  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  10, 280 };
+  COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  10, 280 };
   CGainPot      gainPot   { CS.gain   , SP.postGain ,  10      };
 
   void begin() { 
@@ -20,7 +20,7 @@ struct PerStateHW {
     offsetPot2.invert();
     gainPot.invert();
 
-    offsetPot1.begin(120); 
+    offsetPot1.begin(248); 
     offsetPot2.begin(120); 
     gainPot.begin(1); 
   }
@@ -42,6 +42,7 @@ struct PerStateHW {
 
 //  tele.TT_Offset1.start();
     offsetPot1.update();
+//offsetPot1.inZone = true;
 //  tele.TT_Offset1.stop();
 
 //  tele.TT_Offset2.start();

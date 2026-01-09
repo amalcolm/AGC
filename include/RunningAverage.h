@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm> // Required for std::fill
 #include <cstddef>
 #include <cstdint>   // For uint16_t and uint32_t
 #include <vector>
@@ -52,7 +51,7 @@ public:
        m_minq.clear(); m_maxq.clear();
     }
 
-    void Reset(int windowSize) {
+    void Reset(size_t windowSize) {
         RunningAverage::Reset(windowSize); 
         m_minq.clear(); m_maxq.clear();
     }
@@ -62,17 +61,17 @@ public:
         const size_t W = m_values.size();
   
         // Min deque: pop larger tails, then push
-        while (!m_minq.empty() && m_minq.back().first > value) m_minq.pop_back();
+        while (!m_minq.empty() && m_minq.back().first >= value) m_minq.pop_back();
         m_minq.emplace_back(value, m_seq);
 
         // Max deque: pop smaller tails, then push
-        while (!m_maxq.empty() && m_maxq.back().first < value) m_maxq.pop_back();
+        while (!m_maxq.empty() && m_maxq.back().first <= value) m_maxq.pop_back();
         m_maxq.emplace_back(value, m_seq);
 
         // Expire anything that fell out of the window
         const size_t expireBefore = (m_seq > W) ? (m_seq - W) : 0;
-        while (!m_minq.empty() && m_minq.front().second < expireBefore) m_minq.pop_front();
-        while (!m_maxq.empty() && m_maxq.front().second < expireBefore) m_maxq.pop_front();
+        while (!m_minq.empty() && m_minq.front().second <= expireBefore) m_minq.pop_front();
+        while (!m_maxq.empty() && m_maxq.front().second <= expireBefore) m_maxq.pop_front();
     }
 
     uint16_t GetMin()     const { return m_count ? m_minq.front().first : 0; }

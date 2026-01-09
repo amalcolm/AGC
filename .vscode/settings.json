@@ -69,6 +69,7 @@
     "**/.pio": true,
     "**/.vscode": true,
     "**/.gitignore": true,
+    "**/一 Scripts": true,
     "**/library.json": true,
     "**/teensy_compat.h": true,
   },
