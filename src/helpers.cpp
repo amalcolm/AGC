@@ -69,15 +69,6 @@ PerStateHW& getPerStateHW(DataType& data) {
     }
 
     
-    Serial.println("Error: system halted.");
-    Serial.println(hdr);
-    Serial.println();
-
-    Serial.print("Calling function: ");
-    void* ra = __builtin_return_address(0);
-    Serial.println((uintptr_t)ra, HEX);
-
-    Serial.flush();
 
     auto viewForward = std::views::iota(24, 42); // pins 24 to 41 inclusive
     auto viewReverse = viewForward | std::views::reverse;
@@ -88,6 +79,17 @@ PerStateHW& getPerStateHW(DataType& data) {
       pinMode(pin, OUTPUT);
 
     for (;;) {
+      Serial.println("Error: system halted.");
+      Serial.println(hdr);
+      Serial.println();
+
+      Serial.print("Calling function: ");
+      void* ra = __builtin_return_address(0);
+      Serial.println((uintptr_t)ra, HEX);
+
+      Serial.flush();
+
+
       for (auto pin : pinsForward) {
         digitalWrite(pin, HIGH);
         delay(20);

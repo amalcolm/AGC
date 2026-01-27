@@ -18,14 +18,16 @@ void CHead::begin() {
   m_State = DIRTY;
  }
 
-
-void CHead::setSequence( std::vector<StateType> data ) { m_sequence = std::move(data);}
-
 std::vector<StateType>& CHead::getSequence() {  return m_sequence;}
 
-void CHead::setSequence(std::initializer_list<StateType> il) { m_sequence.assign(il); } // handles resizing wheres = it; does not
+void CHead::setSequence( std::vector<StateType> data ) { 
+  if (data.size() > 0) m_sequence = std::move(data); else ERROR("CHead::setSequence: empty sequence"); 
+}
 
 
+void CHead::setSequence(std::initializer_list<StateType> il) {
+  if (il  .size() > 0) m_sequence.assign(il);        else ERROR("CHead::setSequence: empty sequence"); 
+}
 
 void CHead::waitForReady() const { 
 

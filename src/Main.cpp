@@ -14,10 +14,17 @@ void setup() {
 
 
   Head.setSequence( {
-//    Head.ALL_OFF,
-      Head.RED8,
-      Head.RED9,
-//    Head.RED1 | Head.IR1,            // note; use OR ( | ) to combine states
+//  Head.ALL_OFF,
+//  Head.RED4, Head.IR4,
+    Head.RED1, Head.RED2, Head.RED3, Head.RED4, Head.RED5, Head.RED6, Head.RED7, Head.RED8, Head. IR1, Head. IR2, Head. IR3, Head. IR4, Head. IR5, Head. IR6, Head. IR7, Head. IR8,
+    Head.RED1 | Head.IR1, Head.RED2 | Head.IR2, Head.RED3 | Head.IR3, Head.RED4 | Head.IR4, Head.RED5 | Head.IR5, Head.RED6 | Head.IR6, Head.RED7 | Head.IR7, Head.RED8 | Head.IR8,
+    Head.RED1 | Head.RED2 | Head.IR1 | Head.IR2, 
+    Head.RED3 | Head.RED4 | Head.IR3 | Head.IR4, 
+    Head.RED5 | Head.RED6 | Head.IR5 | Head.IR6,
+    Head.RED7 | Head.RED8 | Head.IR7 | Head.IR8,
+    
+    Head.ALL_OFF, Head.ALL_ON,
+//  Head.RED1 | Head.IR1,            // note; use OR ( | ) to combine LEDs
 });
 
 
