@@ -4,10 +4,12 @@
 
 class CFG {
 public:
+    // debugging option
     inline static constexpr bool TESTMODE = false;  // if true, uses polled A2D mode and _Callback by default
 
 
-    inline static constexpr uint32_t STATE_DURATION_uS     =  1'140;  // time for each state. loop will be slightly longer than this
+    // hardware timing constants (in microseconds / hertz)
+    inline static constexpr uint32_t STATE_DURATION_uS     =  4'500;  // time for each state. loop will be slightly longer than this
 
     inline static constexpr uint32_t HEAD_SETTLE_TIME_uS   =    440;  // delay between Head change and first A2D read
     
@@ -17,6 +19,8 @@ public:
     inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz =  2'000;  // A2D sampling speed 
     inline static constexpr uint32_t A2D_READING_SPEED_Hz  =    900;  // A2D reading speed when in triggered mode
  
+
+    // program constants
     inline static constexpr uint32_t MAX_BLOCKSIZE         =    164;  // max number of DataType entries in a BlockType
 
     
@@ -25,3 +29,9 @@ public:
     inline static           char HOST_VERSION[16]  = "[unknown]";
 
 };
+
+
+/* @2Khz A2D; min state_duration is ~1130uS (with normal settings below)
+ *   HeadSettle: 440uS, PotUpdate: every 1111uS with 667uS offset
+ *   state_duration of 3050 gives three samples per state
+ */

@@ -14,39 +14,30 @@ void setup() {
 
 
   Head.setSequence( {
-//  Head.ALL_OFF,
-//  Head.RED4, Head.IR4,
-    Head.RED1, Head.RED2, Head.RED3, Head.RED4, Head.RED5, Head.RED6, Head.RED7, Head.RED8, Head. IR1, Head. IR2, Head. IR3, Head. IR4, Head. IR5, Head. IR6, Head. IR7, Head. IR8,
-    Head.RED1 | Head.IR1, Head.RED2 | Head.IR2, Head.RED3 | Head.IR3, Head.RED4 | Head.IR4, Head.RED5 | Head.IR5, Head.RED6 | Head.IR6, Head.RED7 | Head.IR7, Head.RED8 | Head.IR8,
-    Head.RED1 | Head.RED2 | Head.IR1 | Head.IR2, 
-    Head.RED3 | Head.RED4 | Head.IR3 | Head.IR4, 
-    Head.RED5 | Head.RED6 | Head.IR5 | Head.IR6,
-    Head.RED7 | Head.RED8 | Head.IR7 | Head.IR8,
+//  Head.RED8, Head.IR8             // States defined in CHead.h, alse includes ALL_ON / ALL_OFF
+//  zTest.FullTest,                // Can use predefined sequences from ZTests.h
+//  Head.RED1 | Head.IR1,           // use OR ( | ) to combine LEDs
     
-    Head.ALL_OFF, Head.ALL_ON,
-//  Head.RED1 | Head.IR1,            // note; use OR ( | ) to combine LEDs
+    zTest.FullTest,
 });
 
 
   Ready = true;
   activityLED.clear();
-  
 }
 
 
 void loop() {
 
-  Head.setNextState();    // Set the LEDs for the next state
+  Head.setNextState();              // Set the LEDs for the next state
 
-  getPerStateHW().set();  // apply HW settings for new state
+  USB.update();                     // Output previous block, and give time for system to settle
 
-  USB.update();           // output previous block, and give time for system to settle
+  Head.waitForReady();              // Wait until Head is ready before starting A2D read
 
-  Head.waitForReady();    // wait until Head is ready before starting A2D read
-
-  while (Timer.state.waiting()) Hardware::update();  // update hardware until period elapses
+  while (Timer.state.waiting()) Hardware::update();  // Update hardware until state duration has elapsed
   
-  CTelemetry::logAll();  // log all counter telemetry
+  CTelemetry::logAll();             // Log all counter telemetry
 
-  activityLED.toggle();
+  activityLED.toggle();             // Indicate activity on LED
 }

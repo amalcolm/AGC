@@ -9,21 +9,21 @@
 #include "CUSB.h"
 #include "Setup.h"
 #include "Hardware.h"
-#include "Helpers.h"
+#include "_Helpers.h"
 
 ChipSelectPins CS;
 SensorPins     SP;
 ButtonPins     BUT;
 LedPins        LED;
 CMasterTimer   Timer;
-CA2D           A2D( CA2D::ModeType::TRIGGERED );
+CA2D           A2D( CA2D::ModeType::CONTINUOUS );
 CHead          Head;
 CUSB           USB;
 
 OutputPin activityLED{4};
 bool Ready = false;
 
-  static std::deque<PerStateHW> stateHWs;
+static std::deque<PerStateHW> stateHWs;
 
 PerStateHW& getPerStateHW(StateType state) {
 

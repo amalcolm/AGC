@@ -59,7 +59,7 @@ class CHead {
    
     void begin();
     void setSequence( std::vector<StateType> data );
-    void setSequence(std::initializer_list<StateType> il);
+    void setSequence( std::initializer_list<struct SequenceItem> il2d );
 
     inline StateType getState() { return m_State; }
     StateType setNextState();
@@ -79,3 +79,21 @@ class CHead {
     static const uint64_t MAXUINT64;
   
 };
+
+#include <span>
+  struct SequenceItem {
+    bool isSingle = true;
+    StateType single = 0;
+
+    const StateType* data = nullptr;
+    size_t size = 0;
+
+    constexpr SequenceItem(StateType s)
+      : isSingle(true), single(s) {}
+
+    constexpr SequenceItem(std::span<const StateType> s)
+      : isSingle(false), data(s.data()), size(s.size()) {}
+  };
+
+
+#include "ZTests.h"

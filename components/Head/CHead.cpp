@@ -2,12 +2,15 @@
 #include "core_pins.h"
 #include "CHead.h"
 #include "CA2D.h"
+#include "Hardware.h"
+#include "_Helpers.h"
 #include "Setup.h"
 #include "DataTypes.h"
 #include "CTimer.h"
 #include "Config.h"
 
 const uint64_t CHead::MAXUINT64 = static_cast<uint64_t>(-1);
+const ZTests zTest;
 
 CHead::CHead() : m_State(0), m_sequencePosition(-1) { }
 
@@ -24,9 +27,27 @@ void CHead::setSequence( std::vector<StateType> data ) {
   if (data.size() > 0) m_sequence = std::move(data); else ERROR("CHead::setSequence: empty sequence"); 
 }
 
+void CHead::setSequence(std::initializer_list<SequenceItem> items) {
+  size_t total = 0;
+  for (const auto& it : items) {
+    total += it.isSingle ? 1u : it.size;
+  }
 
-void CHead::setSequence(std::initializer_list<StateType> il) {
-  if (il  .size() > 0) m_sequence.assign(il);        else ERROR("CHead::setSequence: empty sequence"); 
+  if (total == 0) {
+    ERROR("CHead::setSequence: empty sequence");
+    return;
+  }
+
+  m_sequence.clear();
+  m_sequence.reserve(total);
+
+  for (const auto& it : items) {
+    if (it.isSingle) {
+      m_sequence.push_back(it.single);
+    } else if (it.data && it.size) {
+      m_sequence.insert(m_sequence.end(), it.data, it.data + it.size);
+    }
+  }
 }
 
 void CHead::waitForReady() const { 
@@ -71,6 +92,8 @@ StateType CHead::setNextState() {
  
       diff &= diff - 1;                             // clear LOWEST bit using magic
   }
+
+    getPerStateHW().set();            // Apply hardware settings (digipots) for new state
 
 
   return m_State;
