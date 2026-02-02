@@ -1,6 +1,6 @@
 #include "Setup.h"
 #include "Hardware.h"
-#include "_Helpers.h"
+#include "Helpers.h"
 #include "CUSB.h"
 #include "CAutoPot.h"
 #include "CA2D.h"
@@ -35,7 +35,7 @@ void Hardware::update() {
 
   if (Timer.HW.waiting()) return;  // limit update rate to gate frequency
 
-  getPerStateHW().update();  // update pots
+  getHWforState().update();  // update pots
 }
 
 

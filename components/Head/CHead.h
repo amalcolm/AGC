@@ -7,9 +7,8 @@
 class CHead {
   public:
 
-    static constexpr int NUM_LEDS = 9;
+    static constexpr int NUM_LEDS    =  9;
     static constexpr int IR_STARTBIT = 16;
-    static constexpr StateType DIRTY = 0xFFFFFFFF;
 
     //                                        3         2         1         0
     //                                       10987654321098765432109876543210
@@ -47,10 +46,6 @@ class CHead {
 
     static constexpr StateType ALL_OFF   = 0b00000000000000000000000000000000;
     static constexpr StateType ALL_ON    = 0b00000001111111110000000111111111;
-
-    static constexpr StateType UNSET     = 0b10000000000000000000000000000000;
-    static constexpr StateType RESERVED  = 0b01110000000000000000000000000000;
-
 
   
   public:

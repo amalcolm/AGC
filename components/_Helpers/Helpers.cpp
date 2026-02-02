@@ -9,23 +9,23 @@
 #include "CUSB.h"
 #include "Setup.h"
 #include "Hardware.h"
-#include "_Helpers.h"
+#include "Helpers.h"
 
 ChipSelectPins CS;
 SensorPins     SP;
 ButtonPins     BUT;
 LedPins        LED;
 CMasterTimer   Timer;
-CA2D           A2D( CA2D::ModeType::CONTINUOUS );
+CA2D           A2D;
 CHead          Head;
 CUSB           USB;
 
 OutputPin activityLED{4};
 bool Ready = false;
 
-static std::deque<PerStateHW> stateHWs;
+static std::deque<HWforState> stateHWs;
 
-PerStateHW& getPerStateHW(StateType state) {
+HWforState& getHWforState(StateType state) {
 
   if (state == DIRTY) state = Head.getState();
   
@@ -40,12 +40,12 @@ PerStateHW& getPerStateHW(StateType state) {
   return stateHWs.back();
 }
 
-PerStateHW& getPerStateHW(BlockType* block) {
-  return getPerStateHW(block ? block->state : DIRTY);
+HWforState& getHWforState(BlockType* block) {
+  return getHWforState(block ? block->state : DIRTY);
 }
 
-PerStateHW& getPerStateHW(DataType& data) {
-  return getPerStateHW(data.state);
+HWforState& getHWforState(DataType& data) {
+  return getHWforState(data.state);
 }
 
 

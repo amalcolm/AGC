@@ -19,9 +19,11 @@ public:
   inline void   restartConnectTiming() { s_connectTime = CTimer::time();                                         }
   inline double getConnectTime()       { return (CTimer::time() - s_connectTime) * CTimerBase::s_SecondsPerTick; }
 
-  inline static double upTime() { return                   CTimer::time() * CTimerBase::s_SecondsPerTick; }
+  inline static double upTime() { return CTimer::time() * CTimerBase::s_SecondsPerTick; }
   inline double getStateTime()  { return state.getSeconds(); }
 
   void markStateChange(); // Sets m_stateChange and aligns A2D read timing
+
+  bool addEvent(const enum EventKind kind, double time = -1.0);
 
 };

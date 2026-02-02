@@ -1,7 +1,7 @@
 #include "CA2D.h"
 #include "Setup.h"
 #include "CHead.h"
-#include "_Helpers.h"
+#include "Helpers.h"
 #include "Hardware.h"
 #include "CTimer.h"
 #include "Config.h"
@@ -13,38 +13,33 @@ const std::array<std::pair<uint32_t, uint8_t>, 8> CA2D::SpeedLookup = {{
     { 1000, 0x94}, {  500, 0x95}, {  250, 0x96}, {  125, 0x97}
 }};
 
-CA2D::CA2D(ModeType mode) : m_Mode(mode) {
+CA2D::CA2D() {
+  m_Mode = CFG::A2D_USE_TRIGGERED_MODE ? ModeType::TRIGGERED : ModeType::CONTINUOUS;
   
   if (Singleton) { USB.printf("*** A2D: Single continuous instance only."); return; }
   Singleton = this;
-
 }
 
+CA2D& CA2D::begin() {
+  setMode(m_Mode);
+  return *this;
+}
+
+
 void CA2D::setMode(CA2D::ModeType mode) {
+
   pinMode(PIN_SPI_SCK   , OUTPUT); // SPI SCK
   pinMode(PIN_SPI_MOSI  , OUTPUT); // SPI MOSI
   pinMode(PIN_SPI_MISO  , INPUT ); // SPI MISO
   pinMode(CS.A2D        , OUTPUT); // SPI CS
   pinMode(m_pinDataReady, INPUT ); // no pullups; ADS drives the line
 
-  // reset SPI and CS pins
-  digitalWrite(CS.A2D, HIGH);
-  delayMicroseconds(3);
-  digitalWrite(CS.A2D, LOW);
-  delayMicroseconds(3);
-  digitalWrite(CS.A2D, HIGH);
-  delayMicroseconds(3);
-
   switch (mode) {
     case CA2D::ModeType::CONTINUOUS: setMode_Continuous();  break;
     case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
     default:  break;
   }
-}
 
-CA2D& CA2D::begin() {
-  setMode(m_Mode);
-  return *this;
 }
 
 // Call with CS already LOW (continuous). Return false if header not found.
@@ -115,7 +110,7 @@ DataType CA2D::readData() {
 void CA2D::setDebugData(DataType& data) {
   static uint8_t sequenceNumber = 0;
  
-  auto& [state, offsetPot1, offsetPot2, gainPot, tele] = getPerStateHW(data);   IGNORE(tele);
+  auto& [state, offsetPot1, offsetPot2, gainPot] = getHWforState(data);
   
   data.hardwareState = 
       (sequenceNumber++      << 24) |

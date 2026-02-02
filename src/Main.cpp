@@ -18,7 +18,7 @@ void setup() {
 //  zTest.FullTest,                // Can use predefined sequences from ZTests.h
 //  Head.RED1 | Head.IR1,           // use OR ( | ) to combine LEDs
     
-    zTest.FullTest,
+    Head.RED8, Head.IR8,
 });
 
 
@@ -35,8 +35,9 @@ void loop() {
 
   Head.waitForReady();              // Wait until Head is ready before starting A2D read
 
-  while (Timer.state.waiting()) Hardware::update();  // Update hardware until state duration has elapsed
-  
+  while (Timer.state.waiting())     // Loop until state duration has elapsed
+    Hardware::update();              //   Update hardware components
+
   CTelemetry::logAll();             // Log all counter telemetry
 
   activityLED.toggle();             // Indicate activity on LED

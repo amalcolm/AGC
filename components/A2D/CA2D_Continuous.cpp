@@ -12,27 +12,19 @@ volatile bool    CA2D::s_dmaActive       = false;
 
 void CA2D::setMode_Continuous() {
 
-  pinMode(CS.A2D, OUTPUT);
-  digitalWrite(CS.A2D, HIGH);
-
   uint8_t cfg1 = getConfig1();
 
-  SPI.begin();
+  SPI.begin();  // ensure SPI is initialized
+  delay(2); // let SPI/rails settle
+
   SPI.beginTransaction(spiSettings);
   {
-    // 1) Stop RDATAC so we can write regs
-    SPIwrite({0x11});                 // SDATAC
-
-    // 2) Reset & pause
+    // 1) Reset & pause
     SPIwrite({0x06});                 // RESET
     delayMicroseconds(50);            // >18 tCLK
 
-    // 3) (Optional) Read ID to prove SPI link (RREG 0x00 one reg)
-    digitalWrite(CS.A2D, LOW);
-    SPI.transfer(0x20);               // RREG addr=0x00
-    SPI.transfer(0x00);               // read 1 register
-    digitalWrite(CS.A2D, HIGH);
-
+    // 3) Stop RDATAC so we can write regs
+    SPIwrite({0x11});                 // SDATAC
 
     // 4) Config: 2 kSPS, reserved bits correct, no CLK out
     SPIwrite({0x41, 0x00, cfg1});     // CONFIG1 = 0xD4 for 1 kSPS);  0xD6 = 250SPS, 0xD5 = 500SPS, OxD4 = 1kSPS, 0xD3 = 2kSPS, ... D0 = 16kSPS; 
@@ -47,15 +39,13 @@ void CA2D::setMode_Continuous() {
     });
 
     // 5) Start conversions, then enable RDATAC
-    SPIwrite({0x08});                 // START (START pin held low)
+    SPIwrite({0x08});                 // START (START pin must be held low on the board)
     SPIwrite({0x10});                 // RDATAC
   }
   SPI.endTransaction();
 
   NVIC_SET_PRIORITY(IRQ_GPIO1_0_15, 32);
 
-  // MCU side
-  pinMode(m_pinDataReady, INPUT); // no pullups; ADS drives the line
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
 
   s_spiEvent.attach(onSpiDmaComplete);
@@ -75,6 +65,7 @@ void CA2D::setMode_Continuous() {
 void CA2D::ISR_Data() {// TC_ISR.increment();
    if (Singleton->m_ReadState == ReadState::IDLE) return;
    Singleton->m_dataReady = true;
+   Singleton->m_dataStateTime = Timer.getStateTime();
 }
 
 
@@ -82,7 +73,10 @@ bool CA2D::poll_Continuous() {
 
   if (!m_dataReady) { yield(); return false; }
 
+  Timer.addEvent(EventKind::A2D_DATA_READY, m_dataStateTime);
+
   m_dataReady = false;
+  m_dataStateTime = 0.0;
   
   if (m_ReadState == ReadState::IGNORE) return false;
 
@@ -98,6 +92,7 @@ bool CA2D::poll_Continuous() {
     arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
     arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
     SPI.transfer(m_txBuffer, m_rxBuffer, 32, s_spiEvent);
+
 
     setDebugData(data);
 

@@ -10,7 +10,7 @@ static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 
 
 DataType::DataType() 
-  : state(DIRTY), stateTime(0.0), hardwareState(0), sensorState(0) { 
+  : state(UNSET), stateTime(0.0), hardwareState(0), sensorState(0) { 
   timestamp = Timer.getConnectTime();
   stateTime = Timer.getStateTime();
 
@@ -31,7 +31,7 @@ void DataType::debugSerial() {
 }
 
 void DataType::writeSerial(bool includeFrameMarkers) {
-  if (includeFrameMarkers) USB.write(frameStart);
+  if (includeFrameMarkers) USB.write(FRAME_START);
   
   USB.write(state);
   USB.write(timestamp);
@@ -40,13 +40,13 @@ void DataType::writeSerial(bool includeFrameMarkers) {
   USB.write(sensorState);
   USB.write((uint8_t*)&channels[0], CHANNELS_BYTESIZE);
 
-  if (includeFrameMarkers) USB.write(frameEnd);
+  if (includeFrameMarkers) USB.write(FRAME_END);
 }
 
 
 
 
-BlockType::BlockType() : timestamp(0.0), state(DIRTY), count(0), data() {
+BlockType::BlockType() : timestamp(0.0), state(UNSET), count(0), data() {
 
   for (uint32_t i = 0; i < CFG::MAX_BLOCKSIZE; i++) {
     data[i] = DataType();
@@ -59,12 +59,32 @@ BlockType::BlockType() : timestamp(0.0), state(DIRTY), count(0), data() {
   }
 
 }
+
+void BlockType::clear() {
+  count = 0;
+  numEvents = 0;
+  state = UNSET;
+}
+
+bool BlockType::tryAddEvent(const EventKind kind, double stateTime) {
+  if (stateTime < 0) stateTime = Timer.getStateTime();
+
+  if (numEvents >= CFG::MAX_EVENTS_PER_BLOCK) return false;
+
+  EventType& event = events[numEvents++];
+  event.kind = kind;
+  event.stateTime = stateTime;
+
+  return true;
+}
+
 void BlockType::writeSerial(bool includeFrameMarkers) {
-  if (includeFrameMarkers) USB.write(frameStart);
+  if (includeFrameMarkers) USB.write(FRAME_START);
 
   USB.write(state);
   USB.write(timestamp);
   USB.write(count);
+  USB.write(numEvents);
 
   for (uint32_t i = 0; i < count; i++) {
     DataType& item = data[i];
@@ -76,8 +96,14 @@ void BlockType::writeSerial(bool includeFrameMarkers) {
     USB.write(item.sensorState);
     USB.write((uint8_t*)&item.channels[0], CHANNELS_BYTESIZE);
   }
-    
-  if (includeFrameMarkers) USB.write(frameEnd);
+
+  for (uint32_t i = 0; i < numEvents; i++) {
+    EventType& event = events[i];
+    USB.write((uint8_t&)event.kind);
+    USB.write(event.stateTime);
+  }
+  
+  if (includeFrameMarkers) USB.write(FRAME_END);
 }
 
 void BlockType::debugSerial() {

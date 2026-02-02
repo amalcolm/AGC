@@ -4,43 +4,47 @@
 #include "CUSB.h"
 
 
-std::vector<CTelemetry*> CTelemetry::pool;
+std::vector<CTelemetry*> CTelemetry::s_pool;
+size_t CTelemetry::s_capacity = 0;
 
 CTelemetry* CTelemetry::Rent() {
-  if (pool.empty()) {
-    size_t capacity = max(pool.size(), initialCapacity);
-    if (capacity < maxCapacity) {
-      size_t newCapacity = std::min(capacity * 2, maxCapacity);
-      for (size_t i = capacity; i < newCapacity; ++i)
-        pool.push_back(new CTelemetry());
+  if (s_pool.empty()) {
 
-      capacity = newCapacity;
+    if (s_capacity < maxCapacity) {
+      size_t newCapacity = std::min(s_capacity * 2, maxCapacity);
+      s_pool.reserve(newCapacity);
+      for (size_t i = s_capacity; i < newCapacity; ++i)
+        s_pool.push_back(new CTelemetry());
+
+      s_capacity = newCapacity;
     } else {
-      // At max capacity: allocate temporarily (not returned to pool)
+      // At max capacity: allocate new but ensure we don't add too many to the pool
       return new CTelemetry();
     }
   }
 
   // Reuse an existing one
-  CTelemetry* item = pool.back();
-  pool.pop_back();
+  CTelemetry* item = s_pool.back();
+  s_pool.pop_back();
   return item;
 }
 
 void CTelemetry::Return(CTelemetry* item) {
-  if (pool.size() < maxCapacity) {
+  if (s_pool.size() < maxCapacity) {
     item->reset(); 
-    pool.push_back(item);
+    s_pool.push_back(item);
   } else {
-    // Pool full → discard this one
+    // Pool full → discard this one.  Doesn't matter which one gets deleted.
     delete item;
   }
 }
 
 void CTelemetry::init() {
-  pool.reserve(initialCapacity);
-  for (size_t i = 0; i < initialCapacity; ++i)
-    pool.push_back(new CTelemetry());
+  s_pool.reserve(initialCapacity);
+  s_capacity = initialCapacity;
+
+  for (size_t i = 0; i < s_capacity; ++i)
+    s_pool.push_back(new CTelemetry());
 }
 
 void CTelemetry::log(TeleGroup group, uint16_t ID, float value) {
@@ -61,7 +65,7 @@ void CTelemetry::log(TeleGroup group, uint8_t subGroup, uint16_t ID, float value
 }
 
 void CTelemetry::writeSerial(bool includeFrameMarkers) {
-  if (includeFrameMarkers) USB.write(frameStart);
+  if (includeFrameMarkers) USB.write(FRAME_START);
     
   USB.write(timestamp);
   USB.write(static_cast<uint8_t>(group));
@@ -69,7 +73,7 @@ void CTelemetry::writeSerial(bool includeFrameMarkers) {
   USB.write(ID);
   USB.write(value);
 
-  if (includeFrameMarkers) USB.write(frameEnd);
+  if (includeFrameMarkers) USB.write(FRAME_END);
 }
 
 void CTelemetry::reset() {

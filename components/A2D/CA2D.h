@@ -10,14 +10,13 @@ class CA2D {
 
     
     enum ReadState { IDLE, IGNORE, PREPARE, READ };
-
     SPISettings spiSettings{4'800'000, MSBFIRST, SPI_MODE1};
 
     static const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup;
     static CA2D* Singleton;
 
   public:
-    CA2D(ModeType mode);
+    CA2D();
   
     CA2D&     begin();
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
@@ -75,6 +74,7 @@ class CA2D {
     uint8_t getConfig1() const;
 
     volatile bool       m_dataReady = false;
+    double              m_dataStateTime = 0.0;
     BlockType           m_BlockA;
     BlockType           m_BlockB;
 

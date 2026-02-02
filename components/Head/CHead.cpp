@@ -3,7 +3,7 @@
 #include "CHead.h"
 #include "CA2D.h"
 #include "Hardware.h"
-#include "_Helpers.h"
+#include "Helpers.h"
 #include "Setup.h"
 #include "DataTypes.h"
 #include "CTimer.h"
@@ -12,14 +12,13 @@
 const uint64_t CHead::MAXUINT64 = static_cast<uint64_t>(-1);
 const ZTests zTest;
 
-CHead::CHead() : m_State(0), m_sequencePosition(-1) { }
+CHead::CHead() : m_State(UNSET), m_sequencePosition(-1) {}
 
 CHead::~CHead() {}
 
 void CHead::begin() {
-  m_sequencePosition = -1;
-  m_State = DIRTY;
- }
+  LED.all.clear();  // turn off all LEDs
+}
 
 std::vector<StateType>& CHead::getSequence() {  return m_sequence;}
 
@@ -93,7 +92,7 @@ StateType CHead::setNextState() {
       diff &= diff - 1;                             // clear LOWEST bit using magic
   }
 
-    getPerStateHW().set();            // Apply hardware settings (digipots) for new state
+    getHWforState().set();            // Apply hardware settings (digipots) for new state
 
 
   return m_State;
@@ -106,4 +105,3 @@ void CHead::clear() {
   LED.all.clear();
 }
 
-const StateType DIRTY = CHead::DIRTY;

@@ -7,9 +7,10 @@
 #include "CHead.h"
 #include "Config.h"
 
-struct PerStateHW {
+struct HWforState {
   StateType state;
-  PerStateHW(StateType state) : state(state) {}
+  
+  HWforState(StateType state) : state(state) {}
 
   COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  10, 280 };
   COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  10, 280 };
@@ -31,29 +32,18 @@ struct PerStateHW {
     gainPot   .writeCurrentToPot();
   }
 
-  struct Telemetry {
-    uint16_t sequenceNumber = Head.getSequenceNumber() << 8;
-  //  CTeleTimer TT_Offset1{TeleGroup::DIGIPOTS, (uint16_t)(0x01 | sequenceNumber)};
-  //  CTeleTimer TT_Offset2{TeleGroup::DIGIPOTS, (uint16_t)(0x02 | sequenceNumber)};
-  //  CTeleTimer TT_Gain   {TeleGroup::DIGIPOTS, (uint16_t)(0x03 | sequenceNumber)};
-  } tele;
-
   void update() {
 
-//  tele.TT_Offset1.start();
+//    Timer.addEvent(EventKind::HW_UPDATE_START);
     offsetPot1.update();
-//offsetPot1.inZone = true;
-//  tele.TT_Offset1.stop();
 
-//  tele.TT_Offset2.start();
     if (offsetPot1.inZone)
       offsetPot2.update();
-//  tele.TT_Offset2.stop();
 
-//  tele.TT_Gain.start();
     if (offsetPot2.inZone)
       gainPot.update();
-//  tele.TT_Gain.stop();
+
+//    Timer.addEvent(EventKind::HW_UPDATE_COMPLETE);
   }
   
 };

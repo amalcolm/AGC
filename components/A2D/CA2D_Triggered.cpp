@@ -7,9 +7,11 @@
 void CA2D::setMode_Triggered()
 {
   uint8_t cfg1 = getConfig1();
+  uint8_t id = 0;
 
-  SPI.begin();
+  SPI.begin();  // ensure SPI is initialized
   delay(2); // let SPI/rails settle
+
 
   SPI.beginTransaction(spiSettings);
   {
@@ -24,8 +26,10 @@ void CA2D::setMode_Triggered()
 
     // (Optional sanity: read ID here if you have a readReg helper)
     digitalWrite(CS.A2D, LOW);
-    SPI.transfer(0x20);               // RREG addr=0x00
-    SPI.transfer(0x00);               // read 1 register
+    delayMicroseconds(4);
+           SPI.transfer(0x20);               // RREG addr=0x00
+           SPI.transfer(0x00);               // read 1 register
+      id = SPI.transfer(0x00);  // clock out the register data
     digitalWrite(CS.A2D, HIGH);
 
     // 3) CONFIG1: 0xD4 = 0b11010100
@@ -61,7 +65,8 @@ void CA2D::setMode_Triggered()
 
   delay(300);
 
-  USB.printf("A2D: Triggered mode");
+  USB.printf("A2D: Triggered mode");          if ((id & 0x1F) != 0x1E) USB.printf(" - Warning: unexpected ID 0x%02X", id);
+  
 
   m_Mode = CA2D::ModeType::TRIGGERED;
 }
@@ -89,10 +94,6 @@ DataType CA2D::getData() {
   return data;
 }
 
-const uint32_t PERIOD_TICKS = Timer.A2D.getPeriodTicks();
-
- 
-
 bool CA2D::poll_Triggered() {
   
   if (Timer.A2D.waiting() || m_ReadState == ReadState::IDLE) {
@@ -102,6 +103,11 @@ bool CA2D::poll_Triggered() {
   
   // Fetch the fresh data (RDATA grabs whatever's latest at this moment)
   DataType data = getData();
+  if (data.state == DIRTY) {
+      yield();
+      return false;
+  }
+
   m_pBlockToFill->tryAdd(data);
 
   return true;

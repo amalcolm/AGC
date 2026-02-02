@@ -1,4 +1,6 @@
 #include "CMasterTimer.h"
+#include "Setup.h"
+#include "CA2D.h"
 #include <cstdint>
 
 uint32_t   HW_DELAY_TICKS = CTimerBase::microsecondsToTicks(CFG::POT_UPDATE_OFFSET_uS + CFG::HEAD_SETTLE_TIME_uS);
@@ -18,4 +20,14 @@ void CMasterTimer::markStateChange() {
      HW.resetAt(now + HW_DELAY_TICKS); // align A2D read timing
    Head.resetAt(now + HEAD_DELAY_TICKS);
     A2D.resetAt(now + A2D_DELAY_TICKS);
+}
+
+bool CMasterTimer::addEvent(const enum EventKind kind, double time) {
+  if (time < 0) time = state.getSeconds();
+  if (state.passed()) return false;
+
+  CA2D* pA2D = &::A2D;  // get singleton from global to avoid conflict with member name A2D
+
+  return pA2D->m_pBlockToFill->tryAddEvent(kind, time);
+  
 }

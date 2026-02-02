@@ -3,28 +3,31 @@
 #include <vector>
 #include <deque>
 
-using Frame = uint32_t;
+enum class TeleGroup : uint8_t {
+    NONE     = 0x00,
+    PROGRAM  = 0x01,
+    HARDWARE = 0x02,
 
-    enum class TeleGroup : uint8_t {
-        NONE     = 0x00,
-        PROGRAM  = 0x01,
-        HARDWARE = 0x02,
+    A2D      = 0x11,
+    DIGIPOTS = 0x12,
+    USB      = 0x13,
+    HEAD     = 0x14,
+    TIMER    = 0x15,
 
-        A2D      = 0x11,
-        DIGIPOTS = 0x12,
-        USB      = 0x13,
-        HEAD     = 0x14,
-        TIMER    = 0x15,
-
-        UNSET    = 0xFF
-    };
+    UNSET    = 0xFF
+};
 
 class CTelemetry {
 public:
     static constexpr size_t maxCapacity     = 256;
     static constexpr size_t initialCapacity =  16;
 
-    static std::vector<CTelemetry*> pool;
+    static constexpr uint32_t FRAME_START = 0xED71FAB4;  // 71/72 = Telemetry Packet
+    static constexpr uint32_t FRAME_END   = 0xED72FAB4;
+
+    static std::vector<CTelemetry*> s_pool;
+    static size_t                   s_capacity;
+
     static CTelemetry* Rent();
     static void Return(CTelemetry* item);
 
@@ -60,9 +63,6 @@ public:
 
     static void log(TeleGroup group,                   uint16_t ID, float value);
     static void log(TeleGroup group, uint8_t subGroup, uint16_t ID, float value);
-
-  	static constexpr Frame frameStart = 0xED71FAB4;  // 71/72 = Telemetry Packet
-    static constexpr Frame frameEnd   = 0xED72FAB4;
 
 
     static void _register(CTelemetry* tele);

@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include "PinHelpers.h"
-#include "_Helpers.h"
+#include "Helpers.h"
 #include "CMasterTimer.h"
 #include <string>
 
@@ -40,7 +40,7 @@ struct ButtonPins {
   }
 };
 
-extern OutputPin activityLED;  // set in helpers.cpp (4)
+extern OutputPin activityLED;  // set in Helpers.cpp (4)
 
 struct LedPins {
   static constexpr bool Inverted = true;  // LED ON is LOW on this board
@@ -49,7 +49,7 @@ struct LedPins {
 
 //           bit  h1  h2     		//  Big puck probe  Q = photodiode                                                  // 	small probe layout  Q = photodiode    
   LedPin IR1 {16, 24, 31};			//  (Head 1)                                       IR8							   	            //
-  LedPin IR2 {17, 25, 30};			//  (Picture By Rob!)                     RED8               RED7					          //
+  LedPin IR2 {17, 25, 30};			//                                       RED8               RED7					          //
   LedPin IR3 {18, 26, 38};			//                                                                                  //    
   LedPin IR4 {19, 27, 36};			//                                                 IR9                              //            IR1
   LedPin IR5 {20, 28, 34};			//                                  IR3                            IR7              //        RED4    RED1
@@ -77,8 +77,5 @@ struct LedPins {
 
     if (Inverted) all.invert();
     all.begin();
-
-    all.clear();
-
   }
 };
