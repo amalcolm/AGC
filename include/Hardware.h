@@ -12,9 +12,9 @@ struct HWforState {
   
   HWforState(StateType state) : state(state) {}
 
-  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  10, 280 };
-  COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  10, 280 };
-  CGainPot      gainPot   { CS.gain   , SP.postGain ,  10      };
+  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  5, 280 };
+  COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  5, 280 };
+  CGainPot      gainPot   { CS.gain   , SP.postGain ,  5      };
 
   void begin() { 
     offsetPot1.invert();
@@ -51,6 +51,7 @@ struct HWforState {
 struct Hardware {
   static void begin();
   static void update();
+  static void resetTiming();
 
   inline static SPISettings SPIsettings{4800000, MSBFIRST, SPI_MODE1};
 

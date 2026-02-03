@@ -35,8 +35,11 @@ void loop() {
 
   Head.waitForReady();              // Wait until Head is ready before starting A2D read
 
+  Hardware::resetTiming();        // Reset hardware timing for next state
+
   while (Timer.state.waiting())     // Loop until state duration has elapsed
     Hardware::update();              //   Update hardware components
+
 
   CTelemetry::logAll();             // Log all counter telemetry
 

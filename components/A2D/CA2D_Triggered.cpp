@@ -71,7 +71,10 @@ void CA2D::setMode_Triggered()
   m_Mode = CA2D::ModeType::TRIGGERED;
 }
 
-void CA2D::ISR_Mark() { Singleton->m_dataTime = Timer.elapsed(); }
+void CA2D::ISR_Mark() { 
+    CA2D::Singleton->m_dataReady = true;
+    CA2D::Singleton->m_dataStateTime = Timer.getStateTime();
+}
 
 DataType CA2D::getData() {
 
@@ -96,6 +99,11 @@ DataType CA2D::getData() {
 
 bool CA2D::poll_Triggered() {
   
+  if (m_dataReady) {
+    m_dataReady = false;
+    Timer.addEvent(EventKind::A2D_DATA_READY, Timer.getStateTime());
+  }
+
   if (Timer.A2D.waiting() || m_ReadState == ReadState::IDLE) {
       yield();
       return false;

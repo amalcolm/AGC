@@ -57,7 +57,6 @@ class CA2D {
     // Triggered
     static void ISR_Mark();
     bool        poll_Triggered();
-    uint64_t    m_dataTime = 0;
   
     // Continuous
 
@@ -81,10 +80,9 @@ class CA2D {
     BlockType* volatile m_pBlockToFill;
     BlockType* volatile m_pBlockToSend;
 
-
     void SPIwrite(std::initializer_list<uint8_t> data);
 
     public:
     
-    inline bool poll() { return ((m_Mode == ModeType::CONTINUOUS) ? poll_Continuous() : poll_Triggered()); }
+    bool poll();
 }; 

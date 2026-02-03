@@ -22,7 +22,7 @@ public:
   inline double getMicroseconds() const { return getTicks() * CTimerBase::getMicrosecondsPerTick(); }
 
   inline bool passed() const {
-    uint32_t now = ARM_DWT_CYCCNT;
+    uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return true;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
     if (diff < 0) return false;
     _lastMarker = _nextMarker;
@@ -31,7 +31,7 @@ public:
   }
 
   inline bool waiting() const {
-    uint32_t now = ARM_DWT_CYCCNT;
+    uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return false;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
     if (diff < 0) return true;
     _lastMarker = _nextMarker;
@@ -39,7 +39,8 @@ public:
     return false;
   }
 
-  inline void wait() const {
+  inline void wait() const {    if (_period == 0) return;
+
     while (true) {
       uint32_t now = ARM_DWT_CYCCNT;
       int32_t diff = static_cast<int32_t>(now - _nextMarker);
@@ -51,9 +52,10 @@ public:
 
   void A2DWait() const;
 
-  inline void reset() const {
+  inline uint32_t reset() const {
     _lastMarker = ARM_DWT_CYCCNT;
     _nextMarker = _lastMarker + _period;
+    return _lastMarker;
   }
 
   inline void resetAfter(uint32_t delta) const {

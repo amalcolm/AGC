@@ -27,15 +27,40 @@ void Hardware::begin() {
 CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
 
+uint32_t POT_DELAY_TICKS = CTimerBase::microsecondsToTicks(CFG::POT_UPDATE_OFFSET_uS);
+
+static bool _setTimer = false;
+static bool _haveRead = false;
+static bool _haveUpdated = false;
+
+
+void Hardware::resetTiming() {
+  _setTimer = false;
+  _haveRead = false;
+  _haveUpdated = false;
+}
+
+
 void Hardware::update() {
   TP_Update.measure();
   TC_Update.increment();
   
-  A2D.poll();
+  _haveRead = A2D.poll();
+
+  if (_haveRead && !_setTimer) {
+    Timer.HW.reset();
+    _setTimer = true;
+    _haveUpdated = false;
+  }
+
+  if (_haveUpdated) return;
 
   if (Timer.HW.waiting()) return;  // limit update rate to gate frequency
 
   getHWforState().update();  // update pots
+
+  _setTimer = false;
+  _haveUpdated = true;
 }
 
 

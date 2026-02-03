@@ -39,7 +39,18 @@ void CA2D::setMode(CA2D::ModeType mode) {
     case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
     default:  break;
   }
+}
 
+bool CA2D::poll() {
+  double start = Timer.getStateTime();
+  bool newData = (m_Mode == ModeType::CONTINUOUS) ? poll_Continuous() : poll_Triggered();
+  double end = Timer.getStateTime();
+
+  if (newData) {
+    Timer.addEvent(EventKind::A2D_READ_START   , start);
+    Timer.addEvent(EventKind::A2D_READ_COMPLETE, end  );  
+  }
+  return newData;
 }
 
 // Call with CS already LOW (continuous). Return false if header not found.

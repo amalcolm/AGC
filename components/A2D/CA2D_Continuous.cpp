@@ -73,10 +73,9 @@ bool CA2D::poll_Continuous() {
 
   if (!m_dataReady) { yield(); return false; }
 
+  m_dataReady = false;
   Timer.addEvent(EventKind::A2D_DATA_READY, m_dataStateTime);
 
-  m_dataReady = false;
-  m_dataStateTime = 0.0;
   
   if (m_ReadState == ReadState::IGNORE) return false;
 

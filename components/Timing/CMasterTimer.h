@@ -7,11 +7,11 @@ private:
   inline static uint64_t s_connectTime = 0;
 
 public:
-  const CMarker32 state = CMarker32::From_uS(CFG::STATE_DURATION_uS   );
-  const CMarker32 Head  = CMarker32::From_uS(CFG::HEAD_SETTLE_TIME_uS );
-  const CMarker32 A2D   = CMarker32::From_Hz(CFG::A2D_READING_SPEED_Hz);
+  const CMarker32 state = CMarker32::From_uS(CFG::STATE_DURATION_uS     );
+  const CMarker32 Head  = CMarker32::From_uS(CFG::HEAD_SETTLE_TIME_uS   );
+  const CMarker32 A2D   = CMarker32::From_uS(CFG::A2D_READING_PERIOD_uS );
   
-  const CMarker32 HW    = CMarker32::From_uS(CFG::POT_UPDATE_PERIOD_uS);
+  const CMarker32 HW    = CMarker32::From_uS(CFG::POT_UPDATE_OFFSET_uS  );
 
 public:
   CMasterTimer();
