@@ -86,6 +86,8 @@ bool CA2D::poll_Continuous() {
     s_dmaActive = true;
 //  TT_A2DRead.start();
 
+    Timer.addEvent(EventKind::SPI_DMA_START);
+
     SPI.beginTransaction(spiSettings);
     digitalWriteFast(CS.A2D, LOW);
 
@@ -98,6 +100,8 @@ bool CA2D::poll_Continuous() {
 
     while (s_dmaActive) yield(); // wait for DMA complete
 
+    Timer.addEvent(EventKind::SPI_DMA_COMPLETE);
+    
     dataFromFrame(m_frBuffer, data);
 
     m_pBlockToFill->tryAdd(data);

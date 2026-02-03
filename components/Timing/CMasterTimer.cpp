@@ -22,12 +22,11 @@ void CMasterTimer::markStateChange() {
     A2D.resetAt(now + A2D_DELAY_TICKS);
 }
 
-bool CMasterTimer::addEvent(const enum EventKind kind, double time) {
-  if (time < 0) time = state.getSeconds();
-  if (state.passed()) return false;
-
+bool CMasterTimer::addEvent(const enum EventKind kind, double stateTime) {
+  if (stateTime < 0) stateTime = state.getSeconds();
+  
   CA2D* pA2D = &::A2D;  // get singleton from global to avoid conflict with member name A2D
 
-  return pA2D->m_pBlockToFill->tryAddEvent(kind, time);
+  return pA2D->m_pBlockToFill->tryAddEvent(kind, stateTime);
   
 }

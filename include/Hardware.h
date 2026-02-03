@@ -34,7 +34,7 @@ struct HWforState {
 
   void update() {
 
-//    Timer.addEvent(EventKind::HW_UPDATE_START);
+    Timer.addEvent(EventKind::HW_UPDATE_START);
     offsetPot1.update();
 
     if (offsetPot1.inZone)
@@ -43,7 +43,7 @@ struct HWforState {
     if (offsetPot2.inZone)
       gainPot.update();
 
-//    Timer.addEvent(EventKind::HW_UPDATE_COMPLETE);
+    Timer.addEvent(EventKind::HW_UPDATE_COMPLETE);
   }
   
 };
