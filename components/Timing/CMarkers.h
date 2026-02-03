@@ -52,7 +52,7 @@ public:
 
   void A2DWait() const;
 
-  inline uint32_t reset() const {
+    inline uint32_t reset() const {
     _lastMarker = ARM_DWT_CYCCNT;
     _nextMarker = _lastMarker + _period;
     return _lastMarker;
@@ -73,10 +73,11 @@ public:
     _lastMarker = _nextMarker - _period;
   }
 
-  inline uint32_t getPeriodTicks() const { return _period; }
-  inline double  getPeriod_uS()    const { return _period * CTimerBase::getMicrosecondsPerTick(); }
-  inline double  getPeriod_mS()    const { return _period * CTimerBase::getMillisecondsPerTick(); }
-  inline double  getPeriod_S ()    const { return _period * CTimerBase::getSecondsPerTick(); }
+  inline uint32_t getPeriodTicks()  const { return _period; }
+  inline double   getPeriod_uS()    const { return _period * CTimerBase::getMicrosecondsPerTick(); }
+  inline double   getPeriod_mS()    const { return _period * CTimerBase::getMillisecondsPerTick(); }
+  inline double   getPeriod_S ()    const { return _period * CTimerBase::getSecondsPerTick(); }
+  inline double   getRemaining_uS() const { return (_nextMarker - ARM_DWT_CYCCNT) * CTimerBase::getMicrosecondsPerTick(); }
 
 
 };

@@ -10,8 +10,6 @@ uint32_t HEAD_DELAY_TICKS = CTimerBase::microsecondsToTicks(CFG::HEAD_SETTLE_TIM
 uint32_t A2D_PERIOD_TICKS = CTimerBase::microsecondsToTicks(CFG::A2D_READING_PERIOD_uS);
 
 
-uint32_t A2D_DELAY_TICKS = HEAD_DELAY_TICKS + A2D_PERIOD_TICKS * 2/6;
-
 CMasterTimer::CMasterTimer() : CTimer() { }
 
 void CMasterTimer::markStateChange() { 
@@ -19,7 +17,7 @@ void CMasterTimer::markStateChange() {
 
      HW.resetAt(now +   HW_DELAY_TICKS); // align A2D read timing
    Head.resetAt(now + HEAD_DELAY_TICKS);
-    A2D.resetAt(now +  A2D_DELAY_TICKS);
+    A2D.resetAt(now + HEAD_DELAY_TICKS + 1000);
 }
 
 bool CMasterTimer::addEvent(const enum EventKind kind, double stateTime) {
