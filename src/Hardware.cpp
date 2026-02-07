@@ -8,7 +8,6 @@
 #include "CTimer.h"
 #include "CTelemetry.h"
 #include <map>
-#include "RunningAverage.h"
 
 void Hardware::begin() {
     // Initialize all hardware components
@@ -27,57 +26,62 @@ void Hardware::begin() {
 
 CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
+CTeleValue   TV_max(TeleGroup::HARDWARE, 5);
+double _maxHWupdateDuration = 0.0;
 
 struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates = 0;
   void reset() {      setTimer = false;       haveRead = false;      numUpdates = 0; } // reset state
     
   
-  RunningAverage<double> ra{16}; 
   void CalcNumUpdates() {
-    static const double MAX_AVAILABLE_TIME = (CFG::STATE_DURATION_uS - CFG::POT_UPDATE_OFFSET_uS) / 1'000'000.0;
+    static const double STATE_DURATION     =  CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
+    static const double MAX_AVAILABLE_TIME = (CFG::A2D_READING_PERIOD_uS - CFG::POT_UPDATE_OFFSET_uS) / 1'000'000.0;
 
-    double timeRemaining = MAX_AVAILABLE_TIME - Timer.getStateTime();
+    double stateTime = Timer.getStateTime();
+    double timeRemaining = MAX_AVAILABLE_TIME - stateTime;
 
-         if (timeRemaining <= 0)   numUpdates = 0; // Force no updates if we're already over time
-    else if (ra.isFull() == false) numUpdates = 1; // If we don't enough data yet, only allow one update
-    else {
-        double avg = ra.getAverage();
-        
-        numUpdates = (int)floor(timeRemaining / avg); // Calculate how many updates we could fit in the remaining time based on average duration
-    }
-    numUpdates = 2;
+    if (stateTime + _maxHWupdateDuration > STATE_DURATION) { numUpdates = 0; return; } // We don't have enough time in the state
+    if (timeRemaining <= 0)                                { numUpdates = 0; return; } // We don't have any time left before the next A2D read
+    if (_maxHWupdateDuration == 0)                         { numUpdates = 1; return; } // we have no data on update duration, default to 1
+
+    numUpdates = (int)floor(timeRemaining / _maxHWupdateDuration); // Calculate how many updates we could fit in the remaining time based on average duration
   }
 } S;  // S == instance of StateType
 
+bool Hardware::canUpdate() {
+  static double STATE_DURATION = CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
+
+  return (Timer.getStateTime() + Timer.getPollDuration() < STATE_DURATION);
+}
 
 void Hardware::update() {
+    if (_maxHWupdateDuration > 0) LED.RED1.on();
 
+  TV_max.set(_maxHWupdateDuration);
 
   TP_Update.measure();
   TC_Update.increment();
- 
+
   S.haveRead = A2D.poll();
-  if (S     .haveRead && !S.setTimer) { // if we have a new A2D reading and haven't set the timer for this update cycle
+  if (S.haveRead && !S.setTimer) { // if we have a new A2D reading and haven't set the timer for this update cycle
       Timer.HW.reset();
       S.setTimer = true;
+      S.reset(); // reset update state for new cycle
       S.CalcNumUpdates();
   }
 
 
-  // ready if we haven't already updated more than once and the HW timer has elapsed
-  bool isReadyToUpdate = (S.numUpdates > 0) && Timer.HW.waiting(); 
+  if (Timer.HW.waiting()) return;
 
-  if (!isReadyToUpdate) return;
-LED.RED1.set();
-
-  double updateStart = Timer.getStateTime();
-  {
-      getHWforState().update();  // update digital pots based on current state
-  }
-  double updateEnd = Timer.getStateTime();
+  while (S.numUpdates-- > 0) {
   
-  S.ra.add(updateEnd - updateStart);
+    double updateStart = Timer.getStateTime();
+        getHWforState().update();  // update digital pots based on current state
+    double updateEnd = Timer.getStateTime();
+  
+    _maxHWupdateDuration = std::max(_maxHWupdateDuration, updateEnd - updateStart);
+  }
 
-  S.numUpdates--;
+  S.reset(); // reset for next cycle
+
 }
-

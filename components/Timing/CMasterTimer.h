@@ -6,6 +6,8 @@ class CMasterTimer : public CTimer {
 private:
   inline static uint64_t s_connectTime = 0;
 
+  double m_maxPollDuration = 0.0;
+
 public:
   const CMarker32 state = CMarker32::From_uS(CFG::STATE_DURATION_uS     ).setPeriodic(true);
   const CMarker32 A2D   = CMarker32::From_uS(CFG::A2D_READING_PERIOD_uS ).setPeriodic(true);
@@ -25,5 +27,9 @@ public:
   void markStateChange(); // Sets m_stateChange and aligns A2D read timing
 
   bool addEvent(const enum EventKind kind, double time = -1.0);
+
+
+  inline void   setPollDuration(double duration) { if (duration > m_maxPollDuration) m_maxPollDuration = duration; }
+  inline double getPollDuration() const          { return m_maxPollDuration; }
 
 };

@@ -10,7 +10,7 @@ private:
 
 public:
     CTeleValue(TeleGroup group = TeleGroup::PROGRAM, uint16_t id = 0xFFFF) : CTelemetry(group, SUBGROUP, id) {
-        if (id == 0xFFFF) 
+        if (id == 0xFFFF)
             ID = instanceCounter++;
         
         _register(this);
@@ -24,7 +24,7 @@ public:
 
     float getValue() override {
         float retVal = _value;
-        _value = 0;  // need to reset value after reading
+//        _value = 0;  // /normally reset value after reading, to ensure fresh value each cycle
         return retVal;
     }
     

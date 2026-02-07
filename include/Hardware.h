@@ -51,13 +51,12 @@ struct HWforState {
 #include "UpdateGate.h"
 
 struct Hardware {
-  static void begin();
-  static void update();
-
-
   inline static SPISettings SPIsettings{4800000, MSBFIRST, SPI_MODE1};
 
-  inline static UpdateGate updateGate;
-  inline static void resetTiming() { updateGate.reset(); }
+  static void begin();
+
+  static bool canUpdate();
+  static void update();
+
 
 };

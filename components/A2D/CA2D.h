@@ -63,11 +63,11 @@ class CA2D {
     static void ISR_Data();
     bool        poll_Continuous();
     
- // DMA / continuous mode support
-   static EventResponder s_spiEvent;
+ // DMA / continuous mode supportw
+    static inline EventResponder s_spiEvent{};
     static void onSpiDmaComplete(EventResponderRef);
-    static volatile bool s_dmaActive;        // true while DMA SPI in progress
-  
+    static inline volatile bool s_dmaActive = false;        // true while DMA SPI in progress
+    
     void setRead(bool enable);
     void setDebugData(DataType& data);
     uint8_t getConfig1() const;
@@ -81,7 +81,7 @@ class CA2D {
     BlockType* volatile m_pBlockToSend;
 
     void SPIwrite(std::initializer_list<uint8_t> data);
-
+ 
     public:
     
     bool poll();

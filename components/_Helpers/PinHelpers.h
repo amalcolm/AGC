@@ -73,21 +73,21 @@ protected:
 
 
 public:
+  static inline int      getCurrentHead() noexcept { return _currentHead; }
+  static inline uint32_t getHeadEpoch()   noexcept { return _headEpoch;   }
+
   Pins(const Pins&) = delete;
   Pins& operator=(const Pins&) = delete;
 
   virtual Kind kind() const noexcept = 0; 
-  constexpr operator uint8_t() const noexcept { return _pin; }
-  uint8_t getNum() const noexcept { return _pin; }
+  inline constexpr operator uint8_t() const noexcept { return _pin; }
+  inline uint8_t getNum() const noexcept { return _pin; }
   
   static Pins* get(int pin) {
     if (_currentHead < 0 || pin < 0 || pin >= MAX_PINS) return nullptr;
 
     return pinMap[_currentHead][pin];
   }
-
-  static int      getCurrentHead() noexcept { return _currentHead; }
-  static uint32_t getHeadEpoch()   noexcept { return _headEpoch;   }
   
   static std::array<Pins*, MAX_PINS>& getPinMap() {
     if (_currentHead < 0) ERROR("No head selected when accessing pin map");
@@ -141,12 +141,18 @@ struct OutputPin : Pins {
   explicit OutputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) {}
   Kind kind() const noexcept override { return Kind::Output; }
 
-  void begin(int mode = OUTPUT) { pinMode(_pin, mode); clear(); }
-  void write(int level)        { digitalWrite(_pin, level); }
-  void toggle()                { digitalWrite(_pin, !digitalRead(_pin)); }
-  void set()                   { digitalWrite(_pin, _high); }
-  void clear()                 { digitalWrite(_pin, _low); }
-  OutputPin& invert()          { uint8_t t=_high; _high=_low; _low=t; return *this; }
+  inline void begin(int mode = OUTPUT) { pinMode(_pin, mode); clear(); }
+  inline void write(int level) const  { digitalWrite(_pin, level); }
+
+  inline void toggle()         const  { digitalWrite(_pin, !digitalRead(_pin)); }
+  
+  inline void set()            const  { digitalWrite(_pin, _high); }
+  inline void clear()          const  { digitalWrite(_pin, _low ); }
+
+  inline void on()             const  { set();   }  // inline negates addition call overhead
+  inline void off()            const  { clear(); }
+
+  inline OutputPin& invert()          { uint8_t t=_high; _high=_low; _low=t; return *this; }
 
 private:
   uint8_t _high = HIGH, _low = LOW;
@@ -164,8 +170,8 @@ struct InputPin : Pins {
   explicit InputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) {}
   Kind kind() const noexcept override { return Kind::Input; }
 
-  void begin(int mode = INPUT) const { pinMode(_pin, mode); }
-  int  read() const                 { return digitalRead(_pin); }
+  inline void begin(int mode = INPUT) const { pinMode(_pin, mode); }
+  inline int  read()                  const  { return digitalRead(_pin); }
 };
 
 // -- Range of predefined LED Pins ------------------------------

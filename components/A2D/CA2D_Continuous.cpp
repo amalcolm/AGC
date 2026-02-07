@@ -4,11 +4,6 @@
 #include "Hardware.h"
 #include "Config.h"
 
-volatile bool    CA2D::s_dmaActive       = false;
-  EventResponder CA2D::s_spiEvent{};
-   alignas(32) uint8_t m_rxBuffer[32];
-   alignas(32) uint8_t m_txBuffer[32];
-   alignas(32) uint8_t m_frBuffer[32];
 
 void CA2D::setMode_Continuous() {
 
@@ -67,6 +62,11 @@ void CA2D::ISR_Data() {// TC_ISR.increment();
    Singleton->m_dataReady = true;
    Singleton->m_dataStateTime = Timer.getStateTime();
 }
+
+// buffers for DMA SPI transfers - must be 32-byte aligned for cache management on Teensy 4.x
+alignas(32) uint8_t m_rxBuffer[32];
+alignas(32) uint8_t m_txBuffer[32];
+alignas(32) uint8_t m_frBuffer[32];
 
 
 bool CA2D::poll_Continuous() { 

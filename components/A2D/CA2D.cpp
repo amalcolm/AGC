@@ -46,6 +46,8 @@ bool CA2D::poll() {
   bool newData = (m_Mode == ModeType::CONTINUOUS) ? poll_Continuous() : poll_Triggered();
   double end = Timer.getStateTime();
 
+  Timer.setPollDuration(end - start);
+
   if (newData) {
     Timer.addEvent(EventKind::A2D_READ_START   , start);
     Timer.addEvent(EventKind::A2D_READ_COMPLETE, end  );  
