@@ -8,7 +8,7 @@ public:
     inline static constexpr bool TESTMODE = false;  // if true, call the _Callback(BlockType) by default, for debugging
 
     // hardware timing constants (in microseconds / hertz)
-    inline static constexpr uint32_t STATE_DURATION_uS     = 2'900;  // time for each state. loop will be slightly longer than this
+    inline static constexpr uint32_t STATE_DURATION_uS     = 3'200;  // time for each state. loop will be slightly longer than this
 
     inline static constexpr uint32_t HEAD_SETTLE_TIME_uS   =   340;  // delay between Head change and first A2D read
     

@@ -35,13 +35,13 @@ struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates 
   
   void CalcNumUpdates() {
     static const double STATE_DURATION     =  CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
-    static const double MAX_AVAILABLE_TIME = (CFG::A2D_READING_PERIOD_uS - CFG::POT_UPDATE_OFFSET_uS) / 1'000'000.0;
+    static const double POT_OFFSET_DURATION = CFG::POT_UPDATE_OFFSET_uS / 1'000'000.0;
 
     double stateTime = Timer.getStateTime();
-    double timeRemaining = MAX_AVAILABLE_TIME - stateTime;
+    double timeRemaining =  Timer.A2D.getRemaining_S();
 
     if (stateTime + _maxHWupdateDuration > STATE_DURATION) { numUpdates = 0; return; } // We don't have enough time in the state
-    if (timeRemaining <= 0)                                { numUpdates = 0; return; } // We don't have any time left before the next A2D read
+    if (timeRemaining <= POT_OFFSET_DURATION)              { numUpdates = 0; return; } // We don't have any time left before the next A2D read
     if (_maxHWupdateDuration == 0)                         { numUpdates = 1; return; } // we have no data on update duration, default to 1
 
     numUpdates = (int)floor(timeRemaining / _maxHWupdateDuration); // Calculate how many updates we could fit in the remaining time based on average duration
@@ -66,7 +66,6 @@ void Hardware::update() {
   if (S.haveRead && !S.setTimer) { // if we have a new A2D reading and haven't set the timer for this update cycle
       Timer.HW.reset();
       S.setTimer = true;
-      S.reset(); // reset update state for new cycle
       S.CalcNumUpdates();
   }
 

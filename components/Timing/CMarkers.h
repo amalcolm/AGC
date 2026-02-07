@@ -84,8 +84,11 @@ public:
   inline uint32_t getPeriodTicks()  const { return _period; }
   inline double   getPeriod_uS()    const { return _period * CTimerBase::getMicrosecondsPerTick(); }
   inline double   getPeriod_mS()    const { return _period * CTimerBase::getMillisecondsPerTick(); }
-  inline double   getPeriod_S ()    const { return _period * CTimerBase::getSecondsPerTick(); }
-  inline double   getRemaining_uS() const { return (_nextMarker - ARM_DWT_CYCCNT) * CTimerBase::getMicrosecondsPerTick(); }
+  inline double   getPeriod_S ()    const { return _period * CTimerBase::getSecondsPerTick();      }
 
+  inline uint32_t getRemainingTicks() const { return (_nextMarker - ARM_DWT_CYCCNT); }
+         double   getRemaining_uS()   const;
+         double   getRemaining_mS()   const;
+         double   getRemaining_S ()   const;
 
 };

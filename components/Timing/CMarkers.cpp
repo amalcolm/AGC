@@ -31,15 +31,6 @@ CMarker32 CMarker32::From_Hz(double Hz) {
   return marker;
 }
 
-
-
-
-
-
-
-
-
-
 void CMarker32::A2DWait() const {
   while (true) {
     uint32_t now = ARM_DWT_CYCCNT;
@@ -49,3 +40,16 @@ void CMarker32::A2DWait() const {
   }
   _nextMarker += _period;
 }
+
+
+// CMarkers.h
+double CMarker32::getRemaining_S() const {
+  if (_period == 0) return 0.0;
+  uint32_t now = ARM_DWT_CYCCNT;
+  int32_t diff = static_cast<int32_t>(_nextMarker - now);  // signed
+  if (diff <= 0) return 0.0;
+  return diff * CTimerBase::getSecondsPerTick();
+}
+
+double CMarker32::getRemaining_mS() const { return getRemaining_S() * 1'000.0;     }
+double CMarker32::getRemaining_uS() const { return getRemaining_S() * 1'000'000.0; }
