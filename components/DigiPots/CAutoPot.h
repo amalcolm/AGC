@@ -21,7 +21,7 @@ public:
 
   void writeCurrentToPot() { _writeToPot(_currentLevel); }
   
-  RunningAverageMinMax& getRunningAverage() { return _runningAverage; }
+  RunningAverageMinMax<uint16_t>& getRunningAverage() { return _runningAverage; }
 
 
 protected:
@@ -38,7 +38,7 @@ protected:
   inline static std::deque<std::pair<uint8_t, uint8_t>> s_currentValues{};
 
   bool _inverted = false;
-  RunningAverageMinMax _runningAverage;
+  RunningAverageMinMax<uint16_t> _runningAverage;
 
 private:
   void _writeToPot(uint8_t value);

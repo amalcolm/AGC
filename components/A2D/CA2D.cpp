@@ -76,7 +76,7 @@ bool CA2D::readFrame(uint8_t (&raw)[32]) {
     LED.RED6.set();
     return false;
   }
-  LED.RED6.clear();
+  LED.RED6.clear(); 
   return true;
 }
 

@@ -25,8 +25,8 @@ void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || bl
   USB.printf(  "\t offset1:%d", offsetPot1.getLevel());
   USB.printf(  "\t offset2:%d", offsetPot2.getLevel());
   USB.printf(  "\t Gain:%d"   ,    gainPot.getLevel());
-  USB.printf(  "\t Min:%d"    , offsetPot2.getRunningAverage().GetMin());
-  USB.printf(  "\t Max:%d"    , offsetPot2.getRunningAverage().GetMax());
+  USB.printf(  "\t Min:%d"    , offsetPot2.getRunningAverage().getMin());
+  USB.printf(  "\t Max:%d"    , offsetPot2.getRunningAverage().getMax());
 
   USB.printf(  "\n"); // must end output with '\n' to be parsed correctly
 

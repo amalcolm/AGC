@@ -1,6 +1,8 @@
 #pragma once
 #include "CA2D.h"
 #include "Setup.h"   
+#include "Hardware.h"
+#include "Helpers.h"
 
 struct UpdateGate {
   bool setTimer = false;
@@ -29,11 +31,20 @@ struct UpdateGate {
     if (numUpdates > 1) return false;
    
     if (Timer.HW.waiting()) return false;
+
+    getHWforState().update();  // update pots
+
     return true;
   }
 
   void markUpdated() {
-    setTimer = false;
     numUpdates++;
+ 
+    if (numUpdates <= 1) {
+      Timer.HW.reset();
+      setTimer = true;
+    } else {
+      setTimer = false;
+    }
   }
 };

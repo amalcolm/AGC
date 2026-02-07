@@ -18,7 +18,7 @@ void setup() {
 //  zTest.FullTest,                // Can use predefined sequences from ZTests.h
 //  Head.RED1 | Head.IR1,           // use OR ( | ) to combine LEDs
     
-    Head.RED8, Head.IR8,
+    Head.RED8, 
 });
 
 

@@ -6,7 +6,7 @@ COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int windowSize)
    _lowThreshold(490 - windowSize), 
   _highThreshold(490 + windowSize) {
 
-    _runningAverage.Reset(160);
+    _runningAverage.reset(160);
 }
 
 void COffsetPot::update() {

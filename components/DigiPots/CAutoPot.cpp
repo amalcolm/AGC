@@ -27,13 +27,12 @@ int     CAutoPot::getSensorValue() { return _lastSensorValue; }
 
 uint32_t CAutoPot::_readSensor() {
   int32_t totalValue = 0;
-  for (int i = 0; i < _samplesToAverage; i++) {
+  for (int i = 0; i < _samplesToAverage; i++)
     totalValue += analogRead(_sensorPin);
-  }
 
   _lastSensorValue = totalValue / _samplesToAverage;
 
-  _runningAverage.Add(_lastSensorValue);
+  _runningAverage.add(_lastSensorValue);
 
   return static_cast<uint32_t>(_lastSensorValue);
 }

@@ -4,6 +4,7 @@
 class CMarker32 {
 private:
   uint32_t _period = 0;
+  bool _isPeriodic = false;
   mutable uint32_t _nextMarker = 0;
   mutable uint32_t _lastMarker = 0;
 
@@ -14,6 +15,9 @@ public:
   static CMarker32 From_mS(double mS);
   static CMarker32 From_S (double  S);
   static CMarker32 From_Hz(double Hz);
+
+  inline CMarker32& setPeriodic(bool isPeriodic) { _isPeriodic = isPeriodic; return *this; }
+  inline bool       getPeriodic() const { return _isPeriodic; }
 
   inline uint32_t getTicks() const { return ARM_DWT_CYCCNT - _lastMarker; }
 
@@ -26,7 +30,8 @@ public:
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
     if (diff < 0) return false;
     _lastMarker = _nextMarker;
-    _nextMarker += _period;
+
+    if (_isPeriodic) _nextMarker += _period;
     return true;
   }
 
@@ -35,7 +40,8 @@ public:
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
     if (diff < 0) return true;
     _lastMarker = _nextMarker;
-    _nextMarker += _period;
+
+    if (_isPeriodic) _nextMarker += _period;
     return false;
   }
 
@@ -47,7 +53,9 @@ public:
       if (diff >= 0) break;
       yield();
     }
-    _nextMarker += _period;
+
+    _lastMarker = _nextMarker;
+    if (_isPeriodic) _nextMarker += _period;
   }
 
   void A2DWait() const;
