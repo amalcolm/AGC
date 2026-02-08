@@ -37,14 +37,15 @@ struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates 
     static const double STATE_DURATION     =  CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
     static const double POT_OFFSET_DURATION = CFG::POT_UPDATE_OFFSET_uS / 1'000'000.0;
 
-    double stateTime = Timer.getStateTime();
-    double timeRemaining =  Timer.A2D.getRemaining_S();
+    double remainingInState = STATE_DURATION - Timer.getStateTime();
+    double remainingToNextA2D = Timer.A2D.getRemaining_S();
+    double usable = std::min(remainingInState, remainingToNextA2D) - POT_OFFSET_DURATION;
 
-    if (stateTime + _maxHWupdateDuration > STATE_DURATION) { numUpdates = 0; return; } // We don't have enough time in the state
-    if (timeRemaining <= POT_OFFSET_DURATION)              { numUpdates = 0; return; } // We don't have any time left before the next A2D read
-    if (_maxHWupdateDuration == 0)                         { numUpdates = 1; return; } // we have no data on update duration, default to 1
-
-    numUpdates = (int)floor(timeRemaining / _maxHWupdateDuration); // Calculate how many updates we could fit in the remaining time based on average duration
+    if (usable <= 0)  { numUpdates = 0; return; } // We don't have any time left before the next A2D read
+    if (_maxHWupdateDuration == 0) 
+      numUpdates = 1; // we have no data on update duration, default to 1
+    else
+      numUpdates = (int)floor(usable / _maxHWupdateDuration); // Calculate how many updates we could fit in the remaining time based on average duration
   }
 } S;  // S == instance of StateType
 
@@ -54,9 +55,11 @@ bool Hardware::canUpdate() {
   return (Timer.getStateTime() + Timer.getPollDuration() < STATE_DURATION);
 }
 
-void Hardware::update() {
-    if (_maxHWupdateDuration > 0) LED.RED1.on();
+CTeleValue TV_Test(TeleGroup::HARDWARE, 0xFF);
 
+void Hardware::update() {
+
+  TV_Test.set(99);
   TV_max.set(_maxHWupdateDuration);
 
   TP_Update.measure();
@@ -84,3 +87,4 @@ void Hardware::update() {
   S.reset(); // reset for next cycle
 
 }
+
