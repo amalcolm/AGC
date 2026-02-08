@@ -43,10 +43,11 @@ void CA2D::begin() {
 
 void CA2D::ISR_Data() {
 
-  uint32_t now = ARM_DWT_CYCCNT;          if (Singleton->m_ReadState == ReadState::IDLE) return;  // do not process if idle
-  Singleton->m_dataReady = true;
-  Singleton->m_dataStateTime = Timer.getStateTime(now);
-
+  uint32_t now = ARM_DWT_CYCCNT; 
+  if (Singleton->m_ReadState != ReadState::IDLE) {
+    Singleton->m_dataStateTime = Timer.getStateTime(now);
+    Singleton->m_dataReady = true;
+  }
   
   uint32_t duration = now - Timer.A2D.getStartTicks(); 
   Timer.A2D.reset(now, duration);

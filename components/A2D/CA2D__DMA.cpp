@@ -9,17 +9,21 @@ alignas(32) uint8_t m_rxBuffer[32];
 alignas(32) uint8_t m_txBuffer[32];
 alignas(32) uint8_t m_frBuffer[32];
 
-
 DataType CA2D::getData_DMA() {
 
-  if (s_dmaActive) return DataType(DIRTY); 
-  
+  if (s_dmaActive) return DataType(DIRTY);
+
   DataType data(Head.getState());  // sets timestamp and stateTime
 
   s_dmaActive = true;
 
   SPI.beginTransaction(spiSettings);
   digitalWriteFast(CS.A2D, LOW);
+
+  // In triggered mode (SDATAC), prime the read with RDATA so the next bytes are status+data.
+  if (m_Mode == ModeType::TRIGGERED) {
+    (void)SPI.transfer(0x12); // RDATA command; returned byte is ignored
+  }
 
   arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
   arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
@@ -30,15 +34,26 @@ DataType CA2D::getData_DMA() {
 
   setDebugData(data);
 
-  while (s_dmaActive) yield(); // wait for DMA complete
+  while (s_dmaActive) yield(); // wait for DMA complete (CS raised in callback)
 
   Timer.addEvent(EventKind::SPI_DMA_COMPLETE);
-  
+
+  // Validate the captured frame (same logic as readFrame(), but on the DMA buffer)
+  if ((m_frBuffer[0] & 0xF0) != 0xC0) { // status[0] header nibble must be 0xC
+    data.state = DIRTY;
+    return data;
+  }
+
+  // Optional: reject known-bad “all zero” sample (your existing heuristic)
+  if (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0) {
+    data.state = DIRTY;
+    return data;
+  }
+
   dataFromFrame(m_frBuffer, data);
-
   return data;
-
 }
+
 
 void CA2D::onSpiDmaComplete(EventResponderRef)
 {
