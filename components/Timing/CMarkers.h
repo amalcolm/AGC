@@ -25,6 +25,10 @@ public:
   inline double getMilliseconds() const { return getTicks() * CTimerBase::getMillisecondsPerTick(); }
   inline double getMicroseconds() const { return getTicks() * CTimerBase::getMicrosecondsPerTick(); }
 
+  inline double      getSeconds(uint32_t mark) const { return static_cast<int32_t>(mark - _lastMarker) * CTimerBase::getSecondsPerTick();      }
+  inline double getMilliseconds(uint32_t mark) const { return static_cast<int32_t>(mark - _lastMarker) * CTimerBase::getMillisecondsPerTick(); }
+  inline double getMicroseconds(uint32_t mark) const { return static_cast<int32_t>(mark - _lastMarker) * CTimerBase::getMicrosecondsPerTick(); }
+
   inline bool passed() const {
     uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return true;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);

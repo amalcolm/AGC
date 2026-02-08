@@ -1,26 +1,21 @@
 #include "CA2D.h"
 #include "Setup.h"
 #include "CHead.h"
-#include "CTimer.h"
-#include "Config.h"
 
 void CA2D::setMode_Triggered()
 {
   uint8_t cfg1 = getConfig1();
   uint8_t id = 0;
 
-
-
   SPI.beginTransaction(spiSettings);
   {
-    // Configuration sequence per ADS1299 datasheet
     // 1) Make sure we're not in RDATAC (so writes are allowed)
     SPIwrite({ 0x11 }); // SDATAC
     delayMicroseconds(5);
 
     // 2) Clean reset (covers power-up races); wait a bit afterwards
     SPIwrite({ 0x06 }); // RESET
-    delay(2);
+    delayMicroseconds(50); // >18 tCLK per datasheet
 
     // (Optional sanity: read ID here if you have a readReg helper)
     digitalWrite(CS.A2D, LOW);
@@ -55,10 +50,8 @@ void CA2D::setMode_Triggered()
 
   m_dataReady = false;
 
-  delay(300);
-
-  USB.printf("A2D: Triggered mode");          if ((id & 0x1F) != 0x1E) USB.printf(" - Warning: unexpected ID 0x%02X", id);
-
+  USB.printf("A2D: Triggered mode"); 
+    if ((id & 0x1F) != 0x1E) USB.printf(" - Warning: unexpected ID 0x%02X", id);
   m_Mode = CA2D::ModeType::TRIGGERED;
 }
 

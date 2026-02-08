@@ -21,7 +21,7 @@ class CA2D {
   public:
     CA2D();
   
-    CA2D&     begin();
+    void      begin();
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
     void      makeCallback(BlockType* pBlock)    { if (m_fnCallback) m_fnCallback(pBlock); }
 

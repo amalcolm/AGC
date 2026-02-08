@@ -1,5 +1,6 @@
 #pragma once
 #include "CMarkers.h"
+#include "CSafeTimer.h"
 
 class CMasterTimer : public CTimer {
   
@@ -10,10 +11,11 @@ private:
 
 public:
   const CMarker32 state = CMarker32::From_uS(CFG::STATE_DURATION_uS     ).setPeriodic(true);
-  const CMarker32 A2D   = CMarker32::From_uS(CFG::A2D_READING_PERIOD_uS ).setPeriodic(true);
   
   const CMarker32 Head  = CMarker32::From_uS(CFG::HEAD_SETTLE_TIME_uS   ).setPeriodic(false);
   const CMarker32 HW    = CMarker32::From_uS(CFG::POT_UPDATE_OFFSET_uS  ).setPeriodic(false);
+
+  CSafeTimer A2D;  // set and updated inside CA2D  
 
 public:
   CMasterTimer();
@@ -23,6 +25,7 @@ public:
 
   inline static double upTime() { return CTimer::time() * CTimerBase::s_SecondsPerTick; }
   inline double getStateTime()  { return state.getSeconds(); }
+  inline double getStateTime(uint32_t now)  { return state.getSeconds(now); }
 
   void markStateChange(); // Sets m_stateChange and aligns A2D read timing
 

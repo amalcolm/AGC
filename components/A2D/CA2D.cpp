@@ -20,35 +20,45 @@ CA2D::CA2D() {
   Singleton = this;
 }
 
-CA2D& CA2D::begin() {
- 
-  setMode(m_Mode);
-  return *this;
-}
-
-
-void CA2D::setMode(CA2D::ModeType mode) {
-
+void CA2D::begin() {
   pinMode(CS.A2D        , OUTPUT); // SPI CS
   pinMode(m_pinDataReady, INPUT ); // no pullups; ADS drives the line
 
-  switch (mode) {
-    case CA2D::ModeType::CONTINUOUS: setMode_Continuous();  break;
-    case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
-    default:  break;
-  }
+  setMode(m_Mode);
 
+  // Set up DMA event handler
   s_spiEvent.attach(onSpiDmaComplete);
 
+  // We use two blocks and swap between them, allowing reading into one while the other is being sent
   m_pBlockToFill = &m_BlockA;
   m_pBlockToSend = &m_BlockB;
   m_BlockA.clear();
   m_BlockB.clear();
 
-  NVIC_SET_PRIORITY(IRQ_GPIO1_0_15, 32);
+  NVIC_SET_PRIORITY(IRQ_GPIO1_0_15, 32);  // raise priority of GPIO1 interrupts
 
+  // attach the dataReadyPin to the interrupt handler, fires on falling edge (when ADS has data ready)
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
+}
 
+void CA2D::ISR_Data() {
+
+  uint32_t now = ARM_DWT_CYCCNT;          if (Singleton->m_ReadState == ReadState::IDLE) return;  // do not process if idle
+  Singleton->m_dataReady = true;
+  Singleton->m_dataStateTime = Timer.getStateTime(now);
+
+  
+  uint32_t duration = now - Timer.A2D.getStartTicks(); 
+  Timer.A2D.reset(now, duration);
+}
+
+
+void CA2D::setMode(CA2D::ModeType mode) {
+  switch (mode) {
+    case CA2D::ModeType::CONTINUOUS: setMode_Continuous();  break;
+    case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
+    default:  break;
+  }
 }
 
 bool CA2D::poll() {
@@ -58,6 +68,8 @@ bool CA2D::poll() {
 
   m_dataReady = false;
   Timer.addEvent(EventKind::A2D_DATA_READY, m_dataStateTime);
+
+
 
   DataType data = getData_DMA();
 
@@ -74,11 +86,6 @@ bool CA2D::poll() {
   return data.state != DIRTY;
 }
 
-void CA2D::ISR_Data() {
-   if (Singleton->m_ReadState == ReadState::IDLE) return;
-   Singleton->m_dataReady = true;
-   Singleton->m_dataStateTime = Timer.getStateTime();
-}
 
 
 void CA2D::setDebugData(DataType& data) {

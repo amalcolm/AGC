@@ -11,19 +11,14 @@
 
 void Hardware::begin() {
     // Initialize all hardware components
-    pinMode(PIN_SPI_SCK   , OUTPUT); // SPI SCK
-    pinMode(PIN_SPI_MOSI  , OUTPUT); // SPI MOSI
-    pinMode(PIN_SPI_MISO  , INPUT ); // SPI MISO
-    SPI.begin();  // ensure SPI is initialized
-    delay(1); // let SPI/rails settle
-
+    SPI .begin();  // initialise SPI
     USB .begin();
     BUT .begin();
     LED .begin();
     Head.begin();
     A2D .begin();
 
-    delay(100); // Allow time for hardware to stabilize
+    delay(1); // Allow time for hardware to stabilize (ample)
 
     USB.printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
     Timer.restart();
@@ -60,7 +55,6 @@ bool Hardware::canUpdate() {
   return (Timer.getStateTime() + Timer.getPollDuration() < STATE_DURATION);
 }
 
-CTeleValue TV_Test(TeleGroup::HARDWARE, 0xFF);
 double lastMark = 0.0;
 void Hardware::update() {
 
@@ -70,8 +64,6 @@ void Hardware::update() {
 
   S.haveRead = A2D.poll();
   if (S.haveRead && !S.setTimer) { // if we have a new A2D reading and haven't set the timer for this update cycle
-      if (lastMark > 0.0)
-        TV_Test.set((Timer.getConnectTime() - lastMark) * 1'000'000.0); // in microseconds
       lastMark = Timer.getConnectTime();
       Timer.HW.reset();
       S.setTimer = true;
