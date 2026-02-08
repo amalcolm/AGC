@@ -7,10 +7,9 @@
 
 void setup() {
   activityLED.set();
+  Hardware::begin();
 
   A2D.setCallback(_Callback);
-
-  Hardware::begin();
 
 
   Head.setSequence( {

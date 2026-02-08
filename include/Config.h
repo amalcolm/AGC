@@ -8,9 +8,9 @@ public:
     inline static constexpr bool TESTMODE = false;  // if true, call the _Callback(BlockType) by default, for debugging
 
     // hardware timing constants (in microseconds / hertz)
-    inline static constexpr uint32_t STATE_DURATION_uS     = 3'368;  // time for each state. loop will be slightly longer than this
+    inline static constexpr uint32_t STATE_DURATION_uS     = 3'600;  // time for each state. loop will be slightly longer than this
 
-    inline static constexpr uint32_t HEAD_SETTLE_TIME_uS   =   440;  // delay between Head change and first A2D read
+    inline static constexpr uint32_t HEAD_SETTLE_TIME_uS   =     0;  // delay between Head change and first A2D read
     
     inline static constexpr uint32_t POT_UPDATE_OFFSET_uS  =     0;  // A2D -> Potentiometer update offset, minimizes interference
 

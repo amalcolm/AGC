@@ -21,6 +21,7 @@ CA2D::CA2D() {
 }
 
 CA2D& CA2D::begin() {
+ 
   setMode(m_Mode);
   return *this;
 }
@@ -28,9 +29,6 @@ CA2D& CA2D::begin() {
 
 void CA2D::setMode(CA2D::ModeType mode) {
 
-  pinMode(PIN_SPI_SCK   , OUTPUT); // SPI SCK
-  pinMode(PIN_SPI_MOSI  , OUTPUT); // SPI MOSI
-  pinMode(PIN_SPI_MISO  , INPUT ); // SPI MISO
   pinMode(CS.A2D        , OUTPUT); // SPI CS
   pinMode(m_pinDataReady, INPUT ); // no pullups; ADS drives the line
 
@@ -40,91 +38,48 @@ void CA2D::setMode(CA2D::ModeType mode) {
     default:  break;
   }
 
+  s_spiEvent.attach(onSpiDmaComplete);
+
   m_pBlockToFill = &m_BlockA;
   m_pBlockToSend = &m_BlockB;
   m_BlockA.clear();
   m_BlockB.clear();
 
+  NVIC_SET_PRIORITY(IRQ_GPIO1_0_15, 32);
+
+  attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
+
 }
 
 bool CA2D::poll() {
   double start = Timer.getStateTime();
-  bool newData = (m_Mode == ModeType::CONTINUOUS) ? poll_Continuous() : poll_Triggered();
+
+  if (!m_dataReady) { yield(); return false; }
+
+  m_dataReady = false;
+  Timer.addEvent(EventKind::A2D_DATA_READY, m_dataStateTime);
+
+  DataType data = getData_DMA();
+
   double end = Timer.getStateTime();
 
   Timer.setPollDuration(end - start);
 
-  if (newData) {
-    Timer.addEvent(EventKind::A2D_READ_START   , start);
-    Timer.addEvent(EventKind::A2D_READ_COMPLETE, end  );  
-  }
-  return newData;
+  Timer.addEvent(EventKind::A2D_READ_START   , start);
+  Timer.addEvent(EventKind::A2D_READ_COMPLETE, end  );  
+
+  if (m_ReadState != ReadState::IGNORE) 
+    m_pBlockToFill->tryAdd(data);
+
+  return data.state != DIRTY;
 }
 
-// Call with CS already LOW (continuous). Return false if header not found.
-bool CA2D::readFrame(uint8_t (&raw)[32]) {
-  
-  // Read status first
-  for (int i=0;i<3;i++) raw[i] = SPI.transfer(0x00);
-
-  // Header check per datasheet: top nibble of first status byte = 1100b (0xC?)
-  if ((raw[0] & 0xF0) != 0xC0) {
-    // Drain remaining bytes for this bad frame so we realign next time
-    for (int i=3;i<27;i++) (void)SPI.transfer(0x00);
-    LED.RED5.set();
-    return false;
-  }
-
-  // Read 8 channels × 3 bytes
-  for (int i=3;i<27;i++) raw[i] = SPI.transfer(0x00);
-
-  bool isZero = (raw[3] == 0 && raw[4] == 0 && raw[5] == 0);
-  
-  if (isZero) {
-    LED.RED6.set();
-    return false;
-  }
-  LED.RED6.clear(); 
-  return true;
+void CA2D::ISR_Data() {
+   if (Singleton->m_ReadState == ReadState::IDLE) return;
+   Singleton->m_dataReady = true;
+   Singleton->m_dataStateTime = Timer.getStateTime();
 }
 
-
-
-
-// 24-bit sign-extend (two’s-complement)
-inline int32_t be24_to_s32(const uint8_t b2, const uint8_t b1, const uint8_t b0) {
-  int32_t v = (int32_t(b2) << 16) | (int32_t(b1) << 8) | int32_t(b0);
-  if (v & 0x00800000) v |= 0xFF000000; // sign-extend bit 23
-  return v;
-}
-
-void CA2D::dataFromFrame(uint8_t (&raw)[32], DataType& data) {
-
-  const uint8_t* p = &raw[3]; // skip status
-  for (int ch=0; ch<8; ++ch) {
-    int32_t val = be24_to_s32(p[0], p[1], p[2]);
-    p += 3;
-    data.channels[ch] = val;
-  }
-}
-
-DataType CA2D::readData() {
-
-  DataType data(Head.getState());
-
-  uint8_t raw[32];
-  bool ok = readFrame(raw);
-  if (ok) 
-    dataFromFrame(raw, data);
-  else {
-    data.state = DIRTY;
-    return data;
-  }
-
-  setDebugData(data);
-
-  return data;
-}
 
 void CA2D::setDebugData(DataType& data) {
   static uint8_t sequenceNumber = 0;

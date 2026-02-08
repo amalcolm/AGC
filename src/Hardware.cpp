@@ -11,7 +11,12 @@
 
 void Hardware::begin() {
     // Initialize all hardware components
-    SPI .begin();
+    pinMode(PIN_SPI_SCK   , OUTPUT); // SPI SCK
+    pinMode(PIN_SPI_MOSI  , OUTPUT); // SPI MOSI
+    pinMode(PIN_SPI_MISO  , INPUT ); // SPI MISO
+    SPI.begin();  // ensure SPI is initialized
+    delay(1); // let SPI/rails settle
+
     USB .begin();
     BUT .begin();
     LED .begin();
