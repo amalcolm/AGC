@@ -18,7 +18,7 @@ public:
     }
 
     inline void set(float    value) { _value = value; }
-    inline void set(double   value) { _value = static_cast<float>(value); if (_value > 0) digitalWrite(27, LOW); }
+    inline void set(double   value) { _value = static_cast<float>(value); }
     inline void set(int      value) { _value = static_cast<float>(value); }
     inline void set(char     value) { _value = static_cast<float>(value); }
     inline void set(uint32_t value) { _value = static_cast<float>(value); }
@@ -31,7 +31,7 @@ public:
 
     float getValue() override {
         float retVal = _value;
-//        _value = 0;  // /normally reset value after reading, to ensure fresh value each cycle
+//        _value = 0;  // /normally reset value after reading, but for values we want to keep it
         return retVal;
     }
     

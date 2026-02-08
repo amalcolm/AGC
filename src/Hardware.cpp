@@ -26,8 +26,8 @@ void Hardware::begin() {
 
 CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
-CTeleValue   TV_max(TeleGroup::HARDWARE, 5);
-double _maxHWupdateDuration = 0.0;
+CTeleValue   TV_maxDur(TeleGroup::HARDWARE, 3);
+double _maxHWdur = 0.0;
 
 struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates = 0;
   void reset() {      setTimer = false;       haveRead = false;      numUpdates = 0; } // reset state
@@ -40,12 +40,12 @@ struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates 
     double remainingInState = STATE_DURATION - Timer.getStateTime();
     double remainingToNextA2D = Timer.A2D.getRemaining_S();
     double usable = std::min(remainingInState, remainingToNextA2D) - POT_OFFSET_DURATION;
-
     if (usable <= 0)  { numUpdates = 0; return; } // We don't have any time left before the next A2D read
-    if (_maxHWupdateDuration == 0) 
+
+    if (_maxHWdur == 0) 
       numUpdates = 1; // we have no data on update duration, default to 1
     else
-      numUpdates = (int)floor(usable / _maxHWupdateDuration); // Calculate how many updates we could fit in the remaining time based on average duration
+      numUpdates = (int)floor(usable / _maxHWdur); // Calculate how many updates we could fit in the remaining time based on average duration
   }
 } S;  // S == instance of StateType
 
@@ -56,17 +56,18 @@ bool Hardware::canUpdate() {
 }
 
 CTeleValue TV_Test(TeleGroup::HARDWARE, 0xFF);
-
+double lastMark = 0.0;
 void Hardware::update() {
-
-  TV_Test.set(99);
-  TV_max.set(_maxHWupdateDuration);
 
   TP_Update.measure();
   TC_Update.increment();
+  TV_maxDur.set(_maxHWdur * 1'000'000.0); // in microseconds
 
   S.haveRead = A2D.poll();
   if (S.haveRead && !S.setTimer) { // if we have a new A2D reading and haven't set the timer for this update cycle
+      if (lastMark > 0.0)
+        TV_Test.set((Timer.getConnectTime() - lastMark) * 1'000'000.0); // in microseconds
+      lastMark = Timer.getConnectTime();
       Timer.HW.reset();
       S.setTimer = true;
       S.CalcNumUpdates();
@@ -81,7 +82,7 @@ void Hardware::update() {
         getHWforState().update();  // update digital pots based on current state
     double updateEnd = Timer.getStateTime();
   
-    _maxHWupdateDuration = std::max(_maxHWupdateDuration, updateEnd - updateStart);
+    _maxHWdur = std::max(_maxHWdur, updateEnd - updateStart);
   }
 
   S.reset(); // reset for next cycle

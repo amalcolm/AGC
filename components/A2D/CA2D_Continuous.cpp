@@ -46,10 +46,6 @@ void CA2D::setMode_Continuous() {
   s_spiEvent.attach(onSpiDmaComplete);
 
 
-  m_pBlockToFill = &m_BlockA;
-  m_pBlockToSend = &m_BlockB;
-  m_BlockA.clear();
-  m_BlockB.clear();
 
   m_Mode = ModeType::CONTINUOUS;
   USB.printf("A2D: Continuous mode (@%d)", CFG::A2D_SAMPLING_SPEED_Hz);

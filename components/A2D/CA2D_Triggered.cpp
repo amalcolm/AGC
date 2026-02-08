@@ -59,10 +59,6 @@ void CA2D::setMode_Triggered()
 
   m_dataReady = false;
 
-  m_pBlockToFill = &m_BlockA;
-  m_pBlockToSend = &m_BlockB;
-  m_pBlockToFill->clear();
-
   delay(300);
 
   USB.printf("A2D: Triggered mode");          if ((id & 0x1F) != 0x1E) USB.printf(" - Warning: unexpected ID 0x%02X", id);
@@ -72,8 +68,8 @@ void CA2D::setMode_Triggered()
 }
 
 void CA2D::ISR_Mark() { 
-    CA2D::Singleton->m_dataReady = true;
-    CA2D::Singleton->m_dataStateTime = Timer.getStateTime();
+  CA2D::Singleton->m_dataReady = true;
+  CA2D::Singleton->m_dataStateTime = Timer.getStateTime();
 }
 
 DataType CA2D::getData() {
@@ -101,8 +97,9 @@ bool CA2D::poll_Triggered() {
   
   if (m_dataReady) {
     m_dataReady = false;
-    Timer.addEvent(EventKind::A2D_DATA_READY, Timer.getStateTime());
-  }
+    Timer.addEvent(EventKind::A2D_DATA_READY, m_dataStateTime);
+ digitalWrite(27, LOW); 
+   }
 
   if (Timer.A2D.waiting() || m_ReadState == ReadState::IDLE) {
       yield();

@@ -39,6 +39,12 @@ void CA2D::setMode(CA2D::ModeType mode) {
     case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
     default:  break;
   }
+
+  m_pBlockToFill = &m_BlockA;
+  m_pBlockToSend = &m_BlockB;
+  m_BlockA.clear();
+  m_BlockB.clear();
+
 }
 
 bool CA2D::poll() {
