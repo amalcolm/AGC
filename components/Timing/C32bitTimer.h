@@ -1,24 +1,25 @@
 #pragma once
 #include "CTimer.h"
 
-class CMarker32 {
-private:
+class C32bitTimer {
+protected:
   uint32_t _period = 0;
   bool _isPeriodic = false;
   mutable uint32_t _nextMarker = 0;
   mutable uint32_t _lastMarker = 0;
 
-  CMarker32();
+  C32bitTimer();
 
 public:
-  static CMarker32 From_uS(double uS);
-  static CMarker32 From_mS(double mS);
-  static CMarker32 From_S (double  S);
-  static CMarker32 From_Hz(double Hz);
+  static C32bitTimer From_uS(double uS);
+  static C32bitTimer From_mS(double mS);
+  static C32bitTimer From_S (double  S);
+  static C32bitTimer From_Hz(double Hz);
 
-  inline CMarker32& setPeriodic(bool isPeriodic) { _isPeriodic = isPeriodic; return *this; }
-  inline bool       getPeriodic() const { return _isPeriodic; }
+  inline C32bitTimer& setPeriodic(bool isPeriodic) { _isPeriodic = isPeriodic; return *this; }
+  inline bool         getPeriodic() const { return _isPeriodic; }
 
+  inline uint32_t getLastMarker() const { return _lastMarker; }
   inline uint32_t getTicks() const { return ARM_DWT_CYCCNT - _lastMarker; }
 
   inline double      getSeconds() const { return getTicks() * CTimerBase::getSecondsPerTick();      }
@@ -32,7 +33,7 @@ public:
   inline bool passed() const {
     uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return true;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
-    if (diff < 0) return false;
+    if (diff <= 0) return false;
     _lastMarker = _nextMarker;
 
     if (_isPeriodic) _nextMarker += _period;
@@ -42,7 +43,7 @@ public:
   inline bool waiting() const {
     uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return false;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
-    if (diff < 0) return true;
+    if (diff <= 0) return true;
     _lastMarker = _nextMarker;
 
     if (_isPeriodic) _nextMarker += _period;
@@ -54,7 +55,7 @@ public:
     while (true) {
       uint32_t now = ARM_DWT_CYCCNT;
       int32_t diff = static_cast<int32_t>(now - _nextMarker);
-      if (diff >= 0) break;
+      if (diff <= 0) break;
       yield();
     }
 

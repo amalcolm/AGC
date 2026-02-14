@@ -20,8 +20,8 @@ void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || bl
   // Output debug info to Serial
 
   USB.printf(     "A2D:%d"    , data.channels[0]);
-  USB.printf(  "\t Sensor1:%d", offsetPot1.getSensorValue());
-  USB.printf(  "\t Sensor2:%d", offsetPot2.getSensorValue());
+  USB.printf(  "\t Sensor1:%d", offsetPot1.lastSensorValue());
+  USB.printf(  "\t Sensor2:%d", offsetPot2.lastSensorValue());
   USB.printf(  "\t offset1:%d", offsetPot1.getLevel());
   USB.printf(  "\t offset2:%d", offsetPot2.getLevel());
   USB.printf(  "\t Gain:%d"   ,    gainPot.getLevel());

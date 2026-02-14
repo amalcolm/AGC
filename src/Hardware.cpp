@@ -46,6 +46,8 @@ struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates 
       numUpdates = 1; // we have no data on update duration, default to 1
     else
       numUpdates = (int)floor(usable / _maxHWdur); // Calculate how many updates we could fit in the remaining time based on average duration
+
+    numUpdates = 1;
   }
 } S;  // S == instance of StateType
 

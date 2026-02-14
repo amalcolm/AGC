@@ -21,11 +21,9 @@ void CAutoPot::begin(int initialLevel) {
 
 void    CAutoPot::reset(int level) { _setLevel(level);        }
 void    CAutoPot::invert()         { _inverted = !_inverted;  }
-int     CAutoPot::getLevel()       { return _currentLevel;    }
-int     CAutoPot::getSensorValue() { return _lastSensorValue; }
 
 
-uint32_t CAutoPot::_readSensor() {
+uint16_t CAutoPot::readSensor() {
   int32_t totalValue = 0;
   for (int i = 0; i < _samplesToAverage; i++)
     totalValue += analogRead(_sensorPin);
@@ -34,7 +32,7 @@ uint32_t CAutoPot::_readSensor() {
 
   _runningAverage.add(_lastSensorValue);
 
-  return static_cast<uint32_t>(_lastSensorValue);
+  return static_cast<uint16_t>(_lastSensorValue);
 }
 
 void CAutoPot::_offsetLevel(int offset) {

@@ -1,6 +1,6 @@
 #pragma once
-#include "CMarkers.h"
-#include "CSafeTimer.h"
+#include "C32bitTimer.h"
+#include "C32bitA2DTimer.h"
 
 class CMasterTimer : public CTimer {
   
@@ -10,12 +10,12 @@ private:
   double m_maxPollDuration = 0.0;
 
 public:
-  const CMarker32 state = CMarker32::From_uS(CFG::STATE_DURATION_uS     ).setPeriodic(true);
+  const C32bitTimer state = C32bitTimer::From_uS(CFG::STATE_DURATION_uS     ).setPeriodic(true);
   
-  const CMarker32 Head  = CMarker32::From_uS(CFG::HEAD_SETTLE_TIME_uS   ).setPeriodic(false);
-  const CMarker32 HW    = CMarker32::From_uS(CFG::POT_UPDATE_OFFSET_uS  ).setPeriodic(false);
+  const C32bitTimer Head  = C32bitTimer::From_uS(CFG::HEAD_SETTLE_TIME_uS   ).setPeriodic(false);
+  const C32bitTimer HW    = C32bitTimer::From_uS(CFG::POT_UPDATE_OFFSET_uS  ).setPeriodic(false);
 
-  CSafeTimer A2D;  // set and updated inside CA2D  
+        C32bitTimer A2D   = C32bitA2DTimer{};
 
 public:
   CMasterTimer();

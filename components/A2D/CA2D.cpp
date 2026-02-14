@@ -3,7 +3,7 @@
 #include "CHead.h"
 #include "Helpers.h"
 #include "Hardware.h"
-#include "CTimer.h"
+#include "C32bitA2DTimer.h"
 #include "Config.h"
 
 CA2D* CA2D::Singleton = nullptr;
@@ -49,7 +49,7 @@ void CA2D::ISR_Data() {
     Singleton->m_dataReady = true;
   }
   
-  uint32_t duration = now - Timer.A2D.getStartTicks(); 
+  uint32_t duration = now - Timer.A2D.getLastMarker(); 
   Timer.A2D.reset(now, duration);
 }
 
@@ -101,8 +101,10 @@ void CA2D::setDebugData(DataType& data) {
       (gainPot   .getLevel()      );
 
   data.sensorState =
-      (analogRead(offsetPot1.getSensorPin()) << 16) |
-      (analogRead(offsetPot2.getSensorPin())      );
+      (offsetPot1.lastSensorValue() << 16) |
+      (offsetPot2.lastSensorValue()      ); 
+//      (analogRead(offsetPot1.getSensorPin()) << 16) |
+//      (analogRead(offsetPot2.getSensorPin())      );
 }
 
 
