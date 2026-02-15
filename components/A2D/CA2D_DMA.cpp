@@ -9,7 +9,7 @@ alignas(32) uint8_t m_rxBuffer[32];
 alignas(32) uint8_t m_txBuffer[32];
 alignas(32) uint8_t m_frBuffer[32];
 
-DataType CA2D::getData_DMA() {
+DataType CA2D::getData() {
 
   if (s_dmaActive) return DataType(DIRTY);
 
@@ -20,10 +20,8 @@ DataType CA2D::getData_DMA() {
   SPI.beginTransaction(spiSettings);
   digitalWriteFast(CS.A2D, LOW);
 
-  // In triggered mode (SDATAC), prime the read with RDATA so the next bytes are status+data.
-  if (m_Mode == ModeType::TRIGGERED) {
+  if (m_Mode == ModeType::TRIGGERED) 
     (void)SPI.transfer(0x12); // RDATA command; returned byte is ignored
-  }
 
   arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
   arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));
@@ -38,19 +36,23 @@ DataType CA2D::getData_DMA() {
 
   Timer.addEvent(EventKind::SPI_DMA_COMPLETE);
 
-  // Validate the captured frame (same logic as readFrame(), but on the DMA buffer)
-  if ((m_frBuffer[0] & 0xF0) != 0xC0) { // status[0] header nibble must be 0xC
-    data.state = DIRTY;
-    return data;
-  }
+  bool badHeader = (m_frBuffer[0] & 0xF0) != 0xC0; // status[0] header nibble must be 0xC
+  bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); // Optional: reject known-bad “all zero” sample (your existing heuristic)
 
-  // Optional: reject known-bad “all zero” sample (your existing heuristic)
-  if (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0) {
-    data.state = DIRTY;
-    return data;
-  }
+   if (badHeader) LED.RED5.set();
+   if (isZero)    LED.RED6.set();
 
-  dataFromFrame(m_frBuffer, data);
+   if (badHeader || isZero) {
+     data.state = DIRTY;
+     return data;
+   }
+
+  const uint8_t* p = &m_frBuffer[3]; // skip status
+  for (int ch=0; ch<8; ++ch) {
+    int32_t val = be24_to_s32(p[0], p[1], p[2]);
+    p += 3;
+    data.channels[ch] = val;
+  }
   return data;
 }
 
@@ -65,4 +67,7 @@ void CA2D::onSpiDmaComplete(EventResponderRef)
 
     s_dmaActive = false;
 }
+
+
+
 

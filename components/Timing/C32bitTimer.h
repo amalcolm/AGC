@@ -36,8 +36,8 @@ public:
     uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return true;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
     if (diff <= 0) return false;
-    _lastMarker = _nextMarker;
 
+    _lastMarker = _nextMarker;
     if (_isPeriodic) _nextMarker += _period;
     return true;
   }
@@ -46,28 +46,23 @@ public:
     uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return false;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
     if (diff <= 0) return true;
-    _lastMarker = _nextMarker;
 
+    _lastMarker = _nextMarker;
     if (_isPeriodic) _nextMarker += _period;
     return false;
   }
 
-  inline void wait() const {    if (_period == 0) return;
+   inline void wait() const { if (_period == 0) return;
 
-    while (true) {
-      uint32_t now = ARM_DWT_CYCCNT;
-      int32_t diff = static_cast<int32_t>(now - _nextMarker);
-      if (diff <= 0) break;
+    while (static_cast<int32_t>(ARM_DWT_CYCCNT - _nextMarker) < 0)
       yield();
-    }
 
     _lastMarker = _nextMarker;
     if (_isPeriodic) _nextMarker += _period;
   }
 
-  void A2DWait() const;
 
-    inline uint32_t reset() const {
+  inline uint32_t reset() const {
     _lastMarker = ARM_DWT_CYCCNT;
     _nextMarker = _lastMarker + _period;
     return _lastMarker;
@@ -93,9 +88,8 @@ public:
   inline double   getPeriod_mS()    const { return _period * CTimerBase::getMillisecondsPerTick(); }
   inline double   getPeriod_S ()    const { return _period * CTimerBase::getSecondsPerTick();      }
 
-  inline uint32_t getRemainingTicks() const { return (_nextMarker - ARM_DWT_CYCCNT); }
-         double   getRemaining_uS()   const;
-         double   getRemaining_mS()   const;
-         double   getRemaining_S ()   const;
-
+  inline  int32_t getRemainingTicks() const { return _period == 0 ? 0 : static_cast<int32_t>(_nextMarker - ARM_DWT_CYCCNT); }
+  inline double   getRemaining_uS()   const { return getRemainingTicks() * CTimerBase::getMicrosecondsPerTick(); }
+  inline double   getRemaining_mS()   const { return getRemainingTicks() * CTimerBase::getMillisecondsPerTick(); }
+  inline double   getRemaining_S()    const { return getRemainingTicks() * CTimerBase::getSecondsPerTick();      }
 };

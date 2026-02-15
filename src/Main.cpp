@@ -27,7 +27,7 @@ void setup() {
 
 
 void loop() {
-
+  
   Head.setNextState();              // Set the LEDs for the next state
 
   USB.update();                     // Output previous block, and give time for system to settle

@@ -1,5 +1,4 @@
 #include "C32bitTimer.h"
-#include "Setup.h"
 
 C32bitTimer::C32bitTimer() : CTimerBase(), _period(0), _lastMarker(0), _nextMarker(0) { }
 
@@ -31,24 +30,4 @@ C32bitTimer C32bitTimer::From_Hz(double Hz) {
   return marker;
 }
 
-void C32bitTimer::A2DWait() const {
-  while (true) {
-    uint32_t now = ARM_DWT_CYCCNT;
-    int32_t diff = static_cast<int32_t>(now - _nextMarker);
-    if (diff >= 0) break;
-    A2D.poll();
-  }
-  _nextMarker += _period;
-}
 
-
-double C32bitTimer::getRemaining_S() const {
-  uint32_t now = ARM_DWT_CYCCNT;
-  if (_period == 0) return 0.0;
-  int32_t diff = static_cast<int32_t>(_nextMarker - now);  // signed
-  if (diff <= 0) return 0.0;
-  return diff * CTimerBase::getSecondsPerTick();
-}
-
-double C32bitTimer::getRemaining_mS() const { return getRemaining_S() * 1'000.0;     }
-double C32bitTimer::getRemaining_uS() const { return getRemaining_S() * 1'000'000.0; }

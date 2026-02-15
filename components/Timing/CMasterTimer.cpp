@@ -24,6 +24,6 @@ bool CMasterTimer::addEvent(const enum EventKind kind, double stateTime) {
   
   CA2D* pA2D = &::A2D;  // get singleton from global to avoid conflict with member name A2D
 
-  return pA2D->m_pBlockToFill->tryAddEvent(kind, stateTime);
+  return pA2D->tryAddEvent(kind, stateTime);
   
 }

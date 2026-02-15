@@ -16,13 +16,13 @@ public:
   const C32bitTimer Head  = C32bitTimer::From_uS(CFG::HEAD_SETTLE_TIME_uS   ).setPeriodic(false);
   const C32bitTimer HW    = C32bitTimer::From_uS(CFG::POT_UPDATE_OFFSET_uS  ).setPeriodic(false);
 
-  const CA2DTimer   A2D   = CA2DTimer{};
+        CA2DTimer   A2D   = CA2DTimer{};
 
 public:
   CMasterTimer();
-
-  inline void   restartConnectTiming() { s_connectTime = CTimer::time();                                         }
-  inline double getConnectTime()       { return (CTimer::time() - s_connectTime) * CTimerBase::s_SecondsPerTick; }
+  
+  inline void   setConnectTime() { s_connectTime = CTimer::time();                                         }
+  inline double getConnectTime() { return (CTimer::time() - s_connectTime) * CTimerBase::s_SecondsPerTick; }
 
   inline static double upTime() { return CTimer::time() * CTimerBase::s_SecondsPerTick; }
   inline double getStateTime()  { return state.getSeconds(); }

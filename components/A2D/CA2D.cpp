@@ -8,7 +8,7 @@
 
 CA2D* CA2D::Singleton = nullptr;
 
-const std::array<std::pair<uint32_t, uint8_t>, 8> CA2D::SpeedLookup = {{
+const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup = {{
     {16000, 0x90}, { 8000, 0x91}, { 4000, 0x92}, { 2000, 0x93},
     { 1000, 0x94}, {  500, 0x95}, {  250, 0x96}, {  125, 0x97}
 }};
@@ -54,14 +54,6 @@ void CA2D::ISR_Data() {
 }
 
 
-void CA2D::setMode(CA2D::ModeType mode) {
-  switch (mode) {
-    case CA2D::ModeType::CONTINUOUS: setMode_Continuous();  break;
-    case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
-    default:  break;
-  }
-}
-
 bool CA2D::poll() {
   double start = Timer.getStateTime();
 
@@ -70,9 +62,7 @@ bool CA2D::poll() {
   m_dataReady = false;
   Timer.addEvent(EventKind::A2D_DATA_READY, m_dataStateTime);
 
-
-
-  DataType data = getData_DMA();
+  DataType data = getData();
 
   double end = Timer.getStateTime();
 
@@ -86,6 +76,7 @@ bool CA2D::poll() {
 
   return data.state != DIRTY;
 }
+
 
 
 
@@ -112,7 +103,7 @@ uint8_t CA2D::getConfig1() const {
   uint8_t config1 = 0x94;
 
   // Set speed bits based on SAMPLING_SPEED
-  for (const auto& [speed, code] : CA2D::SpeedLookup) {
+  for (const auto& [speed, code] : SpeedLookup) {
     if (CFG::A2D_SAMPLING_SPEED_Hz == speed) {
       config1 = code;
       break;
