@@ -3,7 +3,7 @@
 #include "CHead.h"
 #include "Helpers.h"
 #include "Hardware.h"
-#include "C32bitA2DTimer.h"
+#include "CA2DTimer.h"
 #include "Config.h"
 
 CA2D* CA2D::Singleton = nullptr;

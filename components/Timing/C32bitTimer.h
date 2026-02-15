@@ -1,12 +1,14 @@
 #pragma once
-#include "CTimer.h"
+#include "CTimerBase.h"
 
-class C32bitTimer {
+class C32bitTimer : public CTimerBase {
 protected:
   uint32_t _period = 0;
   bool _isPeriodic = false;
+
+  // allow const methods to update these markers
+  mutable uint32_t _lastMarker = 0;  
   mutable uint32_t _nextMarker = 0;
-  mutable uint32_t _lastMarker = 0;
 
   C32bitTimer();
 

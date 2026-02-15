@@ -1,9 +1,9 @@
 #pragma once
 #include "C32bitTimer.h"
 #include "CTimerBase.h"
-class C32bitA2DTimer : public C32bitTimer {
+class CA2DTimer : public C32bitTimer {
 public:
-  C32bitA2DTimer();
+  CA2DTimer();
 
   void reset(uint32_t start, uint32_t period);
 

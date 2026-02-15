@@ -1,7 +1,7 @@
 #include "C32bitTimer.h"
 #include "Setup.h"
 
-C32bitTimer::C32bitTimer() : _period(0), _nextMarker(0) { }
+C32bitTimer::C32bitTimer() : CTimerBase(), _period(0), _lastMarker(0), _nextMarker(0) { }
 
 C32bitTimer C32bitTimer::From_uS(double uS) {
   C32bitTimer marker;

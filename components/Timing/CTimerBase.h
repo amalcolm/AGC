@@ -16,8 +16,7 @@ protected:
   inline static constexpr uint64_t s_TicksPerMicrosecond = F_CPU / 1'000'000;
 
 public:
-  CTimerBase(void(* isrHandler)());
-
+  CTimerBase();
 
   inline uint32_t getInstanceCount() const { return s_instanceCount; }
   

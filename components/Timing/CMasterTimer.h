@@ -1,6 +1,7 @@
 #pragma once
 #include "C32bitTimer.h"
-#include "C32bitA2DTimer.h"
+#include "CA2DTimer.h"
+#include "CTimer.h"
 
 class CMasterTimer : public CTimer {
   
@@ -15,7 +16,7 @@ public:
   const C32bitTimer Head  = C32bitTimer::From_uS(CFG::HEAD_SETTLE_TIME_uS   ).setPeriodic(false);
   const C32bitTimer HW    = C32bitTimer::From_uS(CFG::POT_UPDATE_OFFSET_uS  ).setPeriodic(false);
 
-        C32bitTimer A2D   = C32bitA2DTimer{};
+  const CA2DTimer   A2D   = CA2DTimer{};
 
 public:
   CMasterTimer();
