@@ -8,7 +8,7 @@ class CA2D {
 
     enum TeleKind { COUNT = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
     
-    enum ReadState { IDLE, IGNORE, PREPARE, READ };
+    enum ReadState { IDLE, PREPARE, READ };
 
     SPISettings spiSettings{4'800'000, MSBFIRST, SPI_MODE1};
 
@@ -28,19 +28,22 @@ class CA2D {
 
     DataType  getData();
 
+    void      waitForNextDataReady() const;
+
     void      setBlockState(StateType state);
     void      prepareForRead() { m_ReadState = ReadState::PREPARE; };
-    void      startRead() { m_ReadState = ReadState::READ; };
+    void      startRead()      { m_ReadState = ReadState::READ;    };
 
-    inline ModeType   getMode() { return m_Mode; }
+    inline ModeType getMode() { return m_mode; }
+    
     inline bool tryAddEvent(const enum EventKind kind, double time = -1.0) { return m_pBlockToFill->tryAddEvent(kind, time); }
 
   private:
     void      setMode(ModeType mode);
 
-    ModeType            m_Mode       = ModeType::UNSET;
+    ModeType            m_mode       = ModeType::UNSET;
     CallbackType        m_fnCallback = NULL;
-    ReadState           m_ReadState  = ReadState::IDLE;
+    ReadState           m_ReadState  = ReadState::PREPARE;
 
     static void ISR_Data();
     
@@ -53,6 +56,7 @@ class CA2D {
     uint8_t getConfig1() const;
 
     volatile bool       m_dataReady = false;
+    volatile uint32_t   m_lastDataTime = 0;
     double              m_dataStateTime = 0.0;
     BlockType           m_BlockA;
     BlockType           m_BlockB;

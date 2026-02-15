@@ -10,8 +10,9 @@
 #include <map>
 
 void Hardware::begin() {
-    // Initialize all hardware components
     SPI .begin();  // initialise SPI
+
+    // Initialize all our hardware components
     USB .begin();
     BUT .begin();
     LED .begin();
@@ -19,6 +20,12 @@ void Hardware::begin() {
     A2D .begin();
 
     delay(1); // Allow time for hardware to stabilize (ample)
+
+
+    // ensure A2D has a valid getLastDataTime();
+    while (!A2D.poll()) {
+      delayMicroseconds(50);
+    }
 
     USB.printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
     Timer.restart();
@@ -34,7 +41,7 @@ struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates 
     
   
   void CalcNumUpdates() {
-    static const double STATE_DURATION     =  CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
+    static const double STATE_DURATION     =  CFG::STATE_DURATION_uS    / 1'000'000.0; // convert to seconds
     static const double POT_OFFSET_DURATION = CFG::POT_UPDATE_OFFSET_uS / 1'000'000.0;
 
     double remainingInState = STATE_DURATION - Timer.getStateTime();
@@ -46,15 +53,13 @@ struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates 
       numUpdates = 1; // we have no data on update duration, default to 1
     else
       numUpdates = (int)floor(usable / _maxHWdur); // Calculate how many updates we could fit in the remaining time based on average duration
-
-    numUpdates = 1;
   }
 } S;  // S == instance of StateType
 
 bool Hardware::canUpdate() {
   static double STATE_DURATION = CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
 
-  return (Timer.getStateTime() + Timer.getPollDuration() < STATE_DURATION);
+  return (Timer.getStateTime() + Timer.getMaxPollDuration() < STATE_DURATION);
 }
 
 double lastMark = 0.0;

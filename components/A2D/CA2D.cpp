@@ -14,7 +14,7 @@ const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup = {{
 }};
 
 CA2D::CA2D() {
-  m_Mode = CFG::A2D_USE_TRIGGERED_MODE ? ModeType::TRIGGERED : ModeType::CONTINUOUS;
+  m_mode = CFG::A2D_USE_CONTINUOUS_MODE ? ModeType::CONTINUOUS : ModeType::TRIGGERED;
   
   if (Singleton) { USB.printf("*** A2D: Single continuous instance only."); return; }
   Singleton = this;
@@ -24,7 +24,7 @@ void CA2D::begin() {
   pinMode(CS.A2D        , OUTPUT); // SPI CS
   pinMode(m_pinDataReady, INPUT ); // no pullups; ADS drives the line
 
-  setMode(m_Mode);
+  setMode(m_mode);
 
   // Set up DMA event handler
   s_spiEvent.attach(onSpiDmaComplete);
@@ -42,37 +42,47 @@ void CA2D::begin() {
 }
 
 void CA2D::ISR_Data() {
-
   uint32_t now = ARM_DWT_CYCCNT; 
-  if (Singleton->m_ReadState != ReadState::IDLE) {
-    Singleton->m_dataStateTime = Timer.getStateTime(now);
-    Singleton->m_dataReady = true;
-  }
+
+  Singleton->m_dataStateTime = Timer.getStateTime(now);
+  Singleton->m_dataReady = true;
   
-  uint32_t duration = now - Timer.A2D.getLastMarker(); 
-  Timer.A2D.reset(now, duration);
+  Timer.A2D.setDataReady(now);
+}
+
+
+
+void CA2D::waitForNextDataReady() const {
+  while (!m_dataReady) {
+    yield();
+  }
 }
 
 
 bool CA2D::poll() {
   double start = Timer.getStateTime();
 
-  if (!m_dataReady) { yield(); return false; }
+  switch (m_mode) {
+    case ModeType::CONTINUOUS: if (!m_dataReady       ) { yield(); return false; }       break;
+    case ModeType::TRIGGERED:  if (Timer.A2D.waiting()) { yield(); return false; }       break;
+    default: return false;
+  }
+  m_dataReady = false;  // reset flag
 
-  m_dataReady = false;
-  Timer.addEvent(EventKind::A2D_DATA_READY, m_dataStateTime);
+  if (m_mode == ModeType::CONTINUOUS) delayMicroseconds(10);
+
 
   DataType data = getData();
 
+  if (m_ReadState == ReadState::READ) 
+    m_pBlockToFill->tryAdd(data);
+
   double end = Timer.getStateTime();
+  Timer.updateMaxPollDuration(end - start);
 
-  Timer.setPollDuration(end - start);
-
+  Timer.addEvent(EventKind::A2D_DATA_READY   , m_dataStateTime);
   Timer.addEvent(EventKind::A2D_READ_START   , start);
   Timer.addEvent(EventKind::A2D_READ_COMPLETE, end  );  
-
-  if (m_ReadState != ReadState::IGNORE) 
-    m_pBlockToFill->tryAdd(data);
 
   return data.state != DIRTY;
 }

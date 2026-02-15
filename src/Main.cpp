@@ -27,7 +27,8 @@ void setup() {
 
 
 void loop() {
-  
+  Timer.A2D.sync();                 // if necessary, wait for A2D data_ready alignment to assist with data timing within block
+
   Head.setNextState();              // Set the LEDs for the next state
 
   USB.update();                     // Output previous block, and give time for system to settle

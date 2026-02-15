@@ -20,7 +20,7 @@ DataType CA2D::getData() {
   SPI.beginTransaction(spiSettings);
   digitalWriteFast(CS.A2D, LOW);
 
-  if (m_Mode == ModeType::TRIGGERED) 
+  if (m_mode == ModeType::TRIGGERED) 
     (void)SPI.transfer(0x12); // RDATA command; returned byte is ignored
 
   arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
@@ -40,7 +40,7 @@ DataType CA2D::getData() {
   bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); // Optional: reject known-bad “all zero” sample (your existing heuristic)
 
    if (badHeader) LED.RED5.set();
-   if (isZero)    LED.RED6.set();
+   if (isZero)    LED.RED2.on ();
 
    if (badHeader || isZero) {
      data.state = DIRTY;

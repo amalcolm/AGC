@@ -17,6 +17,8 @@ void CMasterTimer::markStateChange() {
 
      HW.resetAt(now +   HW_DELAY_TICKS); // align A2D read timing
    Head.resetAt(now + HEAD_DELAY_TICKS);
+
+   A2D.syncTo(Head);
 }
 
 bool CMasterTimer::addEvent(const enum EventKind kind, double stateTime) {

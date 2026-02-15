@@ -53,7 +53,7 @@ void CA2D::setMode(ModeType mode) {
 
   if ((id & 0x1F) != 0x1E) USB.printf(" - Warning: unexpected ID 0x%02X", id);
 
-  m_Mode = mode;
+  m_mode = mode;
 
   switch (mode) {
     case ModeType::TRIGGERED : USB.printf("A2D: Triggered mode"); 

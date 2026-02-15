@@ -33,7 +33,7 @@ public:
   bool addEvent(const enum EventKind kind, double time = -1.0);
 
 
-  inline void   setPollDuration(double duration) { if (duration > m_maxPollDuration) m_maxPollDuration = duration; }
-  inline double getPollDuration() const          { return m_maxPollDuration; }
+  inline void   updateMaxPollDuration(double duration) { if (duration > m_maxPollDuration) m_maxPollDuration = duration; }
+  inline double    getMaxPollDuration() const          { return m_maxPollDuration; }
 
 };

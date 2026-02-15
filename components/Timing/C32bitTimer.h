@@ -22,6 +22,7 @@ public:
   inline bool         getPeriodic() const { return _isPeriodic; }
 
   inline uint32_t getLastMarker() const { return _lastMarker; }
+  inline uint32_t getNextMarker() const { return _nextMarker; }
   inline uint32_t getTicks() const { return ARM_DWT_CYCCNT - _lastMarker; }
 
   inline double      getSeconds() const { return getTicks() * CTimerBase::getSecondsPerTick();      }
@@ -78,9 +79,16 @@ public:
     _nextMarker = time;
   }
 
-  inline void sync(uint32_t now = ARM_DWT_CYCCNT) const {
+  inline virtual void sync() const { sync(ARM_DWT_CYCCNT); }
+
+  inline void sync(uint32_t now) const {
     _nextMarker = now - ((now - _lastMarker) % _period);
     _lastMarker = _nextMarker - _period;
+  }
+
+  inline void syncTo(const C32bitTimer& other) const {
+    _lastMarker = other.getLastMarker();
+    _nextMarker = other.getNextMarker();
   }
 
   inline uint32_t getPeriodTicks()  const { return _period; }
