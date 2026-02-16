@@ -31,16 +31,17 @@ class CA2D {
     void      waitForNextDataReady() const;
 
     void      setBlockState(StateType state);
-    void      prepareForRead() { m_ReadState = ReadState::PREPARE; };
-    void      startRead()      { m_ReadState = ReadState::READ;    };
 
-    inline ReadState getReadState() const { return m_ReadState; }  
-    inline ModeType  getMode()      const { return m_mode;      }    
+
+    inline void      setReadState(ReadState state) { m_ReadState = state; }
+    inline ReadState getReadState()          const { return m_ReadState;  }  
+    inline ModeType  getMode()               const { return m_mode;       }    
     
     inline bool tryAddEvent(const enum EventKind kind, double time = -1.0) { return m_pBlockToFill->tryAddEvent(kind, time); }
 
   private:
     void      configure_ADS1299();
+    void      init_DMA();
 
     ModeType            m_mode       = ModeType::UNSET;
     CallbackType        m_fnCallback = NULL;

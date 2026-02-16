@@ -51,15 +51,16 @@ void CA2D::configure_ADS1299() {
   }
   SPI.endTransaction();
 
-  if ((id & 0x1F) != 0x1E) USB.printf(" - Warning: unexpected ID 0x%02X", id);
+  char warning[64];
+  if ((id & 0x1F) != 0x1E) sprintf(warning, " - Warning: unexpected ID (0x%02X)", id); else warning[0] = '\0';
 
   switch (m_mode) {
-    case ModeType::TRIGGERED : USB.printf("A2D: Triggered mode"); 
+    case ModeType::TRIGGERED : USB.printf("A2D: Triggered mode%s", warning); 
       break;
-    case ModeType::CONTINUOUS: USB.printf("A2D: Continuous mode (@%d)", CFG::A2D_SAMPLING_SPEED_Hz);
+    case ModeType::CONTINUOUS: USB.printf("A2D: Continuous mode (@%d)%s", CFG::A2D_SAMPLING_SPEED_Hz, warning);
       break;
       
-    default:                   USB.printf("A2D: Mode set to UNSET or unknown value");
+    default:                   USB.printf("A2D: Mode set to UNSET or unknown value%s", warning);
       break;
   }
 

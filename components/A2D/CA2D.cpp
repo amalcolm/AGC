@@ -24,10 +24,10 @@ void CA2D::begin() {
   pinMode(CS.A2D        , OUTPUT); // SPI CS
   pinMode(m_pinDataReady, INPUT ); // no pullups; ADS drives the line
 
+  // Configure the ADS1299, and sent START command, and RDATAC if in continuous mode
   configure_ADS1299();
 
-  // Set up DMA event handler
-  s_spiEvent.attach(onSpiDmaComplete);
+  init_DMA();
 
   // We use two blocks and swap between them, allowing reading into one while the other is being sent
   m_pBlockToFill = &m_BlockA;
@@ -69,12 +69,12 @@ bool CA2D::poll() {
   }
   m_dataReady = false;  // reset flag
 
-
   bool result = true;
 
 
-  if (m_ReadState == ReadState::READ) {
+  if (m_ReadState != ReadState::IDLE) {
      DataType data = getData();
+     if (m_mode == ModeType::CONTINUOUS) data.stateTime = m_dataStateTime;
      m_pBlockToFill->tryAdd(data);
      result = data.state != DIRTY;
   }
@@ -124,10 +124,14 @@ uint8_t CA2D::getConfig1() const {
   return config1;
 }
 
+
 void CA2D::SPIwrite(std::initializer_list<uint8_t> data) {
+  static C32bitTimer spiTimer = C32bitTimer::From_uS(2);
+
   digitalWrite(CS.A2D, LOW);
   delayMicroseconds(5);
   for (uint8_t b : data) {
+    spiTimer.wait();
     SPI.transfer(b);
   }
   delayMicroseconds(5);

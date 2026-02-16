@@ -21,8 +21,9 @@ void CSerialWrapper::update() {
   stateMachine.update(connected, hasData, CFG::TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->doHandshake(); });
 }
 
-void CSerialWrapper::begin() {
+CSerialWrapper& CSerialWrapper::begin() {
   update();
+  return *this;
 }
 
 void CSerialWrapper::doHandshake() {

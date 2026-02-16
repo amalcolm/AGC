@@ -9,6 +9,11 @@ alignas(32) uint8_t m_rxBuffer[32];
 alignas(32) uint8_t m_txBuffer[32];
 alignas(32) uint8_t m_frBuffer[32];
 
+void CA2D::init_DMA() {
+  memset(m_txBuffer, 0, 32);
+  s_spiEvent.attach(onSpiDmaComplete);
+}
+
 DataType CA2D::getData() {
 
   if (s_dmaActive) return DataType(DIRTY);
@@ -20,8 +25,10 @@ DataType CA2D::getData() {
   SPI.beginTransaction(spiSettings);
   digitalWriteFast(CS.A2D, LOW);
 
-  if (m_mode == ModeType::TRIGGERED) 
-    (void)SPI.transfer(0x12); // RDATA command; returned byte is ignored
+  if (m_mode == ModeType::TRIGGERED) {
+    (void)SPI.transfer(0x12); // RDATA command
+    delayMicroseconds(2);
+  }
 
   arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
   arm_dcache_delete(m_rxBuffer, sizeof(m_rxBuffer));

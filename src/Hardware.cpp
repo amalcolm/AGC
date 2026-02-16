@@ -13,7 +13,7 @@ void Hardware::begin() {
     SPI .begin();  // initialise SPI
 
     // Initialize all our hardware components
-    USB .begin();
+    USB .begin().printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
     BUT .begin();
     LED .begin();
     Head.begin();
@@ -23,11 +23,9 @@ void Hardware::begin() {
 
 
     // ensure A2D has a valid getLastDataTime();
-    while (!A2D.poll()) {
-      delayMicroseconds(50);
-    }
+    while (A2D.poll() == false)
+      delayMicroseconds(5);
 
-    USB.printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
     Timer.restart();
 }
 
@@ -70,14 +68,9 @@ void Hardware::update() {
   TC_Update.increment();
   TV_maxDur.set(_maxHWdur * 1'000'000.0); // in microseconds
 
-    if (Timer.getStateTime() > STATE_DURATION * 4/5) { yield(); return; } // timer not ready yet
+    if (Timer.getStateTime() > STATE_DURATION * 3/4) { yield(); return; } // timer not ready yet
 
   if (A2D.poll() == false) { yield(); return; }
-
-
-
-
-
 
   if (S.setTimer == false) { // if we have a new A2D reading and haven't set the timer for this update cycle
       lastMark = Timer.getConnectTime();
@@ -86,6 +79,7 @@ void Hardware::update() {
       S.CalcNumUpdates();
   }
 
+  S.numUpdates = 1;
   while (S.numUpdates-- > 0) {
   
     double updateStart = Timer.getStateTime();

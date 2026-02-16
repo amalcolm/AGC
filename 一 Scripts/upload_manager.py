@@ -35,12 +35,10 @@ def send_udp_message(message):
         print(f"PlatformIO: Could not send UDP message.  Error: {e}")
 
 def before_upload(source, target, env):
-    print("PlatformIO: Notifying plotter to release COM port...")
     send_udp_message("DISCONNECT")
     time.sleep(0.5)
 
 def after_upload(source, target, env):
-    print("PlatformIO: Notifying plotter to reconnect...")
     send_udp_message("RECONNECT")
 
 

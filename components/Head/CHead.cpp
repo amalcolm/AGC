@@ -22,11 +22,11 @@ void CHead::begin() {
 
 void CHead::waitForReady() const { 
 
-  A2D.prepareForRead();
+  A2D.setReadState(CA2D::ReadState::PREPARE);
  
   while (Timer.Head.waiting()) A2D.poll();
  
-  A2D.startRead(); // clear dataReady to ensure fresh read on next A2D read
+  A2D.setReadState(CA2D::ReadState::READ); // clear dataReady to ensure fresh read on next A2D read
  }
 
 StateType CHead::setNextState() {
@@ -49,7 +49,6 @@ StateType CHead::setNextState() {
 
   if (!diff && !reset) return m_State;
   m_State = newState;
-
 
   // Update only the changed LEDs using bit manipulation
   while (diff) {
