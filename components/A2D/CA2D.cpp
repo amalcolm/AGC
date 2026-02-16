@@ -38,7 +38,7 @@ void CA2D::begin() {
   NVIC_SET_PRIORITY(IRQ_GPIO1_0_15, 32);  // raise priority of GPIO1 interrupts
 
   // attach the dataReadyPin to the interrupt handler, fires on falling edge (when ADS has data ready)
-  attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
+//  attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
 }
 
 void CA2D::ISR_Data() {
@@ -69,22 +69,23 @@ bool CA2D::poll() {
   }
   m_dataReady = false;  // reset flag
 
-  if (m_mode == ModeType::CONTINUOUS) delayMicroseconds(10);
+
+  bool result = true;
 
 
-  DataType data = getData();
-
-  if (m_ReadState == ReadState::READ) 
-    m_pBlockToFill->tryAdd(data);
+  if (m_ReadState == ReadState::READ) {
+     DataType data = getData();
+     m_pBlockToFill->tryAdd(data);
+     result = data.state != DIRTY;
+  }
 
   double end = Timer.getStateTime();
   Timer.updateMaxPollDuration(end - start);
 
-  Timer.addEvent(EventKind::A2D_DATA_READY   , m_dataStateTime);
   Timer.addEvent(EventKind::A2D_READ_START   , start);
   Timer.addEvent(EventKind::A2D_READ_COMPLETE, end  );  
 
-  return data.state != DIRTY;
+  return result;
 }
 
 

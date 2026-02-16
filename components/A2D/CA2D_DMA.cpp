@@ -40,9 +40,9 @@ DataType CA2D::getData() {
   bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); // Optional: reject known-bad “all zero” sample (your existing heuristic)
 
    if (badHeader) LED.RED5.set();
-   if (isZero)    LED.RED2.on ();
+   if (isZero)    LED.RED1.on ();
 
-   if (badHeader || isZero) {
+   if (badHeader) {
      data.state = DIRTY;
      return data;
    }

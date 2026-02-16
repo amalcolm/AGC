@@ -20,11 +20,21 @@ void CA2DTimer::reset(uint32_t start, uint32_t period) {
 */
 void CA2DTimer::sync() const {
 
-  if (CFG::A2D_USE_CONTINUOUS_MODE) {
-    // In continuous mode, we sync to the A2D data ready timing to assist with data timing within block
+  if (CFG::A2D_USE_CONTINUOUS_MODE) 
     A2D.waitForNextDataReady();
-  }
+  else
+    wait();
   
+}
 
+void CA2DTimer::setDataReady(uint32_t tick) 
+{
+  m_dataReadyPeriod = tick - m_dataReadyTick;  // uint32_t arithmetic handles wraparound correctly
+
+  m_dataReadyTick = tick;
+  m_dataReadyNextTick = tick + _period;
+
+  double stateTime = Timer.getStateTime(tick);
+  Timer.addEvent(EventKind::A2D_DATA_READY   , stateTime);
 
 }

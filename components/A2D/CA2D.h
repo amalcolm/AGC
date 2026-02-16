@@ -34,7 +34,8 @@ class CA2D {
     void      prepareForRead() { m_ReadState = ReadState::PREPARE; };
     void      startRead()      { m_ReadState = ReadState::READ;    };
 
-    inline ModeType getMode() { return m_mode; }
+    inline ReadState getReadState() const { return m_ReadState; }  
+    inline ModeType  getMode()      const { return m_mode;      }    
     
     inline bool tryAddEvent(const enum EventKind kind, double time = -1.0) { return m_pBlockToFill->tryAddEvent(kind, time); }
 

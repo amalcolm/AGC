@@ -56,8 +56,9 @@ struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates 
   }
 } S;  // S == instance of StateType
 
-bool Hardware::canUpdate() {
   static double STATE_DURATION = CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
+
+bool Hardware::canUpdate() {
 
   return (Timer.getStateTime() + Timer.getMaxPollDuration() < STATE_DURATION);
 }
@@ -70,6 +71,7 @@ void Hardware::update() {
   TV_maxDur.set(_maxHWdur * 1'000'000.0); // in microseconds
 
   S.haveRead = A2D.poll();
+
   if (S.haveRead && !S.setTimer) { // if we have a new A2D reading and haven't set the timer for this update cycle
       lastMark = Timer.getConnectTime();
       Timer.HW.reset();
@@ -77,9 +79,16 @@ void Hardware::update() {
       S.CalcNumUpdates();
   }
 
+  auto a2dState = A2D.getReadState();
 
-  if (Timer.HW.waiting()) return;
+    if (Timer.HW.waiting() || a2dState != CA2D::ReadState::READ) return;
 
+  if (a2dState == CA2D::ReadState::READ && Timer.getStateTime() > STATE_DURATION * 3/4) {
+    A2D.prepareForRead();
+  }
+
+
+  S.numUpdates = 1;
   while (S.numUpdates-- > 0) {
   
     double updateStart = Timer.getStateTime();

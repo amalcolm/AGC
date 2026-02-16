@@ -9,15 +9,7 @@ class CA2DTimer : public C32bitTimer {
 
     void sync() const override;
 
-
-
-    inline void setDataReady(uint32_t tick) 
-    {
-      m_dataReadyPeriod = tick - m_dataReadyTick;  // uint32_t arithmetic handles wraparound correctly
-
-      m_dataReadyTick = tick;
-      m_dataReadyNextTick = tick + _period;
-    }
+    void setDataReady(uint32_t tick);
 
     inline uint32_t getLastDataReadyTick()   const { return m_dataReadyTick;   }
     inline uint32_t getLastDataReadyPeriod() const { return m_dataReadyPeriod; }
