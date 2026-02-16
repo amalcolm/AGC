@@ -36,8 +36,8 @@ CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
 CTeleValue   TV_maxDur(TeleGroup::HARDWARE, 3);
 double _maxHWdur = 0.0;
 
-struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates = 0;
-  void reset() {      setTimer = false;       haveRead = false;      numUpdates = 0; } // reset state
+struct S_Type  { bool setTimer = false; int numUpdates = 0;
+  void reset() {      setTimer = false;     numUpdates = 0; } // reset state
     
   
   void CalcNumUpdates() {
@@ -70,25 +70,22 @@ void Hardware::update() {
   TC_Update.increment();
   TV_maxDur.set(_maxHWdur * 1'000'000.0); // in microseconds
 
-  S.haveRead = A2D.poll();
+    if (Timer.getStateTime() > STATE_DURATION * 4/5) { yield(); return; } // timer not ready yet
 
-  if (S.haveRead && !S.setTimer) { // if we have a new A2D reading and haven't set the timer for this update cycle
+  if (A2D.poll() == false) { yield(); return; }
+
+
+
+
+
+
+  if (S.setTimer == false) { // if we have a new A2D reading and haven't set the timer for this update cycle
       lastMark = Timer.getConnectTime();
       Timer.HW.reset();
       S.setTimer = true;
       S.CalcNumUpdates();
   }
 
-  auto a2dState = A2D.getReadState();
-
-    if (Timer.HW.waiting() || a2dState != CA2D::ReadState::READ) return;
-
-  if (a2dState == CA2D::ReadState::READ && Timer.getStateTime() > STATE_DURATION * 3/4) {
-    A2D.prepareForRead();
-  }
-
-
-  S.numUpdates = 1;
   while (S.numUpdates-- > 0) {
   
     double updateStart = Timer.getStateTime();
@@ -101,4 +98,3 @@ void Hardware::update() {
   S.reset(); // reset for next cycle
 
 }
-

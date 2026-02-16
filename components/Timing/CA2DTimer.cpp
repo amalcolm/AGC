@@ -20,10 +20,9 @@ void CA2DTimer::reset(uint32_t start, uint32_t period) {
 */
 void CA2DTimer::sync() const {
 
-  if (CFG::A2D_USE_CONTINUOUS_MODE) 
+//  if (CFG::A2D_USE_CONTINUOUS_MODE) 
     A2D.waitForNextDataReady();
-  else
-    wait();
+//  else wait();
   
 }
 

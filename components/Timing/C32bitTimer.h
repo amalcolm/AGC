@@ -62,6 +62,20 @@ public:
     if (_isPeriodic) _nextMarker += _period;
   }
 
+  inline void forceNow() const {
+    _lastMarker = ARM_DWT_CYCCNT;
+    _nextMarker = _lastMarker;
+  }
+
+  inline void forceAfter(uint32_t next) const {
+    _lastMarker = ARM_DWT_CYCCNT;
+    _nextMarker = _lastMarker + next;
+  }
+
+   inline void forceAt(uint32_t time) const {
+    _lastMarker = ARM_DWT_CYCCNT;
+    _nextMarker = time;
+  }
 
   inline uint32_t reset() const {
     _lastMarker = ARM_DWT_CYCCNT;

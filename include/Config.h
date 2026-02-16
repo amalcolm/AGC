@@ -10,7 +10,7 @@ public:
     // hardware timing constants (in microseconds / hertz)
     inline static constexpr uint32_t STATE_DURATION_uS       = 10'400;  // time for each state. loop will be slightly longer than this
 
-    inline static constexpr uint32_t HEAD_SETTLE_TIME_uS     =  3'100;  // delay between Head change and first A2D read
+    inline static constexpr uint32_t HEAD_SETTLE_TIME_uS     =     60;  // delay between Head change and first A2D read
     
     inline static constexpr uint32_t POT_UPDATE_OFFSET_uS    =      0;  // A2D -> Potentiometer update offset, minimizes interference
 
@@ -19,7 +19,7 @@ public:
     inline static constexpr bool     A2D_USE_CONTINUOUS_MODE =  false;  // use continuous A2D mode; else triggered mode with interrupts
     inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz   =  2'000;  // A2D sampling speed set in CONFIG1 register
 
-    inline static constexpr uint32_t A2D_READING_PERIOD_uS   =  1'100;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
+    inline static constexpr uint32_t A2D_READING_PERIOD_uS   =  1'080;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
  
 
     // program constants

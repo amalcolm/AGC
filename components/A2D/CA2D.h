@@ -40,7 +40,7 @@ class CA2D {
     inline bool tryAddEvent(const enum EventKind kind, double time = -1.0) { return m_pBlockToFill->tryAddEvent(kind, time); }
 
   private:
-    void      setMode(ModeType mode);
+    void      configure_ADS1299();
 
     ModeType            m_mode       = ModeType::UNSET;
     CallbackType        m_fnCallback = NULL;

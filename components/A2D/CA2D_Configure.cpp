@@ -2,7 +2,7 @@
 #include "Setup.h"
 #include "CUSB.h"
 
-void CA2D::setMode(ModeType mode) {
+void CA2D::configure_ADS1299() {
 
   uint8_t cfg1 = getConfig1();
   uint8_t id = 0;
@@ -45,7 +45,7 @@ void CA2D::setMode(ModeType mode) {
     // 6) Start conversions, then enable RDATAC
     SPIwrite({ 0x08 });                 // START (START pin must be held low on the board)
 
-    if (mode == ModeType::CONTINUOUS) 
+    if (m_mode == ModeType::CONTINUOUS) 
       SPIwrite({ 0x10 });                 // RDATAC
     
   }
@@ -53,9 +53,7 @@ void CA2D::setMode(ModeType mode) {
 
   if ((id & 0x1F) != 0x1E) USB.printf(" - Warning: unexpected ID 0x%02X", id);
 
-  m_mode = mode;
-
-  switch (mode) {
+  switch (m_mode) {
     case ModeType::TRIGGERED : USB.printf("A2D: Triggered mode"); 
       break;
     case ModeType::CONTINUOUS: USB.printf("A2D: Continuous mode (@%d)", CFG::A2D_SAMPLING_SPEED_Hz);

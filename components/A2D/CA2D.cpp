@@ -24,7 +24,7 @@ void CA2D::begin() {
   pinMode(CS.A2D        , OUTPUT); // SPI CS
   pinMode(m_pinDataReady, INPUT ); // no pullups; ADS drives the line
 
-  setMode(m_mode);
+  configure_ADS1299();
 
   // Set up DMA event handler
   s_spiEvent.attach(onSpiDmaComplete);
@@ -38,7 +38,7 @@ void CA2D::begin() {
   NVIC_SET_PRIORITY(IRQ_GPIO1_0_15, 32);  // raise priority of GPIO1 interrupts
 
   // attach the dataReadyPin to the interrupt handler, fires on falling edge (when ADS has data ready)
-//  attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
+  attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
 }
 
 void CA2D::ISR_Data() {
