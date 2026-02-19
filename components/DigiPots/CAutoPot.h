@@ -15,17 +15,18 @@ public:
   void invert();
   virtual void update() = 0; // must be overridden
 
-  int getLevel();
-  int getSensorValue();
-  int getSensorPin() const { return _sensorPin; }
+  uint16_t   readSensor();
 
-  void writeCurrentToPot() { _writeToPot(_currentLevel); }
+  inline int getLevel()        const { return _currentLevel;    }
+  inline int lastSensorValue() const { return _lastSensorValue; }
+  inline int getSensorPin()    const { return _sensorPin;       }
+
+  inline void writeCurrentToPot() { _writeToPot(_currentLevel); }
   
   RunningAverageMinMax<uint16_t>& getRunningAverage() { return _runningAverage; }
 
 
 protected:
-  uint32_t _readSensor();
   void     _offsetLevel(int offset);
   void     _setLevel(int newLevel);
 
