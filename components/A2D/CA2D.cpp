@@ -110,15 +110,8 @@ void CA2D::setDebugData(DataType& data) {
   data.hardwareState = (uint64_t(hi32) << 32) | uint64_t(lo32);;
 
   data.sensorState =
-<<<<<<< HEAD
       (analogRead(offsetPot1.getSensorPin()) << 16)
     | (analogRead(offsetPot2.getSensorPin())      );
-=======
-      (offsetPot1.lastSensorValue() << 16) |
-      (offsetPot2.lastSensorValue()      ); 
-//      (analogRead(offsetPot1.getSensorPin()) << 16) |
-//      (analogRead(offsetPot2.getSensorPin())      );
->>>>>>> d765fad37900aa6923eb387a3ca4530f5eb35c6a
 }
 
 

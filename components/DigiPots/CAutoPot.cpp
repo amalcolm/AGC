@@ -24,11 +24,7 @@ void    CAutoPot::reset(int level) { _setLevel(level);        }
 void    CAutoPot::invert()         { _inverted = !_inverted;  }
 
 
-<<<<<<< HEAD
-uint32_t CAutoPot::_readSensor() { if (_sensorPin < 0) return 0; // No sensor pin defined
-=======
-uint16_t CAutoPot::readSensor() {
->>>>>>> d765fad37900aa6923eb387a3ca4530f5eb35c6a
+uint16_t CAutoPot::readSensor() { if (_sensorPin < 0) return 0; // No sensor pin defined
   int32_t totalValue = 0;
   for (int i = 0; i < _samplesToAverage; i++)
     totalValue += analogRead(_sensorPin);

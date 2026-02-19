@@ -46,8 +46,8 @@ DataType CA2D::getData() {
   bool badHeader = (m_frBuffer[0] & 0xF0) != 0xC0; // status[0] header nibble must be 0xC
   bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); // Optional: reject known-bad “all zero” sample (your existing heuristic)
 
-   if (badHeader) LED.RED5.set();
-   if (isZero)    LED.RED1.on ();
+   if (badHeader) LED.set(5);
+   if (isZero)    LED.set(1);
 
    if (badHeader) {
      data.state = DIRTY;

@@ -50,7 +50,7 @@ class CDigiPot : public CAutoPot {
 public:
   CDigiPot(int csPin) : CAutoPot(csPin, -1, 1) {}
   CDigiPot& operator=(const CDigiPot&) = default;
-  void update() override { _readSensor(); } // just read the sensor value, but don't change the pot level
+  void update() override {  } // just read the sensor value, but don't change the pot level
 };
 // =================================================================
 class COffsetPot : public CAutoPot {
