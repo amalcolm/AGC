@@ -5,13 +5,15 @@
 #include "CUSB.h"
 #include "Config.h"
 
+
 void setup() {
+  
   activityLED.set();
   Hardware::begin();
 
   A2D.setCallback(_Callback);
 
-
+  
   Head.setSequence( {
 //  Head.RED8, Head.IR8             // States defined in CHead.h, alse includes ALL_ON / ALL_OFF
 //  zTest.FullTest,                // Can use predefined sequences from ZTests.h
@@ -27,7 +29,7 @@ void setup() {
 
 
 void loop() {
-
+  
   Head.setNextState();              // Set the LEDs for the next state
 
   USB.update();                     // Output previous block, and give time for system to settle
@@ -41,4 +43,5 @@ void loop() {
   CTelemetry::logAll();             // Log all counter telemetry
 
   activityLED.toggle();             // Indicate activity on LED
+  
 }

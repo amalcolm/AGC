@@ -92,17 +92,24 @@ bool CA2D::poll() {
 void CA2D::setDebugData(DataType& data) {
   static uint8_t sequenceNumber = 0;
  
-  auto& [state, offsetPot1, offsetPot2, gainPot] = getHWforState(data);
+  auto& [state, offset1_hi, offset1_lo, offsetPot1, offsetPot2, gainPot, _] = getHWforState(data);
   
-  data.hardwareState = 
-      (sequenceNumber++      << 24) |
-      (offsetPot1.getLevel() << 16) |
-      (offsetPot2.getLevel() <<  8) |
-      (gainPot   .getLevel()      );
+  uint32_t hi32 =
+      (offsetPot1.getLevel() << 24) 
+    | (offset1_hi.getLevel() << 16)
+    | (offset1_lo.getLevel() <<  8)
+    | (++sequenceNumber & 0xFF); 
+
+  uint32_t lo32 = 
+      (offsetPot2.getLevel() << 24)
+    | (gainPot   .getLevel() << 16)
+    | (0xFFFF);
+
+  data.hardwareState = (uint64_t(hi32) << 32) | uint64_t(lo32);;
 
   data.sensorState =
-      (analogRead(offsetPot1.getSensorPin()) << 16) |
-      (analogRead(offsetPot2.getSensorPin())      );
+      (analogRead(offsetPot1.getSensorPin()) << 16)
+    | (analogRead(offsetPot2.getSensorPin())      );
 }
 
 

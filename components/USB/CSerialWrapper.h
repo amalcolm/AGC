@@ -32,6 +32,7 @@ class CSerialWrapper {
     void write(uint8_t byte);
     void write(uint16_t data);
     void write(uint32_t data);
+    void write(uint64_t data);
     void write(float data);
     void write(double number);
     void write(uint8_t* pData, uint32_t dataLen);

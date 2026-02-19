@@ -116,6 +116,7 @@ CSerialWrapper::ModeType CSerialWrapper::setMode(CSerialWrapper::ModeType mode) 
 void CSerialWrapper::write(uint8_t  byte  ) { put(&byte,             sizeof(byte  )); }
 void CSerialWrapper::write(uint16_t data  ) { put((uint8_t*)&data  , sizeof(data  )); }
 void CSerialWrapper::write(uint32_t data  ) { put((uint8_t*)&data  , sizeof(data  )); }
+void CSerialWrapper::write(uint64_t data  ) { put((uint8_t*)&data  , sizeof(data  )); }
 void CSerialWrapper::write(float    data  ) { put((uint8_t*)&data  , sizeof(data  )); }
 void CSerialWrapper::write(double   number) { put((uint8_t*)&number, sizeof(number)); }
   

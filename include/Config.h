@@ -27,7 +27,7 @@ public:
     inline static constexpr uint32_t MAX_EVENTS_PER_BLOCK  =    512;  // max number of EventType entries in a BlockType
 
     
-    inline static constexpr char DEVICE_VERSION[]  = "0.1.2+" BUILD_STR;  // this is a #define from the build system
+    inline static constexpr char DEVICE_VERSION[]  = "0.1.3+" BUILD_STR;  // this is a #define from the build system
     inline static constexpr char DEVICE_NAME[]     = "fNIRS (Teensy 4.1)";
     inline static           char HOST_VERSION[16]  = "[unknown]";
 

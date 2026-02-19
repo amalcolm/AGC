@@ -17,7 +17,7 @@ CHead::CHead() : m_State(UNSET), m_sequencePosition(-1) {}
 CHead::~CHead() {}
 
 void CHead::begin() {
-  LED.all.clear();  // turn off all LEDs
+  LED.clear();  // turn off all LEDs
 }
 
 std::vector<StateType>& CHead::getSequence() {  return m_sequence;}
@@ -79,21 +79,9 @@ StateType CHead::setNextState() {
   if (!diff) return m_State;
   m_State = newState;
 
+  LED.write(newState);
 
-  // Update only the changed LEDs using bit manipulation
-  while (diff) {
-      const int  i  = __builtin_ctz(diff);          // index of lowest set bit
-      
-      const uint8_t led = Pins::pinForBit(i);          // corresponding pin number  
-      const bool on = ((newState >> i) & 1u) ^ LED.Inverted; // desired state
-
-      digitalWriteFast(led, on ? HIGH : LOW);
- 
-      diff &= diff - 1;                             // clear LOWEST bit using magic
-  }
-
-    getHWforState().set();            // Apply hardware settings (digipots) for new state
-
+  getHWforState().set();            // Apply hardware settings (digipots) for new state
 
   return m_State;
 }
@@ -102,6 +90,5 @@ void CHead::clear() {
   m_State = UNSET;
   m_sequencePosition = -1;
 
-  LED.all.clear();
+  LED.clear();
 }
-

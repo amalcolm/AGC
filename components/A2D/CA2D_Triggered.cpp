@@ -102,7 +102,7 @@ bool CA2D::readFrame(uint8_t (&raw)[32]) {
   if ((raw[0] & 0xF0) != 0xC0) {
     // Drain remaining bytes for this bad frame so we realign next time
     for (int i=3;i<27;i++) (void)SPI.transfer(0x00);
-    LED.RED5.set();
+    LED.set(5);
     return false;
   }
 
@@ -112,10 +112,10 @@ bool CA2D::readFrame(uint8_t (&raw)[32]) {
   bool isZero = (raw[3] == 0 && raw[4] == 0 && raw[5] == 0);
   
   if (isZero) {
-    LED.RED6.set();
+    LED.set(6);
     return false;
   }
-  LED.RED6.clear(); 
+  LED.clear(6); 
   return true;
 }
 

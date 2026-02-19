@@ -11,10 +11,13 @@
 #include "Hardware.h"
 #include "Helpers.h"
 
+// =====================================================================================================
+//  Global instances of hardware components and helpers
+// =====================================================================================================
 ChipSelectPins CS;
 SensorPins     SP;
 ButtonPins     BUT;
-LedPins        LED;
+LEDpins        LED;
 CMasterTimer   Timer;
 CA2D           A2D;
 CHead          Head;
@@ -23,9 +26,60 @@ CUSB           USB;
 OutputPin activityLED{4};
 bool Ready = false;
 
-static std::deque<HWforState> stateHWs;
+// =====================================================================================================
+//  LEDpins implementation
+// =====================================================================================================
+
+#include <Wire.h>
+#include <Adafruit_MCP23X17.h>
+
+Adafruit_MCP23X17 mcp;
+bool mcpInitialized = false;
+
+void mcp_initialise() {
+  if (!mcp.begin_I2C()) 
+    while (1) { 
+      Serial.println("MCP23017 not found. Check wiring!");
+      delay(1000);
+      digitalToggle(4); 
+    }
+
+  pinMode(19, OUTPUT);  //  Sclk
+  pinMode(18, OUTPUT);  //  Sdata
+
+  Wire.setClock(400000);
+
+  mcpInitialized = true;  
+}
+
+void LEDpins::begin() const {
+  if (!mcpInitialized)
+    mcp_initialise();
+} 
+
+void LEDpins::write(uint16_t data) const {
+  data |= dbgBits;
+  mcp.writeGPIOAB(inverted  ? ~data : data);
+}
+
+
+void LEDpins::set(int pin) {
+  dbgBits |= (1u << pin);
+  mcp.digitalWrite(pin, high);
+}
+
+void LEDpins::clear(int pin) {
+  dbgBits &= ~(1u << pin);;
+  mcp.digitalWrite(pin, low);
+}
+
+
+// =====================================================================================================
+// Gets a object containing hardware instances corresponding to the given state, creating it if needed.
+// =====================================================================================================
 
 HWforState& getHWforState(StateType state) {
+  static std::deque<HWforState> stateHWs;
 
   if (state == DIRTY) state = Head.getState();
   
@@ -34,8 +88,6 @@ HWforState& getHWforState(StateType state) {
        return hw;
   
   stateHWs.emplace_back(state);
-  if (Ready)
-    stateHWs.back().begin();
 
   return stateHWs.back();
 }
@@ -49,6 +101,9 @@ HWforState& getHWforState(DataType& data) {
 }
 
 
+// =====================================================================================================
+// Error handling implementation as called via ERROR macro
+// =====================================================================================================
 
 [[noreturn]] void error_impl(const char* file, int line, const char* func,
                              const char* fmt, ...)
@@ -68,16 +123,10 @@ HWforState& getHWforState(DataType& data) {
         for (int i = 0; i < 50 && !Serial; ++i) delay(10); // ~500ms max
     }
 
+    if (mcpInitialized == false)
+      mcp_initialise();
     
-
-    auto viewForward = std::views::iota(24, 42); // pins 24 to 41 inclusive
-    auto viewReverse = viewForward | std::views::reverse;
-    std::vector<uint8_t> pinsForward(viewForward.begin(), viewForward.end());    pinsForward.push_back(4);
-    std::vector<uint8_t> pinsReverse(viewReverse.begin(), viewReverse.end());    pinsReverse.push_back(4);
-
-    for (auto pin : pinsForward) 
-      pinMode(pin, OUTPUT);
-
+    
     for (;;) {
       Serial.println("Error: system halted.");
       Serial.println(hdr);
@@ -89,17 +138,23 @@ HWforState& getHWforState(DataType& data) {
 
       Serial.flush();
 
+      uint16_t bits = 0;
+      uint16_t one = 1;
 
-      for (auto pin : pinsForward) {
-        digitalWrite(pin, HIGH);
+      for (int i = 0; i < 16; i++) {
+        bits |= one << i;
+        mcp.writeGPIOAB(bits);
         delay(20);
       }
+
       delay(1500); 
 
-      for (auto pin : pinsReverse) {
-        digitalWrite(pin, LOW);
+      while (bits != 0) {
+        bits >>= 1;
+        mcp.writeGPIOAB(bits);
         delay(20);
       }
+
       delay(500);
     }
 }

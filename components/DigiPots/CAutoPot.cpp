@@ -4,6 +4,7 @@
 #include "Hardware.h"
 #include "Setup.h"
 
+
 CAutoPot::CAutoPot(int csPin, int sensorPin, int samplesToAverage) {
   _csPin = csPin;
   _sensorPin = sensorPin;
@@ -25,7 +26,7 @@ int     CAutoPot::getLevel()       { return _currentLevel;    }
 int     CAutoPot::getSensorValue() { return _lastSensorValue; }
 
 
-uint32_t CAutoPot::_readSensor() {
+uint32_t CAutoPot::_readSensor() { if (_sensorPin < 0) return 0; // No sensor pin defined
   int32_t totalValue = 0;
   for (int i = 0; i < _samplesToAverage; i++)
     totalValue += analogRead(_sensorPin);
@@ -42,18 +43,17 @@ void CAutoPot::_offsetLevel(int offset) {
 }
 
 void CAutoPot::_setLevel(int newLevel) {
-//  int previousLevel = _currentLevel;
+  static int _writtenLevel = -1;
 
-if (newLevel < 1) newLevel = 1;
-if (newLevel > 254) newLevel = 254; 
-
-  
+  std::clamp(newLevel, 1, 254); 
 
   _currentLevel = newLevel;
 
-//  if (previousLevel != _currentLevel) {
-    _writeToPot(_currentLevel);
-//  }
+  if (_writtenLevel == _currentLevel) return;  // warning; affects timing
+
+  _writeToPot(_currentLevel);
+  _writtenLevel = _currentLevel;
+
 }
 
 void CAutoPot::_writeToPot(uint8_t value)

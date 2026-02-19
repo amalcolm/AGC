@@ -19,7 +19,8 @@ struct DataType {
   StateType  state;          // state of the head during this reading
   double     timestamp;      // timestamp in seconds since connection
   double     stateTime;      // time in seconds since last state change
-  uint32_t   hardwareState;  //  (count & 0xFF) << 24 | offset1 << 16 | offset2 << 8 | gain      // needs 4 byte alignment
+  uint64_t   hardwareState;  //   offset1pot << 56 | offset1_hi << 48 | offset1_lo << 40 | count&0xFF << 32 ...
+                             // | offset2pot << 24 | gain       << 16 | reserved   << 8  | reserved    << 0
   uint32_t   sensorState;    //  preGain << 16 | postGain 
   uint32_t   channels[NUM_CHANNELS];
 
