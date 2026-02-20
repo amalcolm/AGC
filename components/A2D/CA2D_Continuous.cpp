@@ -2,7 +2,7 @@
 #include "Setup.h"
 #include "CUSB.h"
 
-void CA2D::configure_ADS1299() {
+void CA2D::setMode_Continuous() {
 
   uint8_t cfg1 = getConfig1();
   uint8_t id = 0;
@@ -26,15 +26,10 @@ void CA2D::configure_ADS1299() {
     digitalWrite(CS.A2D, HIGH);
 
     // 4) Config: 2 kSPS, reserved bits correct, no CLK out
-    // bit7 must be 1 per datasheet; reserved pattern honored;
-    SPIwrite({ 0x41, 0x00, cfg1 });     // CONFIG1 = 0xD4 for 1 kSPS);  0xD6 = 250SPS, 0xD5 = 500SPS, OxD4 = 1kSPS, 0xD3 = 2kSPS, ... D0 = 16kSPS; 
+    SPIwrite({0x41, 0x00, cfg1});     // CONFIG1 = 0xD4 for 1 kSPS);  0xD6 = 250SPS, 0xD5 = 500SPS, OxD4 = 1kSPS, 0xD3 = 2kSPS, ... D0 = 16kSPS; 
                                       // bits: 1 DAISY_EN=1 CLK_EN=0 1 0 DR=100 (1 kSPS)
-
-
-    SPIwrite({ 0x42, 0x00, 0xC0 });     // CONFIG2 (baseline; no internal test)
-
-
-    SPIwrite({ 0x43, 0x00, 0xE0 });     // CONFIG3 (enable internal reference buffer)
+    SPIwrite({0x42, 0x00, 0xC0});     // CONFIG2 (baseline; no internal test)
+    SPIwrite({0x43, 0x00, 0xE0});     // CONFIG3 (enable internal reference buffer)
 
     // 5) channels: CH1 normal input, gain=1; others powered-down & shorted
     SPIwrite({ 0x45, 0x07,
@@ -43,28 +38,15 @@ void CA2D::configure_ADS1299() {
     });
 
     // 6) Start conversions, then enable RDATAC
-    SPIwrite({ 0x08 });                 // START (START pin must be held low on the board)
-
-    if (m_mode == ModeType::CONTINUOUS) 
-      SPIwrite({ 0x10 });                 // RDATAC
-    
+    SPIwrite({0x08});                 // START (START pin must be held low on the board)
+    SPIwrite({0x10});                 // RDATAC
   }
   SPI.endTransaction();
 
-  char warning[64];
-  if ((id & 0x1F) != 0x1E) sprintf(warning, " - Warning: unexpected ID (0x%02X)", id); else warning[0] = '\0';
 
-  switch (m_mode) {
-    case ModeType::TRIGGERED : USB.printf("A2D: Triggered mode%s", warning); 
-      break;
-    case ModeType::CONTINUOUS: USB.printf("A2D: Continuous mode (@%d)%s", CFG::A2D_SAMPLING_SPEED_Hz, warning);
-      break;
-      
-    default:                   USB.printf("A2D: Mode set to UNSET or unknown value%s", warning);
-      break;
-  }
-
-
+  USB.printf("A2D: Continuous mode (@%d)", CFG::A2D_SAMPLING_SPEED_Hz);
+    if ((id & 0x1F) != 0x1E) USB.printf(" - Warning: unexpected ID 0x%02X", id);
+  m_Mode = ModeType::CONTINUOUS;
 }
 
 

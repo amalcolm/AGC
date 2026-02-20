@@ -18,7 +18,7 @@ class CSerialWrapper {
     CSerialWrapper();
     virtual ~CSerialWrapper() = default;
 
-    virtual CSerialWrapper& begin();
+    virtual void begin();
     virtual void update();
 
     inline ModeType getMode() { return m_Mode; }

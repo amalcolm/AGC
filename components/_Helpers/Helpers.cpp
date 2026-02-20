@@ -47,8 +47,6 @@ void mcp_initialise() {
   pinMode(19, OUTPUT);  //  Sclk
   pinMode(18, OUTPUT);  //  Sdata
 
-  Wire.setClock(400000);
-
   mcpInitialized = true;  
 }
 
@@ -57,7 +55,15 @@ void LEDpins::begin() const {
     mcp_initialise();
 } 
 
-void LEDpins::write(uint16_t data) const {
+void LEDpins::writeDirect(uint16_t data) const {
+    mcp.writeGPIOAB(inverted  ? ~data : data);
+}
+
+void LEDpins::write(uint32_t state) const {
+  
+  uint16_t data  =  state & 0x000000FF; // only use lower 8 bits, as we only have 8 red pins and 8 IR pins
+           data |= (state & 0x00FF0000) >> 8; // mask in lower 8 bits of IR pins and shift them to upper 8 bits of output
+
   data |= dbgBits;
   mcp.writeGPIOAB(inverted  ? ~data : data);
 }

@@ -7,11 +7,12 @@ class CA2D {
     enum ModeType { UNSET, CONTINUOUS, TRIGGERED };
 
     enum TeleKind { COUNT = 0, TIME = 1, VOLTAGE = 2, RAW = 3 };
-    
-    enum ReadState { IDLE, PREPARE, READ };
 
+    
+    enum ReadState { IDLE, IGNORE, PREPARE, READ };
     SPISettings spiSettings{4'800'000, MSBFIRST, SPI_MODE1};
 
+    static const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup;
     static CA2D* Singleton;
 
     int m_pinDataReady{9};
@@ -24,32 +25,33 @@ class CA2D {
     void      setCallback(CallbackType callback) { m_fnCallback = callback; }
     void      makeCallback(BlockType* pBlock)    { if (m_fnCallback) m_fnCallback(pBlock); }
 
-    bool      poll();
-
     DataType  getData();
+    DataType  getData_DMA();
 
-    void      waitForNextDataReady() const;
-
+    // Continuous
     void      setBlockState(StateType state);
+    void      prepareForRead() { m_ReadState = ReadState::PREPARE; };
+    void      startRead() { m_ReadState = ReadState::READ; };
 
-
-    inline void      setReadState(ReadState state) { m_ReadState = state; }
-    inline ReadState getReadState()          const { return m_ReadState;  }  
-    inline ModeType  getMode()               const { return m_mode;       }    
-    
-    inline bool tryAddEvent(const enum EventKind kind, double time = -1.0) { return m_pBlockToFill->tryAddEvent(kind, time); }
+    inline ModeType   getMode() { return m_Mode; }
 
   private:
-    void      configure_ADS1299();
-    void      init_DMA();
+    void      setMode(ModeType mode);
+    void      setMode_Continuous();
+    void      setMode_Triggered();
 
-    ModeType            m_mode       = ModeType::UNSET;
+    bool      readFrame(uint8_t (&raw)[32]);
+    void      dataFromFrame(uint8_t (&raw)[32], DataType& data);
+
+
+  public:
+    ModeType            m_Mode       = ModeType::UNSET;
     CallbackType        m_fnCallback = NULL;
-    ReadState           m_ReadState  = ReadState::PREPARE;
+    ReadState           m_ReadState  = ReadState::IDLE;
 
     static void ISR_Data();
     
-    // DMA SPI handling
+ // DMA / continuous mode supportw
     static inline EventResponder s_spiEvent{};
     static void onSpiDmaComplete(EventResponderRef);
     static inline volatile bool s_dmaActive = false;        // true while DMA SPI in progress
@@ -58,7 +60,6 @@ class CA2D {
     uint8_t getConfig1() const;
 
     volatile bool       m_dataReady = false;
-    volatile uint32_t   m_lastDataTime = 0;
     double              m_dataStateTime = 0.0;
     BlockType           m_BlockA;
     BlockType           m_BlockB;
@@ -69,6 +70,7 @@ class CA2D {
     void SPIwrite(std::initializer_list<uint8_t> data);
  
   public:
+    bool poll();
 }; 
 
     // buffers for DMA SPI transfers - must be 32-byte aligned for cache management on Teensy 4.x

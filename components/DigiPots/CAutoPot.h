@@ -15,18 +15,17 @@ public:
   void invert();
   virtual void update() = 0; // must be overridden
 
-  uint16_t   readSensor();
+  int getLevel();
+  int getSensorValue();
+  int getSensorPin() const { return _sensorPin; }
 
-  inline int getLevel()        const { return _currentLevel;    }
-  inline int lastSensorValue() const { return _lastSensorValue; }
-  inline int getSensorPin()    const { return _sensorPin;       }
-
-  inline void writeCurrentToPot() { _writeToPot(_currentLevel); }
+  void writeCurrentToPot() { _writeToPot(_currentLevel); }
   
   RunningAverageMinMax<uint16_t>& getRunningAverage() { return _runningAverage; }
 
 
 protected:
+  uint32_t _readSensor();
   void     _offsetLevel(int offset);
   void     _setLevel(int newLevel);
 
@@ -50,7 +49,7 @@ class CDigiPot : public CAutoPot {
 public:
   CDigiPot(int csPin) : CAutoPot(csPin, -1, 1) {}
   CDigiPot& operator=(const CDigiPot&) = default;
-  void update() override {  } // just read the sensor value, but don't change the pot level
+  void update() override { _readSensor(); } // just read the sensor value, but don't change the pot level
 };
 // =================================================================
 class COffsetPot : public CAutoPot {

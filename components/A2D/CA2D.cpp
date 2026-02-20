@@ -3,18 +3,18 @@
 #include "CHead.h"
 #include "Helpers.h"
 #include "Hardware.h"
-#include "CA2DTimer.h"
+#include "CTimer.h"
 #include "Config.h"
 
 CA2D* CA2D::Singleton = nullptr;
 
-const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup = {{
+const std::array<std::pair<uint32_t, uint8_t>, 8> CA2D::SpeedLookup = {{
     {16000, 0x90}, { 8000, 0x91}, { 4000, 0x92}, { 2000, 0x93},
     { 1000, 0x94}, {  500, 0x95}, {  250, 0x96}, {  125, 0x97}
 }};
 
 CA2D::CA2D() {
-  m_mode = CFG::A2D_USE_CONTINUOUS_MODE ? ModeType::CONTINUOUS : ModeType::TRIGGERED;
+  m_Mode = CFG::A2D_USE_TRIGGERED_MODE ? ModeType::TRIGGERED : ModeType::CONTINUOUS;
   
   if (Singleton) { USB.printf("*** A2D: Single continuous instance only."); return; }
   Singleton = this;
@@ -24,10 +24,10 @@ void CA2D::begin() {
   pinMode(CS.A2D        , OUTPUT); // SPI CS
   pinMode(m_pinDataReady, INPUT ); // no pullups; ADS drives the line
 
-  // Configure the ADS1299, and sent START command, and RDATAC if in continuous mode
-  configure_ADS1299();
+  setMode(m_Mode);
 
-  init_DMA();
+  // Set up DMA event handler
+  s_spiEvent.attach(onSpiDmaComplete);
 
   // We use two blocks and swap between them, allowing reading into one while the other is being sent
   m_pBlockToFill = &m_BlockA;
@@ -42,52 +42,50 @@ void CA2D::begin() {
 }
 
 void CA2D::ISR_Data() {
-  uint32_t now = ARM_DWT_CYCCNT; 
 
-  Singleton->m_dataStateTime = Timer.getStateTime(now);
-  Singleton->m_dataReady = true;
+  uint32_t now = ARM_DWT_CYCCNT; 
+  if (Singleton->m_ReadState != ReadState::IDLE) {
+    Singleton->m_dataStateTime = Timer.getStateTime(now);
+    Singleton->m_dataReady = true;
+  }
   
-  Timer.A2D.setDataReady(now);
+  uint32_t duration = now - Timer.A2D.getStartTicks(); 
+  Timer.A2D.reset(now, duration);
 }
 
 
-
-void CA2D::waitForNextDataReady() const {
-  while (!m_dataReady) {
-    yield();
+void CA2D::setMode(CA2D::ModeType mode) {
+  switch (mode) {
+    case CA2D::ModeType::CONTINUOUS: setMode_Continuous();  break;
+    case CA2D::ModeType::TRIGGERED : setMode_Triggered ();  break;
+    default:  break;
   }
 }
-
 
 bool CA2D::poll() {
   double start = Timer.getStateTime();
 
-  switch (m_mode) {
-    case ModeType::CONTINUOUS: if (!m_dataReady       ) { yield(); return false; }       break;
-    case ModeType::TRIGGERED:  if (Timer.A2D.waiting()) { yield(); return false; }       break;
-    default: return false;
-  }
-  m_dataReady = false;  // reset flag
+  if (!m_dataReady) { yield(); return false; }
 
-  bool result = true;
+  m_dataReady = false;
+  Timer.addEvent(EventKind::A2D_DATA_READY, m_dataStateTime);
 
 
-  if (m_ReadState != ReadState::IDLE) {
-     DataType data = getData();
-     if (m_mode == ModeType::CONTINUOUS) data.stateTime = m_dataStateTime;
-     m_pBlockToFill->tryAdd(data);
-     result = data.state != DIRTY;
-  }
+
+  DataType data = getData_DMA();
 
   double end = Timer.getStateTime();
-  Timer.updateMaxPollDuration(end - start);
+
+  Timer.setPollDuration(end - start);
 
   Timer.addEvent(EventKind::A2D_READ_START   , start);
   Timer.addEvent(EventKind::A2D_READ_COMPLETE, end  );  
 
-  return result;
-}
+  if (m_ReadState != ReadState::IGNORE) 
+    m_pBlockToFill->tryAdd(data);
 
+  return data.state != DIRTY;
+}
 
 
 
@@ -96,18 +94,18 @@ void CA2D::setDebugData(DataType& data) {
  
   auto& [state, offset1_hi, offset1_lo, offsetPot1, offsetPot2, gainPot, _] = getHWforState(data);
   
-  uint32_t hi32 =
+  uint64_t hi32 =
       (offsetPot1.getLevel() << 24) 
     | (offset1_hi.getLevel() << 16)
     | (offset1_lo.getLevel() <<  8)
     | (++sequenceNumber & 0xFF); 
 
-  uint32_t lo32 = 
+  uint64_t lo32 = 
       (offsetPot2.getLevel() << 24)
     | (gainPot   .getLevel() << 16)
     | (0xFFFF);
 
-  data.hardwareState = (uint64_t(hi32) << 32) | uint64_t(lo32);;
+  data.hardwareState = (hi32 << 32) | lo32;
 
   data.sensorState =
       (analogRead(offsetPot1.getSensorPin()) << 16)
@@ -119,7 +117,7 @@ uint8_t CA2D::getConfig1() const {
   uint8_t config1 = 0x94;
 
   // Set speed bits based on SAMPLING_SPEED
-  for (const auto& [speed, code] : SpeedLookup) {
+  for (const auto& [speed, code] : CA2D::SpeedLookup) {
     if (CFG::A2D_SAMPLING_SPEED_Hz == speed) {
       config1 = code;
       break;
@@ -129,14 +127,10 @@ uint8_t CA2D::getConfig1() const {
   return config1;
 }
 
-
 void CA2D::SPIwrite(std::initializer_list<uint8_t> data) {
-  static C32bitTimer spiTimer = C32bitTimer::From_uS(2);
-
   digitalWrite(CS.A2D, LOW);
   delayMicroseconds(5);
   for (uint8_t b : data) {
-    spiTimer.wait();
     SPI.transfer(b);
   }
   delayMicroseconds(5);

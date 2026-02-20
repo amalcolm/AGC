@@ -10,22 +10,18 @@
 #include <map>
 
 void Hardware::begin() {
+    // Initialize all hardware components
     SPI .begin();  // initialise SPI
-
-    // Initialize all our hardware components
-    USB .begin().printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
-    BUT .begin();
     LED .begin();
+    return;
+    USB .begin();
+    BUT .begin();
     Head.begin();
     A2D .begin();
 
     delay(1); // Allow time for hardware to stabilize (ample)
 
-
-    // ensure A2D has a valid getLastDataTime();
-    while (A2D.poll() == false)
-      delayMicroseconds(5);
-
+    USB.printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
     Timer.restart();
 }
 
@@ -34,12 +30,12 @@ CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
 CTeleValue   TV_maxDur(TeleGroup::HARDWARE, 3);
 double _maxHWdur = 0.0;
 
-struct S_Type  { bool setTimer = false; int numUpdates = 0;
-  void reset() {      setTimer = false;     numUpdates = 0; } // reset state
+struct S_Type  { bool setTimer = false;  bool haveRead = false;  int numUpdates = 0;
+  void reset() {      setTimer = false;       haveRead = false;      numUpdates = 0; } // reset state
     
   
   void CalcNumUpdates() {
-    static const double STATE_DURATION     =  CFG::STATE_DURATION_uS    / 1'000'000.0; // convert to seconds
+    static const double STATE_DURATION     =  CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
     static const double POT_OFFSET_DURATION = CFG::POT_UPDATE_OFFSET_uS / 1'000'000.0;
 
     double remainingInState = STATE_DURATION - Timer.getStateTime();
@@ -54,11 +50,10 @@ struct S_Type  { bool setTimer = false; int numUpdates = 0;
   }
 } S;  // S == instance of StateType
 
+bool Hardware::canUpdate() {
   static double STATE_DURATION = CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
 
-bool Hardware::canUpdate() {
-
-  return (Timer.getStateTime() + Timer.getMaxPollDuration() < STATE_DURATION);
+  return (Timer.getStateTime() + Timer.getPollDuration() < STATE_DURATION);
 }
 
 double lastMark = 0.0;
@@ -68,18 +63,17 @@ void Hardware::update() {
   TC_Update.increment();
   TV_maxDur.set(_maxHWdur * 1'000'000.0); // in microseconds
 
-    if (Timer.getStateTime() > STATE_DURATION * 3/4) { yield(); return; } // timer not ready yet
-
-  if (A2D.poll() == false) { yield(); return; }
-
-  if (S.setTimer == false) { // if we have a new A2D reading and haven't set the timer for this update cycle
+  S.haveRead = A2D.poll();
+  if (S.haveRead && !S.setTimer) { // if we have a new A2D reading and haven't set the timer for this update cycle
       lastMark = Timer.getConnectTime();
       Timer.HW.reset();
       S.setTimer = true;
       S.CalcNumUpdates();
   }
 
-  S.numUpdates = 1;
+
+  if (Timer.HW.waiting()) return;
+
   while (S.numUpdates-- > 0) {
   
     double updateStart = Timer.getStateTime();
@@ -92,3 +86,4 @@ void Hardware::update() {
   S.reset(); // reset for next cycle
 
 }
+

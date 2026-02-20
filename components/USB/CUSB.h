@@ -18,10 +18,9 @@ class CUSB : public CSerialWrapper {
   public:
     CUSB() {};
 
-    CUSB& begin()
+    void begin()
     { 
       CSerialWrapper::begin(); 
-      return *this;
     }
     
     inline void buffer(DataType    data     ) { m_dataBuffer.write(data); }

@@ -4,7 +4,7 @@ CGainPot::CGainPot(int csPin, int sensorPin, int samples)
   : CAutoPot(csPin, sensorPin, samples) {}
 
 void CGainPot::update() {
-  readSensor();
+  _readSensor();
   _setLevel(1);
   
 return;

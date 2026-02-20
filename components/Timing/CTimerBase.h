@@ -8,15 +8,16 @@ protected:
   static inline uint32_t s_instanceCount = 0;
    
   inline static constexpr double s_SecondsPerTick      = 1.0 /  F_CPU;
-  inline static constexpr double s_MillisecondsPerTick = 1.0 / (F_CPU / 1'000.0);
-  inline static constexpr double s_MicrosecondsPerTick = 1.0 / (F_CPU / 1'000'000.0);
+  inline static constexpr double s_MillisecondsPerTick = 1.0 / (F_CPU / 1'000);
+  inline static constexpr double s_MicrosecondsPerTick = 1.0 / (F_CPU / 1'000'000);
 
-  inline static constexpr double s_TicksPerSecond      = F_CPU;
-  inline static constexpr double s_TicksPerMillisecond = F_CPU / 1'000.0;
-  inline static constexpr double s_TicksPerMicrosecond = F_CPU / 1'000'000.0;
+  inline static constexpr uint64_t s_TicksPerSecond      = F_CPU;
+  inline static constexpr uint64_t s_TicksPerMillisecond = F_CPU / 1'000;
+  inline static constexpr uint64_t s_TicksPerMicrosecond = F_CPU / 1'000'000;
 
 public:
-  CTimerBase();
+  CTimerBase(void(* isrHandler)());
+
 
   inline uint32_t getInstanceCount() const { return s_instanceCount; }
   
@@ -24,9 +25,9 @@ public:
   inline static constexpr double   getMillisecondsPerTick() { return s_MillisecondsPerTick; }
   inline static constexpr double   getMicrosecondsPerTick() { return s_MicrosecondsPerTick; }
 
-  inline static constexpr double getTicksPerSecond()      { return s_TicksPerSecond;      }
-  inline static constexpr double getTicksPerMillisecond() { return s_TicksPerMillisecond; }
-  inline static constexpr double getTicksPerMicrosecond() { return s_TicksPerMicrosecond; }
+  inline static constexpr uint64_t getTicksPerSecond()      { return s_TicksPerSecond;      }
+  inline static constexpr uint64_t getTicksPerMillisecond() { return s_TicksPerMillisecond; }
+  inline static constexpr uint64_t getTicksPerMicrosecond() { return s_TicksPerMicrosecond; }
 
   inline static constexpr uint32_t microsecondsToTicks(double us) { return static_cast<uint32_t>(std::ceil(us / getMicrosecondsPerTick())); }
   inline static constexpr uint32_t millisecondsToTicks(double ms) { return static_cast<uint32_t>(std::ceil(ms / getMillisecondsPerTick())); }

@@ -10,7 +10,7 @@ COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int windowSize)
 }
 
 void COffsetPot::update() {
-  auto val =  readSensor();
+  auto val =  _readSensor();
 
   //  val = _runningAverage.GetAverage();
 

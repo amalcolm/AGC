@@ -20,16 +20,9 @@ public:
 
 
   void begin() const;
-  void write(uint16_t data) const;
-
-  void write(uint32_t state) const {
-
-    uint16_t output =   state & 0x000F; // only use lower 16 bits, as we only have 16 pins
-             output |= (state & 0x0F00) >> 8; // allow upper bits to set higher pins, but mask out any bits above 31
-    write(output);
-  }
-
-  void clear() { write((uint16_t)0); }
+  void writeDirect(uint16_t data) const;
+  void write(StateType state) const;
+  void clear() { write(0); }
 
 
   void set(int bit);

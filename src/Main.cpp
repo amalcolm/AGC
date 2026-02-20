@@ -25,6 +25,7 @@ void setup() {
 
   Ready = true;
   activityLED.clear();
+
 }
 
 
@@ -43,5 +44,5 @@ void loop() {
   CTelemetry::logAll();             // Log all counter telemetry
 
   activityLED.toggle();             // Indicate activity on LED
-
+  
 }
