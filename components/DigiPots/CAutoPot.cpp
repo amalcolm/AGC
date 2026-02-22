@@ -4,7 +4,6 @@
 #include "Hardware.h"
 #include "Setup.h"
 
-
 CAutoPot::CAutoPot(int csPin, int sensorPin, int samplesToAverage) {
   _csPin = csPin;
   _sensorPin = sensorPin;
@@ -22,11 +21,9 @@ void CAutoPot::begin(int initialLevel) {
 
 void    CAutoPot::reset(int level) { _setLevel(level);        }
 void    CAutoPot::invert()         { _inverted = !_inverted;  }
-int     CAutoPot::getLevel()       { return _currentLevel;    }
-int     CAutoPot::getSensorValue() { return _lastSensorValue; }
 
 
-uint32_t CAutoPot::_readSensor() { if (_sensorPin < 0) return 0; // No sensor pin defined
+uint16_t CAutoPot::readSensor() {  if (_sensorPin < 0) return 0; // No sensor pin defined
   int32_t totalValue = 0;
   for (int i = 0; i < _samplesToAverage; i++)
     totalValue += analogRead(_sensorPin);
@@ -35,7 +32,7 @@ uint32_t CAutoPot::_readSensor() { if (_sensorPin < 0) return 0; // No sensor pi
 
   _runningAverage.add(_lastSensorValue);
 
-  return static_cast<uint32_t>(_lastSensorValue);
+  return static_cast<uint16_t>(_lastSensorValue);
 }
 
 void CAutoPot::_offsetLevel(int offset) {
@@ -43,22 +40,16 @@ void CAutoPot::_offsetLevel(int offset) {
 }
 
 void CAutoPot::_setLevel(int newLevel) {
-  static int _writtenLevel = -1;
-
   std::clamp(newLevel, 1, 254); 
 
   _currentLevel = newLevel;
 
-  if (_writtenLevel == _currentLevel) return;  // warning; affects timing
-
   _writeToPot(_currentLevel);
-  _writtenLevel = _currentLevel;
-
 }
 
 void CAutoPot::_writeToPot(uint8_t value)
 {
-  static const SPISettings settings{4'000'000, MSBFIRST, SPI_MODE0};
+  static const SPISettings settings{4'800'000, MSBFIRST, SPI_MODE0};
 
   // Find existing entry for this CS pin (by reference)
   auto it = std::find_if(s_currentValues.begin(), s_currentValues.end(),
@@ -85,7 +76,5 @@ void CAutoPot::_writeToPot(uint8_t value)
   }
   SPI.endTransaction();
 
-//  USB.printf("Wrote pot CS pin %d value %d\n", _csPin, value);
 
 }
-

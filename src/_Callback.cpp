@@ -12,7 +12,7 @@ void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || bl
   if (A2D.outputDebugBlock) return;   // If so, skip rest of function
 
   // get hardware for the block's state                                                                 // avoid warnings on unused variables
-  auto& [state, offset1_hi, offset1_lo, offsetPot1, offsetPot2, gainPot, _] = getHWforState(block);                                IGNORE(state);
+  auto& [state, offset1_hi, offset1_lo, offsetPot1, offsetPot2, gainPot, _] = getHWforState(block);     IGNORE(state); IGNORE(_);
 
   // get the last data point in the block
   DataType& data = block->data[block->count - 1];  
@@ -20,8 +20,8 @@ void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || bl
   // Output debug info to Serial
 
   USB.printf(     "A2D:%d"       , data.channels[0]);
-  USB.printf(  "\t Sensor1:%d"   , offsetPot1.getSensorValue());
-  USB.printf(  "\t Sensor2:%d"   , offsetPot2.getSensorValue());
+  USB.printf(  "\t Sensor1:%d"   , offsetPot1.readSensor());
+  USB.printf(  "\t Sensor2:%d"   , offsetPot2.readSensor());
   USB.printf(  "\t offset1_hi:%d", offset1_hi.getLevel());
   USB.printf(  "\t offset1_lo:%d", offset1_lo.getLevel());
   USB.printf(  "\t offset1:%d"   , offsetPot1.getLevel());
@@ -33,8 +33,5 @@ void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || bl
   USB.printf(  "\n"); // must end output with '\n' to be parsed correctly
 
 }
-
-
-
 
 

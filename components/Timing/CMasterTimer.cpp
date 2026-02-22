@@ -17,6 +17,8 @@ void CMasterTimer::markStateChange() {
 
      HW.resetAt(now +   HW_DELAY_TICKS); // align A2D read timing
    Head.resetAt(now + HEAD_DELAY_TICKS);
+
+    A2D.resetAt(now + HEAD_DELAY_TICKS + 1000); 
 }
 
 bool CMasterTimer::addEvent(const enum EventKind kind, double stateTime) {
@@ -24,6 +26,6 @@ bool CMasterTimer::addEvent(const enum EventKind kind, double stateTime) {
   
   CA2D* pA2D = &::A2D;  // get singleton from global to avoid conflict with member name A2D
 
-  return pA2D->m_pBlockToFill->tryAddEvent(kind, stateTime);
+  return pA2D->tryAddEvent(kind, stateTime);
   
 }

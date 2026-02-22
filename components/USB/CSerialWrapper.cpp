@@ -21,8 +21,9 @@ void CSerialWrapper::update() {
   stateMachine.update(connected, hasData, CFG::TESTMODE, m_handshakeComplete, m_Mode, [this]() { this->doHandshake(); });
 }
 
-void CSerialWrapper::begin() {
+CSerialWrapper& CSerialWrapper::begin() {
   update();
+  return *this;
 }
 
 void CSerialWrapper::doHandshake() {
@@ -102,7 +103,7 @@ void CSerialWrapper::doHandshake() {
   Serial.flush(); // ensure all output sent
   Serial.clear(); // clear output buffer
   while (Serial.available() > 0) Serial.read(); // flush input buffer
-  Timer.restartConnectTiming();
+  Timer.setConnectTime();
 
   stateMachine.setFirstCall(false);
 //  activityLED.clear();

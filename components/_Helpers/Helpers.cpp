@@ -10,10 +10,13 @@
 #include "Setup.h"
 #include "Hardware.h"
 #include "Helpers.h"
+#include "PinHelpers.h"
 
 // =====================================================================================================
 //  Global instances of hardware components and helpers
 // =====================================================================================================
+
+
 ChipSelectPins CS;
 SensorPins     SP;
 ButtonPins     BUT;
@@ -47,6 +50,8 @@ void mcp_initialise() {
   pinMode(19, OUTPUT);  //  Sclk
   pinMode(18, OUTPUT);  //  Sdata
 
+  Wire.setClock(400000);
+
   mcpInitialized = true;  
 }
 
@@ -55,15 +60,7 @@ void LEDpins::begin() const {
     mcp_initialise();
 } 
 
-void LEDpins::writeDirect(uint16_t data) const {
-    mcp.writeGPIOAB(inverted  ? ~data : data);
-}
-
-void LEDpins::write(uint32_t state) const {
-  
-  uint16_t data  =  state & 0x000000FF; // only use lower 8 bits, as we only have 8 red pins and 8 IR pins
-           data |= (state & 0x00FF0000) >> 8; // mask in lower 8 bits of IR pins and shift them to upper 8 bits of output
-
+void LEDpins::write(uint16_t data) const {
   data |= dbgBits;
   mcp.writeGPIOAB(inverted  ? ~data : data);
 }
@@ -94,6 +91,8 @@ HWforState& getHWforState(StateType state) {
        return hw;
   
   stateHWs.emplace_back(state);
+  if (Ready)
+    stateHWs.back().begin();
 
   return stateHWs.back();
 }
@@ -106,11 +105,9 @@ HWforState& getHWforState(DataType& data) {
   return getHWforState(data.state);
 }
 
-
 // =====================================================================================================
 // Error handling implementation as called via ERROR macro
 // =====================================================================================================
-
 [[noreturn]] void error_impl(const char* file, int line, const char* func,
                              const char* fmt, ...)
 {
@@ -129,10 +126,11 @@ HWforState& getHWforState(DataType& data) {
         for (int i = 0; i < 50 && !Serial; ++i) delay(10); // ~500ms max
     }
 
+    
     if (mcpInitialized == false)
       mcp_initialise();
     
-    
+
     for (;;) {
       Serial.println("Error: system halted.");
       Serial.println(hdr);
@@ -145,7 +143,7 @@ HWforState& getHWforState(DataType& data) {
       Serial.flush();
 
       uint16_t bits = 0;
-      uint16_t one = 1;
+      uint16_t one  = 1;
 
       for (int i = 0; i < 16; i++) {
         bits |= one << i;

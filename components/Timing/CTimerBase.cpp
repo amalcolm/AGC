@@ -2,12 +2,11 @@
 #include "../teensy_compat.h"
 
 
-CTimerBase::CTimerBase(void(* isrHandler)()) {
+CTimerBase::CTimerBase() {
   s_instanceCount++;
   if (s_instanceCount == 1) {
     uint32_t reg = ARM_DWT_CTRL;
     ARM_DWT_CTRL = reg | ARM_DWT_CTRL_CYCCNTENA;  // Enable the counter
-    initGPT1(isrHandler);
   }
 }
 
