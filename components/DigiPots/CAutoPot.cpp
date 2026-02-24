@@ -4,10 +4,15 @@
 #include "Hardware.h"
 #include "Setup.h"
 
+static std::array<int, 48> _potValueCache = {-2};
+
 CAutoPot::CAutoPot(int csPin, int sensorPin, int samplesToAverage) {
   _csPin = csPin;
   _sensorPin = sensorPin;
   _samplesToAverage = samplesToAverage > 0 ? samplesToAverage : 1;
+
+  if (_potValueCache[0] == -2)
+    _potValueCache.fill(-1); // fill cache with invalid values
 }
 
 // The virtual destructor definition is required.
@@ -40,28 +45,23 @@ void CAutoPot::_offsetLevel(int offset) {
 }
 
 void CAutoPot::_setLevel(int newLevel) {
-  std::clamp(newLevel, 1, 254); 
 
-  _currentLevel = newLevel;
+  _currentLevel = std::clamp(newLevel, 1, 254); 
 
   _writeToPot(_currentLevel);
 }
 
-void CAutoPot::_writeToPot(uint8_t value)
-{
+void CAutoPot::_writeToPot(int value) {
   static const SPISettings settings{4'800'000, MSBFIRST, SPI_MODE0};
 
-  // Find existing entry for this CS pin (by reference)
-  auto it = std::find_if(s_currentValues.begin(), s_currentValues.end(),
-                        [this](const auto& entry) { return entry.first == _csPin; });
+  if (value < 0 || value > 255) return;
+  
+  if (_potValueCache[_csPin] == value) return; // No change — avoid redundant SPI write
+  _potValueCache[_csPin] = value; // Update cache with new value
 
-  if (it != s_currentValues.end())
-  {
-    if (it->second == value) return; // No change — avoid redundant SPI write
-    it->second = value;
-  } else {
-      s_currentValues.emplace_back(_csPin, value);       // Insert new entry
-  }
+
+  uint8_t potValue = _inverted ? static_cast<uint8_t>(255-value) 
+                               : static_cast<uint8_t>(    value);
 
   SPI.beginTransaction(settings);
   {
@@ -69,7 +69,7 @@ void CAutoPot::_writeToPot(uint8_t value)
       delayMicroseconds(5);
 
       SPI.transfer(0x00);  // Address for wiper
-      SPI.transfer(value);
+      SPI.transfer(potValue);
 
       digitalWrite(_csPin, HIGH);
       delayMicroseconds(5);

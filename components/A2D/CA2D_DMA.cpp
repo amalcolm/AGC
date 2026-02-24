@@ -27,7 +27,7 @@ DataType CA2D::getData() {
 
   if (m_mode == ModeType::TRIGGERED) {
     (void)SPI.transfer(0x12); // RDATA command
-    delayMicroseconds(2);
+    delayMicroseconds(4);
   }
 
   arm_dcache_flush(m_txBuffer, sizeof(m_txBuffer));
@@ -44,7 +44,7 @@ DataType CA2D::getData() {
   Timer.addEvent(EventKind::SPI_DMA_COMPLETE);
 
   bool badHeader = (m_frBuffer[0] & 0xF0) != 0xC0; // status[0] header nibble must be 0xC
-  bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); // Optional: reject known-bad “all zero” sample (your existing heuristic)
+  bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); //  “all zero” sample
 
    if (badHeader) LED.set(5);
    if (isZero)    LED.on (1);

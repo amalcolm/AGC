@@ -12,6 +12,12 @@
 #include "Helpers.h"
 #include "PinHelpers.h"
 
+#include <Wire.h>
+#include <Adafruit_MCP23X17.h>
+
+Adafruit_MCP23X17 mcp;  // must be declared first due to LEDpins dependency
+bool mcpInitialized = false;
+
 // =====================================================================================================
 //  Global instances of hardware components and helpers
 // =====================================================================================================
@@ -26,41 +32,33 @@ CA2D           A2D;
 CHead          Head;
 CUSB           USB;
 
-OutputPin activityLED{4};
+OutputPin activityLED(4);
 bool Ready = false;
 
 // =====================================================================================================
 //  LEDpins implementation
 // =====================================================================================================
 
-#include <Wire.h>
-#include <Adafruit_MCP23X17.h>
 
-Adafruit_MCP23X17 mcp;
-bool mcpInitialized = false;
+void mcp_initialize() {
+  if (mcpInitialized) return;
 
-void mcp_initialise() {
-  if (!mcp.begin_I2C()) 
-    while (1) { 
-      Serial.println("MCP23017 not found. Check wiring!");
-      delay(1000);
-      digitalToggle(4); 
-    }
+  if (mcp.begin_I2C() == false) ERROR("MCP23017 not found.\n");
 
-  pinMode(19, OUTPUT);  //  Sclk
-  pinMode(18, OUTPUT);  //  Sdata
-
-  Wire.setClock(400000);
+  for(int i=0; i < 16; i++){
+    mcp.pinMode(i, OUTPUT);
+    mcp.digitalWrite(i, LOW);
+  }
+//  Wire.setClock(400000);
 
   mcpInitialized = true;  
 }
 
 void LEDpins::begin() const {
-  if (!mcpInitialized)
-    mcp_initialise();
+  mcp_initialize();
 } 
 
-void LEDpins::write(uint16_t data) const {
+void LEDpins::write_raw(uint16_t data) const {
   data |= dbgBits;
   mcp.writeGPIOAB(inverted  ? ~data : data);
 }
@@ -72,8 +70,28 @@ void LEDpins::set(int pin) {
 }
 
 void LEDpins::clear(int pin) {
-  dbgBits &= ~(1u << pin);;
+  dbgBits &= ~(1u << pin);
   mcp.digitalWrite(pin, low);
+}
+
+
+void Pins::flash(int numFlashes) {
+
+  if (mcpInitialized == false)
+    mcp_initialize();
+
+  for (int i = 0; i < numFlashes; ++i) {
+
+    mcp.writeGPIOAB(0xFFFF);
+    delay(300);
+    mcp.writeGPIOAB(0x0000);
+    delay(300);
+
+  }
+
+  delay(1000);
+
+  flashReset = true;
 }
 
 
@@ -126,11 +144,8 @@ HWforState& getHWforState(DataType& data) {
         for (int i = 0; i < 50 && !Serial; ++i) delay(10); // ~500ms max
     }
 
+    mcp_initialize();
     
-    if (mcpInitialized == false)
-      mcp_initialise();
-    
-
     for (;;) {
       Serial.println("Error: system halted.");
       Serial.println(hdr);

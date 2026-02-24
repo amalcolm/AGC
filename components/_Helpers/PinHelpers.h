@@ -11,8 +11,11 @@
 
 
 class LEDpins {
+private:
+  void write_raw(uint16_t data) const;
+
 public:
-  static const bool inverted = true;
+  static const bool inverted = false;
   const int high = inverted ? LOW : HIGH;
   const int low  = inverted ? HIGH : LOW;
 
@@ -20,17 +23,18 @@ public:
 
 
   void begin() const;
-  void write(uint16_t data) const;
 
   void write(uint32_t state) const {
 
-    uint16_t output =   state & 0x000F; // only use lower 16 bits, as we only have 16 pins
-             output |= (state & 0x0F00) >> 8; // allow upper bits to set higher pins, but mask out any bits above 31
-    write(output);
+    uint16_t output =   state & 0x000000FF; // only use lower 16 bits, as we only have 16 pins
+             output |= (state & 0x00FF0000) >> 8; // allow upper bits to set higher pins, but mask out any bits above 31
+    write_raw(output);
   }
 
-  void clear() { write((uint16_t)0); }
-
+  void clear() {
+    static uint16_t empty = inverted ? 0xFFFF : 0x0000;
+    write_raw(empty);
+  }
 
   void set(int bit);
   void clear(int bit);
@@ -148,34 +152,21 @@ public:
     return pin;
   }
 
-  static void flash(int numFlashes = 3) {
-
-    for (int i = 0; i < numFlashes; ++i) {
-
-      for (int pin = 24; pin < 42; pin++) digitalWrite(pin, LOW);
-      delay(300);
-      for (int pin = 24; pin < 42; pin++) digitalWrite(pin, HIGH);
-      delay(300);
-
-    }
-
-    delay(1000);
-
-    flashReset = true;
-  }
+  static void flash(int numFlashes = 3);
   inline static bool flashReset = false;
   
 };
 
 // -- Output --------------------------------------------------------
 struct OutputPin : Pins {
-  explicit OutputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) {}
+  explicit OutputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) { begin(); }
+  explicit OutputPin(uint8_t pin) : Pins({pin}) { begin(); }
   Kind kind() const noexcept override { return Kind::Output; }
 
-  inline void begin(int mode = OUTPUT) { pinMode(_pin, mode); clear(); }
+  inline OutputPin& begin(int mode = OUTPUT) { pinMode(_pin, mode); clear(); return *this; }
   inline void write(int level) const  { digitalWrite(_pin, level); }
 
-  inline void toggle()         const  { digitalWrite(_pin, !digitalRead(_pin)); }
+  inline void toggle()         const  { digitalToggle(_pin); }
   
   inline void set()            const  { digitalWrite(_pin, _high); }
   inline void clear()          const  { digitalWrite(_pin, _low ); }

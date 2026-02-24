@@ -24,6 +24,8 @@ struct HWforState {
     offsetPot2.invert();
     gainPot.invert();
 
+    offset1_hi.begin(254);
+    offset1_lo.begin(  1);
     offsetPot1.begin(248); 
     offsetPot2.begin(120); 
     gainPot.begin(1);

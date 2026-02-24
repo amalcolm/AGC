@@ -14,6 +14,8 @@ void Hardware::begin() {
 
     // Initialize all our hardware components
     USB .begin().printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
+
+    
     BUT .begin();
     LED .begin();
     Head.begin();
@@ -21,10 +23,16 @@ void Hardware::begin() {
 
     delay(1); // Allow time for hardware to stabilize (ample)
 
-
+    
     // ensure A2D has a valid getLastDataTime();
+    digitalWrite(4, HIGH);
     while (A2D.poll() == false)
       delayMicroseconds(5);
+    
+    digitalWrite(4, LOW);
+
+  
+    A2D.setCallback(_Callback);
 
     Timer.restart();
 }

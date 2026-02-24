@@ -97,21 +97,21 @@ void CA2D::setDebugData(DataType& data) {
   auto& [state, offset1_hi, offset1_lo, offsetPot1, offsetPot2, gainPot, _] = getHWforState(data);
   
   uint32_t hi32 =
-      (offsetPot1.getLevel() << 24) 
-    | (offset1_hi.getLevel() << 16)
-    | (offset1_lo.getLevel() <<  8)
-    | (++sequenceNumber & 0xFF); 
+    ((offsetPot1.getLevel() & 0xFFu) << 24) |
+    ((offset1_hi.getLevel() & 0xFFu) << 16) |
+    ((offset1_lo.getLevel() & 0xFFu) <<  8) |
+    ((++sequenceNumber)     & 0xFFu);
 
-  uint32_t lo32 = 
-      (offsetPot2.getLevel() << 24)
-    | (gainPot   .getLevel() << 16)
-    | (0xFFFF);
+uint32_t lo32 =
+    ((offsetPot2.getLevel() & 0xFFu) << 24) |
+    ((gainPot   .getLevel() & 0xFFu) << 16) |
+    0xFFFFu;
 
-  data.hardwareState = (uint64_t(hi32) << 32) | uint64_t(lo32);;
+  data.hardwareState = (uint64_t(hi32) << 32) | uint64_t(lo32);
 
   data.sensorState =
-      (offsetPot1.lastSensorValue() << 16)
-    | (offsetPot2.lastSensorValue()      );
+    (offsetPot1.lastSensorValue() << 16) |
+    (offsetPot2.lastSensorValue()      );
 }
 
 
@@ -131,14 +131,22 @@ uint8_t CA2D::getConfig1() const {
 
 
 void CA2D::SPIwrite(std::initializer_list<uint8_t> data) {
-  static C32bitTimer spiTimer = C32bitTimer::From_uS(2);
+
+  if (data.size() == 0) return;
 
   digitalWrite(CS.A2D, LOW);
-  delayMicroseconds(5);
-  for (uint8_t b : data) {
-    spiTimer.wait();
-    SPI.transfer(b);
+  delayMicroseconds(4);
+
+  // get length from data.end() - data.begin();
+  if (data.size() == 1) {
+    SPI.transfer(*data.begin());
+  } else {
+    for (uint8_t b : data) {
+      SPI.transfer(b);
+      spiTimer.wait();
+    }
   }
+  
   delayMicroseconds(5);
   digitalWrite(CS.A2D, HIGH);
   delayMicroseconds(10);

@@ -36,13 +36,11 @@ protected:
   int _currentLevel = -1;
   int _lastSensorValue = 0;
 
-  inline static std::deque<std::pair<uint8_t, uint8_t>> s_currentValues{};
-
   bool _inverted = false;
   RunningAverageMinMax<uint16_t> _runningAverage;
 
 private:
-  void _writeToPot(uint8_t value);
+  void _writeToPot(int value);
 };
 
 // =================================================================

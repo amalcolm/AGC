@@ -1,6 +1,7 @@
 #pragma once
 #include <SPI.h>
 #include "DataTypes.h"
+#include "C32bitTimer.h"
 
 class CA2D {
   public:
@@ -13,6 +14,8 @@ class CA2D {
     SPISettings spiSettings{4'800'000, MSBFIRST, SPI_MODE1};
 
     static CA2D* Singleton;
+    static inline C32bitTimer spiTimer = C32bitTimer::From_uS(2).setPeriodic(true);
+
 
     int m_pinDataReady{9};
     volatile bool outputDebugBlock = false;
