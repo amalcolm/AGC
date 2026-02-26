@@ -56,8 +56,8 @@ void CAutoPot::_writeToPot(int value) {
 
   if (value < 0 || value > 255) return;
   
-  if (_potValueCache[_csPin] == value) return; // No change — avoid redundant SPI write
-  _potValueCache[_csPin] = value; // Update cache with new value
+//  if (_potValueCache[_csPin] == value) return; // No change — avoid redundant SPI write
+//  _potValueCache[_csPin] = value; // Update cache with new value
 
 
   uint8_t potValue = _inverted ? static_cast<uint8_t>(255-value) 
@@ -69,12 +69,11 @@ void CAutoPot::_writeToPot(int value) {
       delayMicroseconds(5);
 
       SPI.transfer(0x00);  // Address for wiper
+      delayMicroseconds(2);
       SPI.transfer(potValue);
 
       digitalWrite(_csPin, HIGH);
       delayMicroseconds(5);
   }
   SPI.endTransaction();
-
-
 }

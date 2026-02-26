@@ -74,6 +74,11 @@ void LEDpins::clear(int pin) {
   mcp.digitalWrite(pin, low);
 }
 
+void LEDpins::toggle(int pin) {
+  dbgBits ^= (1u << pin);
+  mcp.digitalWrite(pin, (dbgBits & (1u << pin)) ? high : low);
+}
+
 
 void Pins::flash(int numFlashes) {
 

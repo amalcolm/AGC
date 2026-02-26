@@ -36,11 +36,12 @@ public:
     write_raw(empty);
   }
 
-  void set(int bit);
-  void clear(int bit);
+  void set(int pin);
+  void clear(int pin);
+  void toggle(int pin);
 
-  inline void on (int bit) { set  (bit); }
-  inline void off(int bit) { clear(bit); }
+  inline void on (int pin) { set  (pin); }
+  inline void off(int pin) { clear(pin); }
 
 };
 
@@ -83,6 +84,7 @@ protected:
           else
             pinMap[iHead][pinStatic] = this;
         }
+        _pin = pinStatic;
         break;
 
       default:
@@ -159,8 +161,8 @@ public:
 
 // -- Output --------------------------------------------------------
 struct OutputPin : Pins {
-  explicit OutputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) { begin(); }
-  explicit OutputPin(uint8_t pin) : Pins({pin}) { begin(); }
+  explicit OutputPin(std::initializer_list<uint8_t> pinPerHead) : Pins(pinPerHead) { }
+  explicit OutputPin(uint8_t pin) : Pins({pin}) { begin(); }  // used for activityLED;
   Kind kind() const noexcept override { return Kind::Output; }
 
   inline OutputPin& begin(int mode = OUTPUT) { pinMode(_pin, mode); clear(); return *this; }

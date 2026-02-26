@@ -19,16 +19,13 @@ struct HWforState {
   CGainPot      gainPot   { CS.gain   , SP.postGain ,  5      };
 
   bool begun = false;
-  void begin() { 
-    offsetPot1.invert();
-    offsetPot2.invert();
-    gainPot.invert();
+  void begin() {
 
-    offset1_hi.begin(254);
-    offset1_lo.begin(  1);
-    offsetPot1.begin(248); 
-    offsetPot2.begin(120); 
-    gainPot.begin(1);
+    offset1_hi.begin(128);
+    offset1_lo.begin(255);
+    offsetPot1.begin(255); 
+    offsetPot2.begin(255); 
+    gainPot   .begin(255);
     
     begun = true;
   }

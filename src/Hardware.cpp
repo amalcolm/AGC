@@ -25,13 +25,9 @@ void Hardware::begin() {
 
     
     // ensure A2D has a valid getLastDataTime();
-    digitalWrite(4, HIGH);
     while (A2D.poll() == false)
       delayMicroseconds(5);
     
-    digitalWrite(4, LOW);
-
-  
     A2D.setCallback(_Callback);
 
     Timer.restart();
