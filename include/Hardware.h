@@ -21,11 +21,11 @@ struct HWforState {
   bool begun = false;
   void begin() {
 
-    offset1_hi.begin(128);
+    offset1_hi.begin(  0);
     offset1_lo.begin(255);
     offsetPot1.begin(255); 
     offsetPot2.begin(255); 
-    gainPot   .begin(255);
+    gainPot   .begin(  1);
     
     begun = true;
   }

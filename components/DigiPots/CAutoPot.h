@@ -47,9 +47,19 @@ private:
 class CDigiPot : public CAutoPot {
 public:
   CDigiPot(int csPin) : CAutoPot(csPin, -1, 1) {}
+  CDigiPot(int csPin, int sensorPin, int samplesToAverage) : CAutoPot(csPin, sensorPin, samplesToAverage) {}
   CDigiPot& operator=(const CDigiPot&) = default;
   void update() override { } // no update needed but override is
                              // required to be non-abstract
+  void setLevel(int level) { _setLevel(level); }
+  void offsetLevel(int offset) { _offsetLevel(offset); }
+  uint16_t readAverage(int samples = -1) { if (samples == -1) return readSensor(); 
+    int oldSamplesToAverage = _samplesToAverage;
+    _samplesToAverage = samples;
+    uint16_t average = readSensor();
+    _samplesToAverage = oldSamplesToAverage;
+    return average;
+  }
 };
 // =================================================================
 

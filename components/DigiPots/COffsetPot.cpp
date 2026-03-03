@@ -1,10 +1,11 @@
 #include "CAutoPot.h"
 #include "Setup.h"
 
+// use 490 as a centre point for the physical pot
 COffsetPot::COffsetPot(int csPin, int sensorPin, int samples, int windowSize)
   : CAutoPot(csPin, sensorPin, samples),
-   _lowThreshold(490 - windowSize), 
-  _highThreshold(490 + windowSize) {
+   _lowThreshold(512 - windowSize), 
+  _highThreshold(512 + windowSize) {
 
     _runningAverage.reset(160);
 }
@@ -14,7 +15,7 @@ void COffsetPot::update() {
 
   //  val = _runningAverage.GetAverage();
 
-  inZone = (val > _lowThreshold && val < _highThreshold);
+  inZone = (val > 100 && val < 924);
 
   if (val > _highThreshold) _offsetLevel(+1); 
   else

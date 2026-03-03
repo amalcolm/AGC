@@ -14,6 +14,7 @@ extern struct ChipSelectPins    CS;
 extern struct SensorPins        SP;
 extern struct ButtonPins        BUT;
 extern class  LEDpins           LED;
+
 extern class  CMasterTimer      Timer;
 extern class  CA2D              A2D;
 extern class  CHead             Head;

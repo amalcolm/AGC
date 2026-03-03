@@ -25,7 +25,7 @@ class CUSB : public CSerialWrapper {
     }
     
     inline void buffer(DataType    data     ) { m_dataBuffer.write(data); }
-    inline void buffer(BlockType*  block   ) { m_pBlock = block; }
+    inline void buffer(BlockType*  block    ) { m_pBlock = block; }
     inline void buffer(CTelemetry* telemetry) { m_telemetryBuffer.write(telemetry); }
     
     void update() { 
@@ -41,6 +41,13 @@ class CUSB : public CSerialWrapper {
       m_byteBuffer.clear();
       m_dataBuffer.clear();
       m_telemetryBuffer.clear();
+    }
+
+    inline void waitForHandshake() {
+      while (!m_handshakeComplete) {
+        update();
+        yield();
+      }
     }
 
     static void SendCrashReport(CrashReportClass& pReport);

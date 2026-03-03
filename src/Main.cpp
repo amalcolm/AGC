@@ -6,7 +6,7 @@
 #include "Config.h"
 
 
-void setup() {
+void _setup() {
   activityLED.set();
 
   Hardware::begin();
@@ -26,7 +26,7 @@ void setup() {
 }
 
 
-void loop() {
+void _loop() {
 
   Head.setNextState();              // Set the LEDs for the next state
 

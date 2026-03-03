@@ -19,7 +19,7 @@ public:
     inline static constexpr bool     A2D_USE_CONTINUOUS_MODE =  false;  // use continuous A2D mode; else triggered mode with interrupts
     inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz   =  2'000;  // A2D sampling speed set in CONFIG1 register
 
-    inline static constexpr uint32_t A2D_READING_PERIOD_uS   =  1'080;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
+    inline static constexpr uint32_t A2D_READING_PERIOD_uS   =  1'111;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
  
 
     // program constants

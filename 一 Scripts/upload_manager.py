@@ -30,7 +30,6 @@ def send_udp_message(message):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(bytes(message, "ascii"), (UDP_IP, UDP_PORT))
-        print(f"PlatformIO: Sent '{message}' command to plotter.")
     except Exception as e:
         print(f"PlatformIO: Could not send UDP message.  Error: {e}")
 

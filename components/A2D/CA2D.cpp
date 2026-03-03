@@ -71,7 +71,6 @@ bool CA2D::poll() {
 
   bool result = true;
 
-
   if (m_ReadState != ReadState::IDLE) {
      DataType data = getData();
      if (m_mode == ModeType::CONTINUOUS) data.stateTime = m_dataStateTime;
