@@ -56,6 +56,10 @@ void mcp_initialize() {
 
 void LEDpins::begin() const {
   mcp_initialize();
+  for (int i = 24; i < 42; i++) {
+    pinMode(i, OUTPUT);
+    digitalWrite(i, high);
+  }
 } 
 
 void LEDpins::write_raw(uint16_t data) const {

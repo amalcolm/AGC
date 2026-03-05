@@ -9,11 +9,11 @@ class CUSB : public CSerialWrapper {
     static constexpr size_t  DATATYPE_BUFFER_SIZE =   64;  // holds data for buffer(dataType); (write) (64 * sizeof(DataType) = 1.5KB)
     static constexpr size_t TELEMETRY_BUFFER_SIZE =  128;  // holds pointers to CTelemetry items to write
 
-    BufferType<uint8_t>   m_byteBuffer = BufferType<uint8_t >(    BYTE_BUFFER_SIZE);
-    BufferType<DataType>  m_dataBuffer = BufferType<DataType>(DATATYPE_BUFFER_SIZE);
+    CBufferType<uint8_t>   m_byteBuffer = CBufferType<uint8_t >(    BYTE_BUFFER_SIZE);
+    CBufferType<DataType>  m_dataBuffer = CBufferType<DataType>(DATATYPE_BUFFER_SIZE);
     BlockType* m_pBlock     = nullptr;  // single block is buffered, (see implementation in CA2D - swapps between two blocks)
     
-    BufferType<CTelemetry*> m_telemetryBuffer = BufferType<CTelemetry*>(TELEMETRY_BUFFER_SIZE);  // stores pointers, not actual items
+    CBufferType<CTelemetry*> m_telemetryBuffer = CBufferType<CTelemetry*>(TELEMETRY_BUFFER_SIZE);  // stores pointers, not actual items
 
   public:
     CUSB() {};

@@ -4,22 +4,29 @@
 
 
 void CUSB::do_read() {
-  const size_t nBytesToRead = min(Serial.available(), static_cast<size_t>(BYTE_BUFFER_SIZE));
-  return;  // Disabled for now
+  uint32_t nAvailable = Serial.available();
+  if (nAvailable == 0) return;
+
+  if (m_handshakeComplete == false) {
+    doHandshake();
+    return;
+  }
+
+  uint32_t nBytesToRead = std::min(nAvailable, static_cast<uint32_t>(m_byteBuffer.available()));
+
   size_t numRead = 0;
   while (numRead < nBytesToRead) {
     auto [pBuffer, nChunk] = m_byteBuffer.getWriteChunk();
     if (nChunk == 0) break;  // buffer full
 
-    size_t nBytes = std::min(nChunk, nBytesToRead - numRead);
-
+    size_t nBytes = min(nChunk, nBytesToRead - numRead);
 
     int readBytes = Serial.readBytes(reinterpret_cast<char*>(pBuffer), nBytes);
     m_byteBuffer.commitWrite(readBytes);
 
-    if (readBytes < nBytes) break;  // issues on the serial port
+//    if (readBytes < nBytes) break;  // issues on the serial port
 
-    numRead += static_cast<size_t>(readBytes);
+    numRead += readBytes;
   }
 
 }

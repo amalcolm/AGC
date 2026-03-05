@@ -1,7 +1,7 @@
 #pragma once
 
 template<typename T>
-struct BufferType {
+struct CBufferType {
   private:
     size_t size = 0;
   
@@ -12,16 +12,16 @@ struct BufferType {
     volatile size_t writeIndex = 0;
     volatile size_t readIndex  = 0;
 
-    explicit BufferType(size_t bufferSize) {
+    explicit CBufferType(size_t bufferSize) {
       bufferSize = max(bufferSize, static_cast<size_t>(2));
       size = bufferSize;
       data = new T[size];
     }
 
-    ~BufferType() { delete[] data; }
+    ~CBufferType() { delete[] data; }
 
-    BufferType(const BufferType&) = delete;
-    BufferType& operator=(const BufferType&) = delete;
+    CBufferType(const CBufferType&) = delete;
+    CBufferType& operator=(const CBufferType&) = delete;
 
     bool isEmpty() const { return writeIndex == readIndex; }
     bool isFull()  const { return ((writeIndex + 1) % size) == readIndex; }

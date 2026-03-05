@@ -12,18 +12,19 @@
 void Hardware::begin() {
     SPI .begin();  // initialise SPI
 
-    // Initialize all our hardware components
-    USB .begin().printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
-
-    
+    // initialize buttons and LEDs
     BUT .begin();
     LED .begin();
+
+    // Initialize USB
+    USB .begin().printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
+
+    // Initialize hardware components
     Head.begin();
     A2D .begin();
 
     delay(1); // Allow time for hardware to stabilize (ample)
 
-    
     // ensure A2D has a valid getLastDataTime();
     while (A2D.poll() == false)
       delayMicroseconds(5);

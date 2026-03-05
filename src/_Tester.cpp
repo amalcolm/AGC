@@ -13,13 +13,20 @@ CDigiPot tia_pot     (CS.offset1, SP. preGain, 10);
 CDigiPot opamp_offset(CS.offset2, SP.postGain, 10);
 CDigiPot opamp_gain  (CS.gain,    SP.postGain, 10);
 
+COffsetPot offsetPot1(CS.offset1, SP. preGain, 10, 100);
+COffsetPot offsetPot2(CS.offset2, SP.postGain, 10, 300);
+CGainPot   gainPot   (CS.gain,    SP.postGain, 10);
+
+bool useHelpers = true; 
+
 BlockType dbgBlock1;
 BlockType dbgBlock2;
 
 void setup() {
   activityLED.set();
 
-  Hardware::begin();
+  Hardware::begin();                                         //  int n = 0; while (1) { n = (n + 1) % 3; for (int i = 0; i < 3; i++) digitalWrite(i+37, n==i ? LOW : HIGH); delay(500);}
+
 
   tia_Upper.begin(128);
   tia_Lower.begin(255);
@@ -41,10 +48,11 @@ void loop() {
   static BlockType* dbgBlock = &dbgBlock1;
   constexpr int NUM_DATA_IN_BLOCK = 8;
 
-  while (!Serial) yield(); // wait for Serial to be ready before outputting debug info
   USB.update();
   USB.waitForHandshake();
 
+  uint16_t tia_value;
+  uint16_t opamp_val;
 
   Timer.state.reset();
 
@@ -52,29 +60,41 @@ void loop() {
 
     TT_pots.start();
 
-    uint16_t tia_value = tia_pot.readAverage();
-    bool tia_inZone;
-    bool opamp_inZone;
+    if (useHelpers) {
+      offsetPot1.update();
+      if (offsetPot1.inZone)
+        offsetPot2.update();
+  //    if (offsetPot2.inZone)
+  //      gainPot.update();
 
-    if (tia_value > 612) tia_pot.offsetLevel( 1);
-    if (tia_value < 412) tia_pot.offsetLevel(-1);
+        tia_value = offsetPot1.lastSensorValue();
+    }
+    else 
+    {
+      tia_value = tia_pot.readAverage();
+      bool tia_inZone;
+      bool opamp_inZone;
 
-    tia_inZone = tia_value > 100 && tia_value < 924;
-    
-    if (tia_inZone) {
-      uint16_t opamp_value = opamp_offset.readAverage();
+      if (tia_value > 612) tia_pot.offsetLevel( 1);
+      if (tia_value < 412) tia_pot.offsetLevel(-1);
 
-      if (opamp_value > 812) opamp_offset.offsetLevel( 1);
-      if (opamp_value < 212) opamp_offset.offsetLevel(-1);
+      tia_inZone = tia_value > 100 && tia_value < 924;
+      
+      if (tia_inZone) {
+        uint16_t opamp_value = opamp_offset.readAverage();
 
-      opamp_inZone = opamp_value > 100 && opamp_value < 924;
+        if (opamp_value > 812) opamp_offset.offsetLevel( 1);
+        if (opamp_value < 212) opamp_offset.offsetLevel(-1);
+
+        opamp_inZone = opamp_value > 100 && opamp_value < 924;
+      }
+
+      TT_pots.stop();
+      // ignoring gain for now
+
     }
 
-    TT_pots.stop();
-    // ignoring gain for now
-
-    uint16_t opamp_val = opamp_offset.readAverage(20);
-
+          opamp_val = opamp_offset.readAverage(20);
 
     static uint8_t seq = 0;
 
