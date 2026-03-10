@@ -6,8 +6,6 @@
 #include "CA2DTimer.h"
 #include "Config.h"
 
-CA2D* CA2D::Singleton = nullptr;
-
 const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup = {{
     {16000, 0x90}, { 8000, 0x91}, { 4000, 0x92}, { 2000, 0x93},
     { 1000, 0x94}, {  500, 0x95}, {  250, 0x96}, {  125, 0x97}
@@ -15,9 +13,7 @@ const std::array<std::pair<uint32_t, uint8_t>, 8> SpeedLookup = {{
 
 CA2D::CA2D() {
   m_mode = CFG::A2D_USE_CONTINUOUS_MODE ? ModeType::CONTINUOUS : ModeType::TRIGGERED;
-  
-  if (Singleton) { USB.printf("*** A2D: Single continuous instance only."); return; }
-  Singleton = this;
+  m_ReadState = ReadState::IDLE;
 }
 
 void CA2D::begin() {
@@ -35,40 +31,50 @@ void CA2D::begin() {
   m_BlockA.clear();
   m_BlockB.clear();
 
-  NVIC_SET_PRIORITY(IRQ_GPIO1_0_15, 32);  // raise priority of GPIO1 interrupts
+  NVIC_SET_PRIORITY(IRQ_GPIO2_0_15, 1);  // raise priority of GPIO1 interrupts
 
   // attach the dataReadyPin to the interrupt handler, fires on falling edge (when ADS has data ready)
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
 }
 
+CTeleCounter TC_Interrupts{TeleGroup::A2D, 0};
+CTeleValue   TV_InterruptCount(TeleGroup::A2D, 9);
+volatile uint32_t interruptCount = 0;
 void CA2D::ISR_Data() {
   uint32_t now = ARM_DWT_CYCCNT; 
-
-  Singleton->m_dataStateTime = Timer.getStateTime(now);
-  Singleton->m_dataReady = true;
+  A2D.m_dataStateTime = Timer.getStateTime(now);
+  A2D.m_dataReady = true;
   
   Timer.A2D.setDataReady(now);
+  TC_Interrupts.increment();
+  interruptCount++;
+  
+  delayMicroseconds(4); // ensure we meet timing requirements for CS hold time and data ready setup time before exiting ISR
 }
 
 
 
-void CA2D::waitForNextDataReady() const {
-  while (!m_dataReady) {
+void CA2D::waitForNextDataReady() {
+  while (!m_dataReady)
     yield();
-  }
+
+  poll();
 }
 
-
+CTeleCounter TC_Poll{TeleGroup::A2D, 1};
+CTeleCounter TC_Read(TeleGroup::A2D, 2);
 bool CA2D::poll() {
   double start = Timer.getStateTime();
+  TC_Poll.increment();
 
   switch (m_mode) {
-    case ModeType::CONTINUOUS: if (!m_dataReady       ) { yield(); return false; }       break;
+    case ModeType::CONTINUOUS: if (!m_dataReady       ) { TV_InterruptCount.set(interruptCount);  yield(); return false; }       break;
     case ModeType::TRIGGERED:  if (Timer.A2D.waiting()) { yield(); return false; }       break;
     default: return false;
   }
   m_dataReady = false;  // reset flag
-
+  TC_Read.increment();
+  
   bool result = true;
 
   if (m_ReadState != ReadState::IDLE) {

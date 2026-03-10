@@ -12,12 +12,13 @@
 void Hardware::begin() {
     SPI .begin();  // initialise SPI
 
+    // Initialize USB
+    USB .begin().printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
+
+
     // initialize buttons and LEDs
     BUT .begin();
     LED .begin();
-
-    // Initialize USB
-    USB .begin().printf("CPU Frequency: %.0f Mhz\r\n", F_CPU / 1000000.0f);
 
     // Initialize hardware components
     Head.begin();
@@ -26,8 +27,8 @@ void Hardware::begin() {
     delay(1); // Allow time for hardware to stabilize (ample)
 
     // ensure A2D has a valid getLastDataTime();
-    while (A2D.poll() == false)
-      delayMicroseconds(5);
+ //   while (A2D.poll() == false)
+ //     delayMicroseconds(1);
     
     A2D.setCallback(_Callback);
 
@@ -59,7 +60,7 @@ struct S_Type  { bool setTimer = false; int numUpdates = 0;
   }
 } S;  // S == instance of StateType
 
-  static double STATE_DURATION = CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
+static double STATE_DURATION = CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
 
 bool Hardware::canUpdate() {
 
@@ -70,13 +71,13 @@ double lastMark = 0.0;
 void Hardware::update() {
 
   TP_Update.measure();
-  TC_Update.increment();
   TV_maxDur.set(_maxHWdur * 1'000'000.0); // in microseconds
 
-    if (Timer.getStateTime() > STATE_DURATION * 3/4) { yield(); return; } // timer not ready yet
+//    if (Timer.getStateTime() > STATE_DURATION * 3/4) { yield(); return; } // timer not ready yet
 
-  if (A2D.poll() == false) { yield(); return; }
-
+  TC_Update.increment();
+if (A2D.poll() == false) { yield(); return; }
+  
   if (S.setTimer == false) { // if we have a new A2D reading and haven't set the timer for this update cycle
       lastMark = Timer.getConnectTime();
       Timer.HW.reset();
@@ -84,7 +85,6 @@ void Hardware::update() {
       S.CalcNumUpdates();
   }
 
-  S.numUpdates = 1;
   while (S.numUpdates-- > 0) {
   
     double updateStart = Timer.getStateTime();

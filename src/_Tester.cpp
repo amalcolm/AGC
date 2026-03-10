@@ -17,12 +17,12 @@ COffsetPot offsetPot1(CS.offset1, SP. preGain, 10, 100);
 COffsetPot offsetPot2(CS.offset2, SP.postGain, 10, 300);
 CGainPot   gainPot   (CS.gain,    SP.postGain, 10);
 
-bool useHelpers = true; 
+bool useHelpers = false; 
 
 BlockType dbgBlock1;
 BlockType dbgBlock2;
 
-void setup() {
+void _setup() {
   activityLED.set();
 
   Hardware::begin();                                         //  int n = 0; while (1) { n = (n + 1) % 3; for (int i = 0; i < 3; i++) digitalWrite(i+37, n==i ? LOW : HIGH); delay(500);}
@@ -44,9 +44,15 @@ void setup() {
 
 CTeleTimer TT_pots{TeleGroup::DIGIPOTS, 0x01};
 
-void loop() {
+uint32_t count = 0;
+void _loop() {
   static BlockType* dbgBlock = &dbgBlock1;
   constexpr int NUM_DATA_IN_BLOCK = 8;
+
+  LED.write(count++); // toggle LED to indicate loop is running
+
+  delay(10);
+  return;
 
   USB.update();
   USB.waitForHandshake();
@@ -61,13 +67,17 @@ void loop() {
     TT_pots.start();
 
     if (useHelpers) {
-      offsetPot1.update();
-      if (offsetPot1.inZone)
-        offsetPot2.update();
-  //    if (offsetPot2.inZone)
-  //      gainPot.update();
 
+      offsetPot1.update();
+
+      if (offsetPot1.inZone) offsetPot2.update();
+//    if (offsetPot2.inZone)   gainPot .update();
+
+        tia_pot = offsetPot1.getLevel();
         tia_value = offsetPot1.lastSensorValue();
+
+        opamp_offset = offsetPot2.getLevel();
+        opamp_val = offsetPot2.lastSensorValue();
     }
     else 
     {
@@ -89,10 +99,12 @@ void loop() {
         opamp_inZone = opamp_value > 100 && opamp_value < 924;
       }
 
-      TT_pots.stop();
-      // ignoring gain for now
+      if (opamp_inZone) {
+      // ignoring gain for now 8        
+      }
 
     }
+    TT_pots.stop();
 
           opamp_val = opamp_offset.readAverage(20);
 

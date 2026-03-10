@@ -46,13 +46,13 @@ void CAutoPot::_offsetLevel(int offset) {
 
 void CAutoPot::_setLevel(int newLevel) {
 
-  _currentLevel = std::clamp(newLevel, 1, 254); 
+  _currentLevel = std::clamp(newLevel, 0, 255); 
 
   _writeToPot(_currentLevel);
 }
 
 void CAutoPot::_writeToPot(int value) {
-  static const SPISettings settings{4'800'000, MSBFIRST, SPI_MODE0};
+  static const SPISettings settings{8'000'000, MSBFIRST, SPI_MODE0};
 
   if (value < 0 || value > 255) return;
   
@@ -66,14 +66,13 @@ void CAutoPot::_writeToPot(int value) {
   SPI.beginTransaction(settings);
   {
       digitalWrite(_csPin, LOW);
-      delayMicroseconds(5);
+      delayMicroseconds(2);
 
       SPI.transfer(0x00);  // Address for wiper
-      delayMicroseconds(2);
       SPI.transfer(potValue);
 
       digitalWrite(_csPin, HIGH);
-      delayMicroseconds(5);
+      delayMicroseconds(2);
   }
   SPI.endTransaction();
 }

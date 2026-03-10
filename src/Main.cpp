@@ -6,7 +6,7 @@
 #include "Config.h"
 
 
-void _setup() {
+void setup() {
   activityLED.set();
 
   Hardware::begin();
@@ -26,7 +26,7 @@ void _setup() {
 }
 
 
-void _loop() {
+void loop() {
 
   Head.setNextState();              // Set the LEDs for the next state
 
@@ -37,8 +37,10 @@ void _loop() {
   while (Hardware::canUpdate())     // Loop until state duration has elapsed
     Hardware::update();             //   Update hardware components
 
-
   CTelemetry::logAll();             // Log all counter telemetry
 
+  
+  Timer.A2D.wait();
+  
   activityLED.toggle();             // Indicate activity on LED
 }

@@ -13,7 +13,6 @@ class CA2D {
 
     SPISettings spiSettings{4'800'000, MSBFIRST, SPI_MODE1};
 
-    static CA2D* Singleton;
     static inline C32bitTimer spiTimer = C32bitTimer::From_uS(2).setPeriodic(true);
 
 
@@ -31,7 +30,7 @@ class CA2D {
 
     DataType  getData();
 
-    void      waitForNextDataReady() const;
+    void      waitForNextDataReady();
 
     void      setBlockState(StateType state);
 

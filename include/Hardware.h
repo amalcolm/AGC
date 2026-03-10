@@ -14,18 +14,22 @@ struct HWforState {
 
   CDigiPot      offset1_hi{ CS.offset1Upper};
   CDigiPot      offset1_lo{ CS.offset1Lower};
-  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  5, 280 };
-  COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  5, 280 };
-  CGainPot      gainPot   { CS.gain   , SP.postGain ,  5      };
+  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  2, 280 };
+  COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  2, 280 };
+  CGainPot      gainPot   { CS.gain   , SP.postGain ,  2      };
 
   bool begun = false;
   void begin() {
+    offset1_hi.invert();
+    offset1_lo.invert();
+    gainPot   .invert();
 
-    offset1_hi.begin(  0);
-    offset1_lo.begin(255);
-    offsetPot1.begin(255); 
-    offsetPot2.begin(255); 
-    gainPot   .begin(  1);
+    offset1_hi.begin( 20);
+    offset1_lo.begin( 16);
+
+    offsetPot1.begin(128); 
+    offsetPot2.begin(128); 
+    gainPot   .begin(  0);
     
     begun = true;
   }
