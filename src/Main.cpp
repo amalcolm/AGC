@@ -17,7 +17,7 @@ void setup() {
 //  zTest.FullTest,                 // Can use predefined sequences from ZTests.h
 //  Head.RED1 | Head.IR1,           // use OR ( | ) to combine LEDs
     
-    Head.RED8,
+    Head.RED1, 
 });
 
 
@@ -32,7 +32,7 @@ void loop() {
 
   USB.update();                     // Output previous block, and give time for system to settle
 
-  Head.waitForReady();              // Wait until Head is ready before starting A2D read
+  Head.waitForReady();              // Wait until Head is ready AND sets A2D to start reading
 
   while (Hardware::canUpdate())     // Loop until state duration has elapsed
     Hardware::update();             //   Update hardware components

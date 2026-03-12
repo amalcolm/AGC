@@ -35,7 +35,7 @@ DataType CA2D::getData() {
 
   Timer.addEvent(EventKind::SPI_DMA_START);
 
-  SPI.transfer(m_txBuffer, m_rxBuffer, 32, s_spiEvent);
+  SPI.transfer(m_txBuffer, m_rxBuffer, 27, s_spiEvent);
 
   setDebugData(data);
 
@@ -46,8 +46,8 @@ DataType CA2D::getData() {
   bool badHeader = (m_frBuffer[0] & 0xF0) != 0xC0; // status[0] header nibble must be 0xC
   bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); //  “all zero” sample
 
-   if (badHeader) LED.set(5);
-   if (isZero)    LED.on (1);
+   if (badHeader) LED.set(15);
+   if (isZero)    LED.on (14);
 
    if (badHeader) {
      data.state = DIRTY;
@@ -56,9 +56,8 @@ DataType CA2D::getData() {
 
   const uint8_t* p = &m_frBuffer[3]; // skip status
   for (int ch=0; ch<8; ++ch) {
-    int32_t val = be24_to_s32(p[0], p[1], p[2]);
+    data.channels[ch] = be24_to_s32(p[0], p[1], p[2]);
     p += 3;
-    data.channels[ch] = val;
   }
   return data;
 }

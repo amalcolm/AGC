@@ -1,4 +1,6 @@
 #pragma once
+#include <tuple>
+#include <utility>
 #include "Setup.h"
 #include "CA2D.h"
 #include "CAutoPot.h"
@@ -8,56 +10,49 @@
 #include "Config.h"
 
 struct HWforState {
-  StateType state;
-  
-  HWforState(StateType state) : state(state) {}
-
-  CDigiPot      offset1_hi{ CS.offset1Upper};
-  CDigiPot      offset1_lo{ CS.offset1Lower};
-  COffsetPot    offsetPot1{ CS.offset1, SP.preGain  ,  2, 280 };
-  COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  2, 280 };
-  CGainPot      gainPot   { CS.gain   , SP.postGain ,  2      };
-
-  bool begun = false;
-  void begin() {
-    offset1_hi.invert();
-    offset1_lo.invert();
-    gainPot   .invert();
-
-    offset1_hi.begin( 20);
-    offset1_lo.begin( 16);
-
-    offsetPot1.begin(128); 
-    offsetPot2.begin(128); 
-    gainPot   .begin(  0);
+  public:
+    StateType state;
     
-    begun = true;
-  }
+    HWforState(StateType state) : state(state) {}
 
-  // write current state of hardware instances to hardware devices
-  void set() { if (!Ready) return; else if (!begun) begin(); // ensure begin is called before first use, but only once
-    offset1_hi.writeCurrentToPot();
-    offset1_lo.writeCurrentToPot();
-    offsetPot1.writeCurrentToPot();
-    offsetPot2.writeCurrentToPot();
-    gainPot   .writeCurrentToPot();
-  }
+    C3Pot         TIA{CS.TIA_TOP, CS.TIA_BOT, CS.TIA_MID, SP.preGain};
+    COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  2, 280 };
+    CGainPot      gainPot   { CS.gain   , SP.postGain ,  2      };
 
-  // update hardware instances based on current sensor readings, and write to hardware if needed
-  void update() { if (!Ready) return; else if (!begun) begin();
+    bool begun = false;
+    void begin() {
+      gainPot   .invert();
 
-    Timer.addEvent(EventKind::HW_UPDATE_START);
-    offsetPot1.update();
+      TIA.begin();
 
-    if (offsetPot1.inZone)
-      offsetPot2.update();
+      offsetPot2.begin(128); 
+      gainPot   .begin(  0);
+      
+      begun = true;
+    }
 
-    if (offsetPot2.inZone)
-      gainPot.update();
+    // write current state of hardware instances to hardware devices
+    void set() { if (!Ready) return; else if (!begun) begin(); // ensure begin is called before first use, but only once
+      TIA.writeCurrentToPot();
+      offsetPot2.writeCurrentToPot();
+      gainPot   .writeCurrentToPot();
+    }
 
-    Timer.addEvent(EventKind::HW_UPDATE_COMPLETE);
-  }
-  
+    // update hardware instances based on current sensor readings, and write to hardware if needed
+    void update() { if (!Ready) return; else if (!begun) begin();
+
+      Timer.addEvent(EventKind::HW_UPDATE_START);
+      TIA.update();
+
+      if (TIA.inZone)
+        offsetPot2.update();
+
+      if (offsetPot2.inZone)
+        gainPot.update();
+
+      Timer.addEvent(EventKind::HW_UPDATE_COMPLETE);
+    }
+
 };
 
 struct Hardware {

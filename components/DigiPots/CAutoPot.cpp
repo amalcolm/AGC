@@ -24,17 +24,37 @@ void CAutoPot::begin(int initialLevel) {
   reset(initialLevel);
 }
 
-void    CAutoPot::reset(int level) { _setLevel(level);        }
-void    CAutoPot::invert()         { _inverted = !_inverted;  }
+void    CAutoPot::reset(int level) { _setLevel(level);                   }
+void    CAutoPot::invert()         { _inverted       = !_inverted;       }
+void    CAutoPot::invertSensor()   { _invertedSensor = !_invertedSensor; }
 
+CAutoPot::Zone CAutoPot::_checkZone() {
+ static constexpr int       DEADZONE = 64;
+
+ static constexpr int  LOW_THRESHOLD =        DEADZONE;
+ static constexpr int HIGH_THRESHOLD = 1023 - DEADZONE;
+
+ Zone newZone;
+
+ if (_lastSensorValue <  LOW_THRESHOLD) newZone = Zone::Low;
+ else
+ if (_lastSensorValue > HIGH_THRESHOLD) newZone = Zone::High;
+ else
+   newZone = Zone::inZone;
+
+ inZone = (newZone == Zone::inZone);
+ return newZone;
+}
 
 uint16_t CAutoPot::readSensor() {  if (_sensorPin < 0) return 0; // No sensor pin defined
-  int32_t totalValue = 0;
+  int totalValue = 0;
   for (int i = 0; i < _samplesToAverage; i++)
-    totalValue += analogRead(_sensorPin);
+      totalValue += analogRead(_sensorPin);
+
+  if (_invertedSensor)
+      totalValue = (_samplesToAverage * 1023) - totalValue;
 
   _lastSensorValue = totalValue / _samplesToAverage;
-
   _runningAverage.add(_lastSensorValue);
 
   return static_cast<uint16_t>(_lastSensorValue);

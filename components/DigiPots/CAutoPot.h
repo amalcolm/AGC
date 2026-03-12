@@ -6,13 +6,16 @@
 class CAutoPot {
 public:
   bool inZone = false;
+  enum class Zone { Low = -1, inZone = 0, High = +1, Placeholder = 255} ;
+  Zone zone = Zone::Placeholder;
 
   CAutoPot(int csPin, int sensorPin, int samplesToAverage);
   virtual ~CAutoPot(); // Needed to call destructor of subclass
 
-  void begin(int initialLevel = 127);
+  void begin(int initialLevel = 128);
   void reset(int level);
   void invert();
+  void invertSensor();
   virtual void update() = 0; // must be overridden
 
   uint16_t   readSensor();
@@ -27,8 +30,10 @@ public:
 
 
 protected:
-  void     _offsetLevel(int offset);
-  void     _setLevel(int newLevel);
+  void   _offsetLevel(int offset);
+  void   _setLevel(int newLevel);
+  Zone   _checkZone();
+
 
   int _csPin; 
   int _sensorPin;
@@ -37,6 +42,7 @@ protected:
   int _lastSensorValue = 0;
 
   bool _inverted = false;
+  bool _invertedSensor = false;
   RunningAverageMinMax<uint16_t> _runningAverage;
 
 private:
@@ -82,7 +88,7 @@ public:
   void update() override;
 };
 
-
+#include "3Pot/C3Pot.h"
 
 static_assert(std::is_copy_constructible_v<COffsetPot>);
 static_assert(std::is_copy_constructible_v<CGainPot  >);

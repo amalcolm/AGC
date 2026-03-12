@@ -45,12 +45,12 @@ struct S_Type  { bool setTimer = false; int numUpdates = 0;
     
   
   void CalcNumUpdates() {
-    static const double STATE_DURATION     =  CFG::STATE_DURATION_uS    / 1'000'000.0; // convert to seconds
-    static const double POT_OFFSET_DURATION = CFG::POT_UPDATE_OFFSET_uS / 1'000'000.0;
+    static const double STATE_DURATION     =  CFG::STATE_DURATION_uS  / 1'000'000.0; // convert to seconds
+    static const double A2D_QUIET_PERIOD   = CFG::A2D_QUIET_PERIOD_uS / 1'000'000.0;
 
     double remainingInState = STATE_DURATION - Timer.getStateTime();
     double remainingToNextA2D = Timer.A2D.getRemaining_S();
-    double usable = std::min(remainingInState, remainingToNextA2D) - POT_OFFSET_DURATION;
+    double usable = std::min(remainingInState, remainingToNextA2D) - A2D_QUIET_PERIOD;
     if (usable <= 0)  { numUpdates = 0; return; } // We don't have any time left before the next A2D read
 
     if (_maxHWdur == 0) 
@@ -85,6 +85,7 @@ if (A2D.poll() == false) { yield(); return; }
       S.CalcNumUpdates();
   }
 
+  S.numUpdates = 1;
   while (S.numUpdates-- > 0) {
   
     double updateStart = Timer.getStateTime();

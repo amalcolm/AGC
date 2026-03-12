@@ -8,7 +8,7 @@ public:
     inline static constexpr bool TESTMODE = false;  // if true, call the _Callback(BlockType) by default, for debugging
 
     // hardware timing constants (in microseconds / hertz)
-    inline static constexpr uint32_t STATE_DURATION_uS       = 3'000;  // time for each state. loop will be slightly longer than this
+    inline static constexpr uint32_t STATE_DURATION_uS       =  3'000;  // time for each state. loop will be slightly longer than this
 
     inline static constexpr uint32_t HEAD_SETTLE_TIME_uS     =      0;  // delay between Head change and first A2D read
     
@@ -16,11 +16,13 @@ public:
 
     
     // A2D configuration
-    inline static constexpr bool     A2D_USE_CONTINUOUS_MODE =  false ;  // use continuous A2D mode; else triggered mode with interrupts
+    inline static constexpr bool     A2D_USE_CONTINUOUS_MODE =  false;  // use continuous A2D mode; needs dataready
     inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz   =  2'000;  // A2D sampling speed set in CONFIG1 register
 
     inline static constexpr uint32_t A2D_READING_PERIOD_uS   =  1'111;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
  
+    inline static constexpr uint32_t A2D_QUIET_PERIOD_uS     =    180;  // experimental quiet time befor reading
+
 
     // program constants
     inline static constexpr uint32_t MAX_BLOCKSIZE           =    164;  // max number of DataType entries in a BlockType
