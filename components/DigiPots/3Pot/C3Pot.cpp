@@ -24,19 +24,16 @@ void C3Pot::update() {
   for (int i = HISTORY_SIZE - 1; i > 0; --i) history[i] = history[i - 1];
   history[0] = state;
   
-  readSensor();
-  zone = _checkZone();
+  readSensor();  zone = _checkZone();
 
-  switch (phase) 
-  {
-    case Phase::INIT   : doInit();    break;
-    case Phase::ZOOM   : doZoom();    break;
-    case Phase::NORMAL : doNormal();  break;
-    case Phase::BACKOFF: doBackoff(); break;
+  updateHILO();
 
-    default: break;
+
+  if (phase == Phase::NORMAL) {
+//    readSensor();  zone = _checkZone();
+ 
+      fineTuning();
   }
-
 
   state.phase    = phase;
   state.sensor   = lastSensorValue();
@@ -56,8 +53,11 @@ void C3Pot::update() {
     if (dbgBuffer.isEmpty() == false) {
       State dbgState;
       dbgBuffer.read(dbgState);
-      USB.printf("Phase: %d, Sensor: %4d, Top: %3d, Mid: %3d, Bot: %3d\r\n", 
-        static_cast<int>(dbgState.phase), dbgState.sensor, dbgState.topLevel, dbgState.midLevel, dbgState.botLevel);
+
+      const char* phaseNames[] = {"INIT", "ZOOM", "NORMAL", "BACKOFF", "placeholder"};
+
+      USB.printf("Phase: %s, Sensor: %4d, Top: %3d, Mid: %3d, Bot: %3d\r\n", 
+        phaseNames[static_cast<int>(dbgState.phase)], dbgState.sensor, dbgState.topLevel, dbgState.midLevel, dbgState.botLevel);
     }
 
   }

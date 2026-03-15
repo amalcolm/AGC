@@ -68,10 +68,11 @@ bool CA2D::poll() {
   TC_Poll.increment();
 
   switch (m_mode) {
-    case ModeType::CONTINUOUS: if (!m_dataReady       ) { TV_InterruptCount.set(interruptCount);  yield(); return false; }       break;
-    case ModeType::TRIGGERED:  if (Timer.A2D.waiting()) { yield(); return false; }       break;
+    case ModeType::CONTINUOUS: if (!m_dataReady       ) { TV_InterruptCount.set(interruptCount);  yield(); return false; } break;
+    case ModeType::TRIGGERED:  if (Timer.A2D.waiting()) { TV_InterruptCount.set(interruptCount);  yield(); return false; } break;
     default: return false;
   }
+  
   m_dataReady = false;  // reset flag
   TC_Read.increment();
   

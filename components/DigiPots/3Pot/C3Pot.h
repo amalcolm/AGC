@@ -6,7 +6,7 @@ class C3Pot : public CAutoPot {
   public:
     enum class Phase { INIT = 0, ZOOM = 1, NORMAL = 2, BACKOFF = 3, placeholder = 255} phase = Phase::INIT;
     static constexpr int HISTORY_SIZE = 4;
-    static constexpr int GAP_NORMAL = 16;
+    static constexpr int GAP_NORMAL   = 4;
 
     C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin);
 
@@ -15,6 +15,8 @@ class C3Pot : public CAutoPot {
     CAutoPot& mid; // also the CAutoPot instance
 
     bool inZone = false;
+
+    bool lockPhase = false; 
 
     struct State {
       Phase       phase = Phase::placeholder;
@@ -38,10 +40,7 @@ class C3Pot : public CAutoPot {
 
     void update();
 
-
-    void doInit();
-    void doZoom();
-    void doNormal();
-    void doBackoff();
+    void updateHILO(); 
+    void fineTuning();
 
 };
