@@ -1,18 +1,18 @@
 #pragma once
 #include "CAutoPot.h"
 
-class C3Pot : public CAutoPot {
+class C3Pot : public CDigiPot {
 
   public:
     enum class Phase { INIT = 0, ZOOM = 1, NORMAL = 2, BACKOFF = 3, placeholder = 255} phase = Phase::INIT;
     static constexpr int HISTORY_SIZE = 4;
-    static constexpr int GAP_NORMAL   = 4;
+    static constexpr int GAP_NORMAL   = 2;
 
     C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin);
 
     CDigiPot  top;
     CDigiPot  bot;
-    CAutoPot& mid; // also the CAutoPot instance
+    CDigiPot& mid; // also the CAutoPot instance
 
     bool inZone = false;
 
@@ -31,11 +31,11 @@ class C3Pot : public CAutoPot {
     void begin(int initialLevel = 128) {
       top.invert();
       bot.invert();
-      invertSensor();
+      mid.invertSensor();
 
       top.begin(256);
       bot.begin(  0);
-      CAutoPot::begin(initialLevel); // mid
+      mid.begin(initialLevel);
     }
 
     void update();

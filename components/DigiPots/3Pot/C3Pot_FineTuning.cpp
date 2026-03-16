@@ -1,31 +1,40 @@
 #include "C3Pot.h"
+#include "CUSB.h"
 
 int k = 0; // for testing
 int centreTop = 0;
 int centreBot = 0;
+int centreMid = 0;
 void C3Pot::fineTuning() {
-  static int DEADBAND = 40;
+  static constexpr int SENSOR_DEADBAND = 3;
+  static constexpr int SENSOR_LOW      = 512 - SENSOR_DEADBAND;
+  static constexpr int SENSOR_HIGH     = 512 + SENSOR_DEADBAND;
 
-  if (lockPhase) {
-    k++;  if (k > 1) k = 0;
+  static constexpr int MID_STEP = 150;
 
-    top.setLevel(centreTop + k);
-    bot.setLevel(centreBot - k);
+  static constexpr int WIPER_LOW  = (256 - MID_STEP) / 2;
+  static constexpr int WIPER_HIGH =  256 - WIPER_LOW;
+
+  int direction = 0;
+  int wiperLevel = mid.getLevel();
+
+  if (wiperLevel < WIPER_LOW ) direction = +1;
+  else
+  if (wiperLevel > WIPER_HIGH) direction = -1;
+
+  if (direction != 0) {
+    top.offsetLevel(direction);
+    bot.offsetLevel(direction);
+    mid.offsetLevel(direction * MID_STEP);
     return;
   }
 
   
   int sensorValue = lastSensorValue();
-  int direction = 0;
 
-  if (sensorValue < 512 - DEADBAND) direction = +1;
+  if (sensorValue < SENSOR_LOW ) mid.offsetLevel(+1);
   else  
-  if (sensorValue > 512 + DEADBAND) direction = -1;
+  if (sensorValue > SENSOR_HIGH) mid.offsetLevel(-1);
+
   
-  lockPhase = (direction == 0);
-  if (lockPhase) { centreTop = top.getLevel(); centreBot = bot.getLevel(); return; }
-
-  _offsetLevel(direction);
-
-
 }

@@ -49,8 +49,8 @@ void C3Pot::updateHILO() {
       switch (zone) {
         case Zone::inZone: phase = Phase::ZOOM;  return;
         default: 
-          bot.offsetLevel(-1);
           top.offsetLevel(+1);
+          bot.offsetLevel(-1);
           break;  
       }
       break;

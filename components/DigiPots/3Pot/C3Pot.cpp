@@ -1,14 +1,13 @@
 #include "C3Pot.h"
 #include "CTelemetry.h"
 #include "C32bitTimer.h"
-#include "Setup.h" 
 #include "CUSB.h"
 #include "CBuffer.h"
 
 C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin) 
-      : CAutoPot(csPinMid, sensorPin, 2)  // pas CSmid to CAutoPot constructor
+      : CDigiPot(csPinMid, sensorPin, 2)  // pas CSmid to CAutoPot constructor
       , top(csPinTop), bot(csPinBot)
-      , mid(static_cast<CAutoPot&>(*this)) {
+      , mid(static_cast<CDigiPot&>(*this)) {
 
   for (int i = 0; i < HISTORY_SIZE; ++i)
     history[i] = state;

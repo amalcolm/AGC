@@ -62,3 +62,5 @@ class CUSB : public CSerialWrapper {
     void do_write_Telemetry();
     
 };
+
+extern CUSB USB;
