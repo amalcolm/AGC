@@ -17,11 +17,11 @@ public:
     
     // A2D configuration
     inline static constexpr bool     A2D_USE_CONTINUOUS_MODE =  false;  // use continuous A2D mode; needs dataready
-    inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz   =  4'000;  // A2D sampling speed set in CONFIG1 register
+    inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz   =  8'000;  // A2D sampling speed set in CONFIG1 register
 
-    inline static constexpr uint32_t A2D_READING_PERIOD_uS   =    560;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
+    inline static constexpr uint32_t A2D_READING_PERIOD_uS   =    350;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
  
-    inline static constexpr uint32_t A2D_QUIET_PERIOD_uS     =    180;  // experimental quiet time befor reading
+    inline static constexpr uint32_t A2D_QUIET_PERIOD_uS     =      0;  // experimental quiet time befor reading
 
 
     // program constants

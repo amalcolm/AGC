@@ -3,7 +3,7 @@
 #include "C32bitTimer.h"
 #include "CUSB.h"
 #include "CBuffer.h"
-
+#include <tuple>
 C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin) 
       : CDigiPot(csPinMid, sensorPin, 2)  // pas CSmid to CAutoPot constructor
       , top(csPinTop), bot(csPinBot)
@@ -14,7 +14,18 @@ C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin)
 }
 
 C32bitTimer ti_Output = C32bitTimer::From_Hz(100).setPeriodic(true); // 100 Hz output timer for telemetry and debugging
-CBufferType<C3Pot::State> dbgBuffer(32); // Circular buffer to hold the history of states
+using DebugPair = std::pair<C3Pot::State, C3Pot::State>; // current state and previous state for debugging
+CBufferType<DebugPair> dbgBuffer(32); // Circular buffer to hold the history of states
+
+void outputState(DebugPair* pPair) {
+  static const char* phaseNames[] = {"INIT         ", "ZOOM     ", "NORMAL  ", "BACKOFF", "placeholder"};
+
+  USB.printf("Phase: %s->%s, Sensor: %4d->%4d, Top: %3d->%3d,  Bot: %3d->%3d\r\n", 
+      phaseNames[static_cast<int>(pPair->first.phase)], phaseNames[static_cast<int>(pPair->second.phase)],
+      pPair->first.sensor, pPair->second.sensor,
+      pPair->first.topLevel, pPair->second.topLevel,
+      pPair->first.botLevel, pPair->second.botLevel);
+}
 
 C3Pot::Phase lastPhase = C3Pot::Phase::placeholder;
 
@@ -42,22 +53,21 @@ void C3Pot::update() {
 
   if (lastPhase != phase) {
     lastPhase = phase;
-    dbgBuffer.write(state); 
+
+    if (dbgBuffer.isFull()) {
+      ti_Output.wait();
+
+      outputState(dbgBuffer.read());
+    }
+    dbgBuffer.write({state, history[0]});
   }
 
 
 
   if (ti_Output.passed()) {
 
-    if (dbgBuffer.isEmpty() == false) {
-      State dbgState;
-      dbgBuffer.read(dbgState);
-
-      const char* phaseNames[] = {"INIT", "ZOOM", "NORMAL", "BACKOFF", "placeholder"};
-
-      USB.printf("Phase: %s, Sensor: %4d, Top: %3d, Mid: %3d, Bot: %3d\r\n", 
-        phaseNames[static_cast<int>(dbgState.phase)], dbgState.sensor, dbgState.topLevel, dbgState.midLevel, dbgState.botLevel);
-    }
+    if (dbgBuffer.isEmpty() == false)
+      outputState(dbgBuffer.read());
 
   }
 };

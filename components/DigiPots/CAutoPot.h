@@ -8,6 +8,10 @@ public:
   bool inZone = false;
   enum class Zone { Low = -1, inZone = 0, High = +1, Placeholder = 255} ;
   Zone zone = Zone::Placeholder;
+  static constexpr int SENSOR_MIDPOINT = 512;
+  static constexpr int POT_MIN = 0;
+  static constexpr int POT_MAX = 255;
+  static constexpr int POT_MIDPOINT = (POT_MAX + POT_MIN) / 2;
 
   CAutoPot(int csPin, int sensorPin, int samplesToAverage);
   virtual ~CAutoPot(); // Needed to call destructor of subclass

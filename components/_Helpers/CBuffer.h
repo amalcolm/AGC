@@ -32,6 +32,8 @@ struct CBufferType {
         return size - (readIndex - writeIndex);
     }
 
+    size_t free() const { return capacity() - available(); }
+
     bool write(const T& item) {
       const size_t wi = writeIndex;  // make atomic (single CPU operation), so should be ISR safe
       const size_t next = (wi + 1) % size;    if (next == readIndex) return false;     // full
