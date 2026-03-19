@@ -4,7 +4,10 @@
 class C3Pot : public CDigiPot {
 
   public:
-    enum class Phase { INIT = 0, ZOOM = 1, NORMAL = 2, BACKOFF = 3, placeholder = 255} phase = Phase::INIT;
+    enum class Phase { SEARCH = 0, NORMAL = 1, BACKOFF = 2, placeholder = 255} phase = Phase::placeholder;
+
+    static constexpr int DIGIPOT_MAX_FOR_PHOTODIODE = 48; // Photodiode has max of 0.6v whereas pots have max of 3.3v, hence max for top is (CAutoPot::POT_MAX * 0.6 / 3.3); around 48;
+
     static constexpr int HISTORY_SIZE = 4;
     static constexpr int GAP_NORMAL   = 2;
 
@@ -15,8 +18,6 @@ class C3Pot : public CDigiPot {
     CDigiPot& mid; // also the CAutoPot instance
 
     bool inZone = false;
-
-    bool lockPhase = false; 
 
     struct State {
       Phase       phase = Phase::placeholder;
@@ -33,14 +34,16 @@ class C3Pot : public CDigiPot {
       bot.invert();
       mid.invertSensor();
 
-      top.begin(256);
-      bot.begin(  0);
+      top.begin(DIGIPOT_MAX_FOR_PHOTODIODE);
+      bot.begin(CAutoPot::POT_MIN);
       mid.begin(initialLevel);
     }
 
     void update();
 
-    void updateHILO(); 
+    void findSignal(); 
     void fineTuning();
 
+
+    void printDebug(bool signalFound);
 };

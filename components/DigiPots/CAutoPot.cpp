@@ -57,6 +57,8 @@ uint16_t CAutoPot::readSensor() {  if (_sensorPin < 0) return 0; // No sensor pi
   _lastSensorValue = totalValue / _samplesToAverage;
   _runningAverage.add(_lastSensorValue);
 
+  zone = _checkZone();
+
   return static_cast<uint16_t>(_lastSensorValue);
 }
 

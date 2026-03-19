@@ -5,6 +5,7 @@
 #include "CUSB.h"
 #include "CHead.h"
 #include "Config.h"
+#include "Hardware.h"
 
 static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 
@@ -43,6 +44,25 @@ void DataType::writeSerial(bool includeFrameMarkers) {
   if (includeFrameMarkers) USB.write(FRAME_END);
 }
 
+void DataType::fillFromHardware(struct HWforState& HW) {
+  static uint8_t seq = 0;
+  state = HW.state;
+
+  timestamp = Timer.getConnectTime();
+  stateTime = Timer.getStateTime();
+
+  hardwareState =
+    (uint64_t(HW.TIA.mid.getLevel() & 0xFFu) << 56) |
+    (uint64_t(HW.TIA.top.getLevel() & 0xFFu) << 48) |
+    (uint64_t(HW.TIA.bot.getLevel() & 0xFFu) << 40) |
+    (uint64_t(++seq)                         << 32) |
+    (uint64_t(HW.offsetPot2.getLevel() & 0xFFu) << 24) |
+    (uint64_t(HW.gainPot   .getLevel() & 0xFFu) << 16) | 
+    (0xFFFFu);
+
+  sensorState = (uint32_t(HW.TIA.lastSensorValue()) << 16) | uint32_t(HW.offsetPot2.lastSensorValue());
+  memset(&channels[0], 0, CHANNELS_BYTESIZE);
+}
 
 
 

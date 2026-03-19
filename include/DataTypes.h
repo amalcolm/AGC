@@ -29,6 +29,8 @@ struct DataType {
 
   void writeSerial(bool includeFrameMarkers = true);
   void debugSerial();
+
+  void fillFromHardware(struct HWforState& HW);
 };
 
 struct BlockType {

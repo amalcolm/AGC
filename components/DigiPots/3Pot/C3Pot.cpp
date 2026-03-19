@@ -11,38 +11,22 @@ C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin)
 
   for (int i = 0; i < HISTORY_SIZE; ++i)
     history[i] = state;
+
+  phase = Phase::SEARCH;
 }
 
-C32bitTimer ti_Output = C32bitTimer::From_Hz(100).setPeriodic(true); // 100 Hz output timer for telemetry and debugging
-using DebugPair = std::pair<C3Pot::State, C3Pot::State>; // current state and previous state for debugging
-CBufferType<DebugPair> dbgBuffer(32); // Circular buffer to hold the history of states
-
-void outputState(DebugPair* pPair) {
-  static const char* phaseNames[] = {"INIT         ", "ZOOM     ", "NORMAL  ", "BACKOFF", "placeholder"};
-
-  USB.printf("Phase: %s->%s, Sensor: %4d->%4d, Top: %3d->%3d,  Bot: %3d->%3d\r\n", 
-      phaseNames[static_cast<int>(pPair->first.phase)], phaseNames[static_cast<int>(pPair->second.phase)],
-      pPair->first.sensor, pPair->second.sensor,
-      pPair->first.topLevel, pPair->second.topLevel,
-      pPair->first.botLevel, pPair->second.botLevel);
-}
-
-C3Pot::Phase lastPhase = C3Pot::Phase::placeholder;
 
 void C3Pot::update() {
 
   for (int i = HISTORY_SIZE - 1; i > 0; --i) history[i] = history[i - 1];
   history[0] = state;
-  
+
   readSensor();  zone = _checkZone();
 
-  updateHILO();
-
-
-  if (phase == Phase::NORMAL) {
-//    readSensor();  zone = _checkZone();
- 
-      fineTuning();
+  switch (phase) {
+    case Phase::SEARCH: findSignal(); break;
+    case Phase::NORMAL: fineTuning(); break;
+    default: break;
   }
 
   state.phase    = phase;
@@ -51,25 +35,12 @@ void C3Pot::update() {
   state.botLevel = bot.getLevel();
   state.midLevel = mid.getLevel();
 
-  if (lastPhase != phase) {
-    lastPhase = phase;
-
-    if (dbgBuffer.isFull()) {
-      ti_Output.wait();
-
-      outputState(dbgBuffer.read());
-    }
-    dbgBuffer.write({state, history[0]});
-  }
-
-
-
-  if (ti_Output.passed()) {
-
-    if (dbgBuffer.isEmpty() == false)
-      outputState(dbgBuffer.read());
-
-  }
 };
 
+void C3Pot::printDebug(bool signalFound) {
+     int zoneValue = (zone == Zone::Low) ? 200 : (zone == Zone::High) ? 254 : 225;
+ 
+    USB.printf("signal:%d\tzone:%d\tsensor:%d\ttop:%d\tbot:%d\tmid:%d\tmin:0\tmax:256\n",
+       signalFound ? 199 : 150, zoneValue, lastSensorValue()/4, top.getLevel(), bot.getLevel(), mid.getLevel());
 
+}
