@@ -11,8 +11,8 @@ void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || bl
   A2D.outputDebugBlock = false; 
   if (A2D.outputDebugBlock) return;   // If so, skip rest of function
 
-  // get hardware for the block's state                                                                 // avoid warnings on unused variables
-  auto& [state, offset1_hi, offset1_lo, offsetPot1, offsetPot2, gainPot, _] = getHWforState(block);     IGNORE(state); IGNORE(_);
+  // get hardware for the block's state
+  auto& [state, TIA, offsetPot2, gainPot, _] = getHWforState(block);
 
   // get the last data point in the block
   DataType& data = block->data[block->count - 1];  
@@ -20,11 +20,11 @@ void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || bl
   // Output debug info to Serial
 
   USB.printf(     "A2D:%d"       , data.channels[0]);
-  USB.printf(  "\t Sensor1:%d"   , offsetPot1.readSensor());
-  USB.printf(  "\t Sensor2:%d"   , offsetPot2.readSensor());
-  USB.printf(  "\t offset1_hi:%d", offset1_hi.getLevel());
-  USB.printf(  "\t offset1_lo:%d", offset1_lo.getLevel());
-  USB.printf(  "\t offset1:%d"   , offsetPot1.getLevel());
+  USB.printf(  "\t TIA:%d"       , TIA.mid.lastSensorValue());
+  USB.printf(  "\t OpAmp:%d"     , offsetPot2.lastSensorValue());
+  USB.printf(  "\t TIA_TOP:%d"   , TIA.top.getLevel());
+  USB.printf(  "\t TIA_BOT:%d"   , TIA.bot.getLevel());
+  USB.printf(  "\t TIA_MID:%d"   , TIA.mid.getLevel());
   USB.printf(  "\t offset2:%d"   , offsetPot2.getLevel());
   USB.printf(  "\t Gain:%d"      ,    gainPot.getLevel());
   USB.printf(  "\t Min:%d"       , offsetPot2.getRunningAverage().getMin());

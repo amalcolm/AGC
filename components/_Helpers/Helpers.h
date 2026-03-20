@@ -5,6 +5,7 @@
 #define IGNORE(x) (void)(x)
 
 // Returns the hardware struct for a given state
+struct HWforState& getHWforState(StateType state);
 struct HWforState& getHWforState(DataType& data);  // must also include Hardware.h
 struct HWforState& getHWforState(BlockType* block = nullptr);
 

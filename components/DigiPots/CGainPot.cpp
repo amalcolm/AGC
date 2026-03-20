@@ -4,11 +4,9 @@ CGainPot::CGainPot(int csPin, int sensorPin, int samples)
   : CAutoPot(csPin, sensorPin, samples) {}
 
 void CGainPot::update() {
-  readSensor();
-  _setLevel(1);
   
-return;
-
+  readSensor();
+  
   bool invalidHigh = _lastSensorValue >= 924;
   bool invalidLow  = _lastSensorValue <= 100;
 

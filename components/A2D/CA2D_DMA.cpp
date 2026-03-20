@@ -23,7 +23,7 @@ DataType CA2D::getData() {
   s_dmaActive = true;
 
   SPI.beginTransaction(spiSettings);
-  digitalWriteFast(CS.A2D, LOW);
+  digitalWrite(CS.A2D, LOW);
 
   if (m_mode == ModeType::TRIGGERED) {
     (void)SPI.transfer(0x12); // RDATA command
@@ -39,7 +39,7 @@ DataType CA2D::getData() {
 
   setDebugData(data);
 
-  while (s_dmaActive) yield(); // wait for DMA complete (CS raised in callback)
+  while (s_dmaActive) yield(); // wait for DMA complete (CS.A2D raised in callback)
 
   Timer.addEvent(EventKind::SPI_DMA_COMPLETE);
 
@@ -69,7 +69,7 @@ void CA2D::onSpiDmaComplete(EventResponderRef)
     arm_dcache_delete( m_rxBuffer, sizeof(m_rxBuffer));
     memcpy(m_frBuffer, m_rxBuffer, sizeof(m_rxBuffer));
 
-    digitalWriteFast(CS.A2D, HIGH);
+    digitalWrite(CS.A2D, HIGH);
     SPI.endTransaction();
 
     s_dmaActive = false;

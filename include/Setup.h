@@ -21,14 +21,14 @@ extern class  CUSB              USB;
 
 
 struct ChipSelectPins {
-  static constexpr int offset1Upper = 17;
-  static constexpr int offset1Lower = 16;
-  static constexpr int offset1      = 23;
+  static constexpr int TIA_TOP = 17;
+  static constexpr int TIA_BOT = 16;
+  static constexpr int TIA_MID = 23;
 
-  static constexpr int offset2      = 21;
-  static constexpr int gain         = 22;
+  static constexpr int offset2 = 21;
+  static constexpr int gain    = 22;
   
-  static constexpr int A2D          = 20;
+  static constexpr int A2D     = 20;
 };
 
 struct SensorPins {

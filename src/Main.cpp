@@ -7,7 +7,6 @@
 
 
 void setup() {
-  pinMode(4, OUTPUT);
   activityLED.set();
 
   Hardware::begin();
@@ -15,10 +14,10 @@ void setup() {
   
   Head.setSequence( {
 //  Head.RED8, Head.IR8             // States defined in CHead.h, alse includes ALL_ON / ALL_OFF
-//  zTest.FullTest,                // Can use predefined sequences from ZTests.h
+//  zTest.FullTest,                 // Can use predefined sequences from ZTests.h
 //  Head.RED1 | Head.IR1,           // use OR ( | ) to combine LEDs
     
-    Head.RED8, 
+    Head.RED8, Head.IR8,
 });
 
 
@@ -29,7 +28,6 @@ void setup() {
 
 void loop() {
 
-
   Head.setNextState();              // Set the LEDs for the next state
 
   USB.update();                     // Output previous block, and give time for system to settle
@@ -37,12 +35,10 @@ void loop() {
   Head.waitForReady();              // Wait until Head is ready before starting A2D read
 
   while (Hardware::canUpdate())     // Loop until state duration has elapsed
-    Hardware::update();              //   Update hardware components
+    Hardware::update();             //   Update hardware components
 
 
   CTelemetry::logAll();             // Log all counter telemetry
 
-  pinMode(24, OUTPUT);                // Ensure pin 4 is set to output mode (in case it was changed by a peripheral)
-//  activityLED.toggle();             // Indicate activity on LED
-  digitalToggle(24);
+  activityLED.toggle();             // Indicate activity on LED
 }
