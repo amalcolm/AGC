@@ -34,8 +34,15 @@ public:
 
 
 protected:
-  void   _offsetLevel(int offset);
-  void   _setLevel(int newLevel);
+
+  inline void _setLevel(int newLevel) {
+    _currentLevel = std::clamp(newLevel, POT_MIN, POT_MAX); 
+    _writeToPot(_currentLevel);
+  }
+
+  inline void _offsetLevel(int offset) { _setLevel(_currentLevel + offset); }
+
+
   Zone   _checkZone();
 
 

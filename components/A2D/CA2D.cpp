@@ -37,8 +37,6 @@ void CA2D::begin() {
   attachInterrupt(digitalPinToInterrupt(m_pinDataReady), CA2D::ISR_Data, FALLING);
 }
 
-CTeleCounter TC_Interrupts{TeleGroup::A2D, 0};
-CTeleValue   TV_InterruptCount(TeleGroup::A2D, 9);
 volatile uint32_t interruptCount = 0;
 void CA2D::ISR_Data() {
   uint32_t now = ARM_DWT_CYCCNT; 
@@ -46,7 +44,6 @@ void CA2D::ISR_Data() {
   A2D.m_dataReady = true;
   
   Timer.A2D.setDataReady(now);
-  TC_Interrupts.increment();
   interruptCount++;
   
   delayMicroseconds(4); // ensure we meet timing requirements for CS hold time and data ready setup time before exiting ISR
@@ -63,15 +60,18 @@ void CA2D::waitForNextDataReady() {
 
 CTeleCounter TC_Poll{TeleGroup::A2D, 1};
 CTeleCounter TC_Read(TeleGroup::A2D, 2);
+CTeleTimer TT_PollWait(TeleGroup::A2D, 30);
 bool CA2D::poll() {
   double start = Timer.getStateTime();
   TC_Poll.increment();
 
+  TT_PollWait.start();
   switch (m_mode) {
-    case ModeType::CONTINUOUS: if (!m_dataReady       ) { TV_InterruptCount.set(interruptCount);  yield(); return false; } break;
-    case ModeType::TRIGGERED:  if (Timer.A2D.waiting()) { TV_InterruptCount.set(interruptCount);  yield(); return false; } break;
+    case ModeType::CONTINUOUS: if (!m_dataReady       ) return false; else break;
+    case ModeType::TRIGGERED:  if (Timer.A2D.waiting()) return false; else break;
     default: return false;
   }
+  TT_PollWait.stop();
   
   m_dataReady = false;  // reset flag
   TC_Read.increment();

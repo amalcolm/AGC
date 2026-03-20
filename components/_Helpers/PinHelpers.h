@@ -11,8 +11,6 @@
 
 
 class LEDpins {
-private:
-  void write_raw(uint16_t data) const;
 
 public:
   static const bool inverted = false;
@@ -24,7 +22,9 @@ public:
 
   void begin() const;
 
-  void write(uint32_t state) const {
+  void write(int pin, bool value);
+
+  void writeState(uint32_t state) const {
 
     uint16_t output =   state & 0x000000FF; // only use lower 16 bits, as we only have 16 pins
              output |= (state & 0x00FF0000) >> 8; // allow upper bits to set higher pins, but mask out any bits above 31
@@ -36,6 +36,7 @@ public:
     write_raw(empty);
   }
 
+
   void set(int pin);
   void clear(int pin);
   void toggle(int pin);
@@ -43,6 +44,8 @@ public:
   inline void on (int pin) { set  (pin); }
   inline void off(int pin) { clear(pin); }
 
+private:
+  void write_raw(uint16_t data) const;
 };
 
 // -- Base ----------------------------------------------------------

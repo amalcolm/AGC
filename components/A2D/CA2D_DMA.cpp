@@ -14,6 +14,8 @@ void CA2D::init_DMA() {
 }
 
 DataType CA2D::getData() {
+  static bool lastBadHeader = false;
+  static bool lastIsZero = false;
 
   if (s_dmaActive) return DataType(DIRTY);
 
@@ -46,8 +48,8 @@ DataType CA2D::getData() {
   bool badHeader = (m_frBuffer[0] & 0xF0) != 0xC0; // status[0] header nibble must be 0xC
   bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); //  “all zero” sample
 
-   if (badHeader) LED.set(15);
-   if (isZero)    LED.on (14);
+   if (badHeader != lastBadHeader) LED.write(15, lastBadHeader = badHeader);
+   if (isZero    != lastIsZero   ) LED.write(14, lastIsZero    = isZero   );
 
    if (badHeader) {
      data.state = DIRTY;

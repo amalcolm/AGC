@@ -11,6 +11,9 @@ void C3Pot::fineTuning() {
   static constexpr int WIPER_LOW  = (CAutoPot::POT_MIDPOINT - MID_STEP/2) / 2;
   static constexpr int WIPER_HIGH = 255 - WIPER_LOW;
 
+
+  if (zone != Zone::inZone) { phase = Phase::SEARCH; return; }
+
   int direction = 0;
   int wiperLevel = mid.getLevel();
 

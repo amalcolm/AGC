@@ -67,6 +67,13 @@ void LEDpins::write_raw(uint16_t data) const {
   mcp.writeGPIOAB(inverted  ? ~data : data);
 }
 
+ void LEDpins::write(int pin, bool value) {
+  if (value) 
+    set(pin);
+  else 
+    clear(pin);
+}
+
 
 void LEDpins::set(int pin) {
   dbgBits |= (1u << pin);

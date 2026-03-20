@@ -50,7 +50,7 @@ void C3Pot::findSignal()
         break;
     }
 
-    delayMicroseconds(100); // signalFound ? 500 : 50 );
+    delayMicroseconds(5); // signalFound ? 500 : 50 );
     dataNum++;
   }
 
@@ -68,23 +68,15 @@ void C3Pot::findSignal()
       break;
 
     mid.offsetLevel( -HILO );
-    delayMicroseconds(100);
+    delayMicroseconds(5);
   }
 
   if (delta < lastDelta)  // if we just crossed over the optimal point, step back
   { 
     mid.offsetLevel( +HILO );
-    delayMicroseconds(100);
+    delayMicroseconds(5);
     readSensor();
   }
 
-  printDebug(false);
-
-
-  for (int i = 0; i < 2; i++) {
-    readSensor();
-    delayMicroseconds(100);
-    printDebug(true);
-  }
-  
+  phase = Phase::NORMAL;
 }

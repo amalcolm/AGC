@@ -24,7 +24,7 @@ void CHead::waitForReady() const {
 
   A2D.setReadState(CA2D::ReadState::PREPARE);
  
-  while (Timer.Head.waiting()) A2D.poll();
+  while (Timer.A2D.waiting()) A2D.poll();
  
   A2D.setReadState(CA2D::ReadState::READ); // clear dataReady to ensure fresh read on next A2D read
  }
@@ -50,7 +50,7 @@ StateType CHead::setNextState() {
   if (!diff && !reset) return m_State;
   m_State = newState;
 
-  LED.write(newState);
+  LED.writeState(newState);
 
   getHWforState().set();            // Apply hardware settings (digipots) for new state
 

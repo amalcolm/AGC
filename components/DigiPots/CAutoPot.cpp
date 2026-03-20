@@ -62,24 +62,13 @@ uint16_t CAutoPot::readSensor() {  if (_sensorPin < 0) return 0; // No sensor pi
   return static_cast<uint16_t>(_lastSensorValue);
 }
 
-void CAutoPot::_offsetLevel(int offset) {
-  _setLevel(_currentLevel + offset);
-}
-
-void CAutoPot::_setLevel(int newLevel) {
-
-  _currentLevel = std::clamp(newLevel, 0, 255); 
-
-  _writeToPot(_currentLevel);
-}
-
 void CAutoPot::_writeToPot(int value) {
   static const SPISettings settings{8'000'000, MSBFIRST, SPI_MODE0};
 
   if (value < 0 || value > 255) return;
   
-//  if (_potValueCache[_csPin] == value) return; // No change — avoid redundant SPI write
-//  _potValueCache[_csPin] = value; // Update cache with new value
+  if (_potValueCache[_csPin] == value) return; // No change — avoid redundant SPI write
+  _potValueCache[_csPin] = value; // Update cache with new value
 
 
   uint8_t potValue = _inverted ? static_cast<uint8_t>(255-value) 

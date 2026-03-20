@@ -10,7 +10,7 @@
 BlockType dbgBlock1;
 BlockType dbgBlock2;
 
-void setup() {
+void _setup() {
   activityLED.set();
 
   Hardware::begin(); 
@@ -25,7 +25,7 @@ void setup() {
 
 
 uint32_t count = 0;
-void loop() {
+void _loop() {
   static BlockType* dbgBlock = &dbgBlock1;
 
   auto [state, TIA, offsetPot2, gainPot, _] = getHWforState(Head.RED1);
