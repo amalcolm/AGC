@@ -147,6 +147,7 @@ void CA2D::SPIwrite(std::initializer_list<uint8_t> data) {
   if (data.size() == 1) {
     SPI.transfer(*data.begin());
   } else {
+    spiTimer.reset();  // 2uS between bytes needed for ADS1299
     for (uint8_t b : data) {
       SPI.transfer(b);
       spiTimer.wait();
@@ -162,18 +163,18 @@ void CA2D::SPIwrite(std::initializer_list<uint8_t> data) {
 
 
 
-void CA2D::setBlockState(StateType state) {
-  m_pBlockToFill->state = state;
+void CA2D::swapBlocks(StateType state) {
   noInterrupts();
   {
     std::swap(m_pBlockToSend, m_pBlockToFill);
   }
   interrupts();
 
-  m_pBlockToFill->timestamp = Timer.getConnectTime();
   m_pBlockToFill->clear();
+  m_pBlockToFill->state = state;
+  m_pBlockToFill->timestamp = Timer.getConnectTime();
 
-  USB.buffer(m_pBlockToSend);
+  USB.buffer(m_pBlockToSend); // qaueue the block we just filled to be sent over USB
 
-  if (m_fnCallback) m_fnCallback(m_pBlockToSend);
+  if (m_fnCallback) m_fnCallback(m_pBlockToSend);   // if the callback is set, call it with the filled block (for testing/debugging)
 }

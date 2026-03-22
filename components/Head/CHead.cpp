@@ -30,31 +30,30 @@ void CHead::waitForReady() const {
  }
 
 StateType CHead::setNextState() {
-  Timer.markStateChange(); // inform timer of state change for stateTime tracking
+  Timer.syncAndChangeState(); // wait on state timer, then align timers to the state change marker
 
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
   if (reset) Pins::flashReset = false; // only use FlashReset once, and set it at start
   
   const StateType oldState = reset ? UNSET : m_State;
 
-  A2D.setBlockState(oldState);  // set the current block (the one which has been filled) to the old state
-                                // this also swaps the block and sets the filled block to be sent to USB
-
   m_sequencePosition = (m_sequencePosition + 1) % m_sequence.size();
 
   const StateType newState = m_sequence[m_sequencePosition];
 
-  StateType diff = (newState ^ oldState) & VALIDBITS;
+  A2D.swapBlocks(newState);  // this swaps the A2D double buffer and sends the previous block to the output buffer
 
+  StateType diff = (newState ^ oldState) & VALIDBITS;  // non-zero if any difference between the states
 
   if (!diff && !reset) return m_State;
+
   m_State = newState;
 
   LED.writeState(newState);
 
   getHWforState().set();            // Apply hardware settings (digipots) for new state
 
-   return m_State;
+  return m_State;
 }
 
 void CHead::clear() {

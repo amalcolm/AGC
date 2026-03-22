@@ -16,8 +16,8 @@ struct HWforState {
     HWforState(StateType state) : state(state) {}
 
     C3Pot         TIA{CS.TIA_TOP, CS.TIA_BOT, CS.TIA_MID, SP.preGain};
-    COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  2, 280 };
-    CGainPot      gainPot   { CS.gain   , SP.postGain ,  2      };
+    COffsetPot    offsetPot2{ CS.offset2, SP.postGain ,  2, 400 };   // 280 normal
+    CGainPot      gainPot   { CS.gain   , SP.postGain ,  2, 400 };   // 100 normal };
 
     bool begun = false;
     void begin() {

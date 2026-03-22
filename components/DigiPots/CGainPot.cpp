@@ -1,19 +1,19 @@
 #include "CAutoPot.h"
 
-CGainPot::CGainPot(int csPin, int sensorPin, int samples)
-  : CAutoPot(csPin, sensorPin, samples) {}
+CGainPot::CGainPot(int csPin, int sensorPin, int samples, int windowSize)
+  : CAutoPot(csPin, sensorPin, samples) {
+   _lowThreshold = SENSOR_MIDPOINT - windowSize;
+  _highThreshold = SENSOR_MIDPOINT + windowSize;
+  }
 
 void CGainPot::update() {
   
   readSensor();
   
-  bool invalidHigh = _lastSensorValue >= 924;
-  bool invalidLow  = _lastSensorValue <= 100;
+  bool boostSignal = (_lastSensorValue >= _lowThreshold && _lastSensorValue <= _highThreshold);
 
-  bool boostSignal = (_lastSensorValue >= 412 && _lastSensorValue <= 812);
-
-  if (invalidHigh || invalidLow) _offsetLevel(-1);
+  if (zone != Zone::inZone) _offsetLevel(-1);
   else
-  if (boostSignal              ) _offsetLevel(+1);
+  if (boostSignal         ) _offsetLevel(+1);
 
 }

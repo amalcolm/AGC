@@ -29,6 +29,7 @@ struct DataType {
 
   void writeSerial(bool includeFrameMarkers = true);
   void debugSerial();
+  inline void clear() { *this = DataType(); }
 
   void fillFromHardware(struct HWforState& HW);
 };
@@ -51,7 +52,7 @@ struct BlockType {
   BlockType();
 
   void clear();
-
+  
   inline bool tryAdd(const DataType& item) { if (count >= CFG::MAX_BLOCKSIZE) return false;
                                              if (item.state == DIRTY)         return false; // don't add dirty data to block
     data[count++] = item;

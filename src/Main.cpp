@@ -17,7 +17,7 @@ void setup() {
 //  zTest.FullTest,                 // Can use predefined sequences from ZTests.h
 //  Head.RED1 | Head.IR1,           // use OR ( | ) to combine LEDs
     
-    Head.RED1, Head.IR1 
+    Head.RED8, Head.IR8, 
 });
 
 
@@ -40,7 +40,6 @@ void loop() {
   CTelemetry::logAll();             // Log all counter telemetry
 
   
-  Timer.A2D.wait();
-  
+ 
   activityLED.toggle();             // Indicate activity on LED
 }

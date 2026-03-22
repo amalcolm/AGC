@@ -15,8 +15,6 @@ void COffsetPot::update() {
 
   //  val = _runningAverage.GetAverage();
 
-  inZone = (val > 100 && val < 924);
-
   if (val > _highThreshold) _offsetLevel(+1); 
   else
   if (val <  _lowThreshold) _offsetLevel(-1);

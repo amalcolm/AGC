@@ -32,7 +32,7 @@ class CA2D {
 
     void      waitForNextDataReady();
 
-    void      setBlockState(StateType state);
+    void      swapBlocks(StateType state);
 
 
     inline void      setReadState(ReadState state) { m_ReadState = state; }

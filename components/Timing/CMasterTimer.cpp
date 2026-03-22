@@ -12,8 +12,8 @@ uint32_t A2D_PERIOD_TICKS = CTimerBase::microsecondsToTicks(CFG::A2D_READING_PER
 
 CMasterTimer::CMasterTimer() : CTimer() { }
 
-void CMasterTimer::markStateChange() { 
-  uint32_t now = state.reset();
+void CMasterTimer::syncAndChangeState() { 
+  uint32_t now = state.wait();
 
      HW.resetAt(now +   HW_DELAY_TICKS); // align A2D read timing
    Head.resetAt(now + HEAD_DELAY_TICKS);

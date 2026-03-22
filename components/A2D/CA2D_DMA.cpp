@@ -21,6 +21,9 @@ DataType CA2D::getData() {
 
   DataType data(Head.getState());  // sets timestamp and stateTime
 
+  data.timestamp = Timer.getConnectTime();
+  data.stateTime = Timer.getStateTime();
+
   s_dmaActive = true;
 
   SPI.beginTransaction(spiSettings);
@@ -56,7 +59,7 @@ DataType CA2D::getData() {
      return data;
    }
 
-  const uint8_t* p = &m_frBuffer[3]; // skip status
+  const uint8_t* p = &m_frBuffer[3]; // skip status (first 3 bytes)
   for (int ch=0; ch<8; ++ch) {
     data.channels[ch] = be24_to_s32(p[0], p[1], p[2]);
     p += 3;
@@ -75,7 +78,3 @@ void CA2D::onSpiDmaComplete(EventResponderRef)
 
     s_dmaActive = false;
 }
-
-
-
-

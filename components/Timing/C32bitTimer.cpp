@@ -4,28 +4,28 @@ C32bitTimer::C32bitTimer() : CTimerBase(), _period(0), _lastMarker(0), _nextMark
 
 C32bitTimer C32bitTimer::From_uS(double uS) {
   C32bitTimer marker;
-  marker._period = static_cast<uint32_t>(std::ceil(uS / CTimerBase::getMicrosecondsPerTick()));
+  marker._period = static_cast<uint32_t>(std::ceil(uS * CTimerBase::getTicksPerMicrosecond()));
   marker.reset();
   return marker;
 }
 
 C32bitTimer C32bitTimer::From_mS(double mS) {
   C32bitTimer marker;
-  marker._period = static_cast<uint32_t>(std::ceil(mS / CTimerBase::getMillisecondsPerTick()));
+  marker._period = static_cast<uint32_t>(std::ceil(mS * CTimerBase::getTicksPerMillisecond()));
   marker.reset();
   return marker;
 }
 
 C32bitTimer C32bitTimer::From_S (double  S) {
   C32bitTimer marker;
-  marker._period = static_cast<uint32_t>(std::ceil( S / CTimerBase::getSecondsPerTick()));
+  marker._period = static_cast<uint32_t>(std::ceil( S * CTimerBase::getTicksPerSecond()));
   marker.reset();
   return marker;
 }
 
 C32bitTimer C32bitTimer::From_Hz(double Hz) {
   C32bitTimer marker;
-  marker._period = static_cast<uint32_t>(std::ceil(1.0/ (CTimerBase::getSecondsPerTick() * Hz)));
+  marker._period = static_cast<uint32_t>(std::ceil( CTimerBase::getTicksPerSecond() / Hz ));
   marker.reset();
   return marker;
 }

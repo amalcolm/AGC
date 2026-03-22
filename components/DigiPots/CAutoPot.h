@@ -36,14 +36,17 @@ public:
 protected:
 
   inline void _setLevel(int newLevel) {
-    _currentLevel = std::clamp(newLevel, POT_MIN, POT_MAX); 
+    _currentLevel = std::clamp(     newLevel         , POT_MIN, POT_MAX); 
     _writeToPot(_currentLevel);
-  }
+  };
 
-  inline void _offsetLevel(int offset) { _setLevel(_currentLevel + offset); }
+  inline void _offsetLevel(int offset) { 
+    _currentLevel = std::clamp(_currentLevel + offset, POT_MIN, POT_MAX);
+    _writeToPot(_currentLevel);
+  };
 
 
-  Zone   _checkZone();
+  Zone   _setZone();
 
 
   int _csPin; 
@@ -94,9 +97,14 @@ private:
 // =================================================================
 class CGainPot : public CAutoPot {
 public:
-  CGainPot(int csPin, int sensorPin, int samples);
+  CGainPot(int csPin, int sensorPin, int samples, int windowSize);
   CGainPot& operator=(const CGainPot&) = default;
   void update() override;
+
+private:
+  int _lowThreshold;
+  int _highThreshold;
+
 };
 
 #include "3Pot/C3Pot.h"

@@ -66,7 +66,7 @@ void DataType::fillFromHardware(struct HWforState& HW) {
 
 
 
-BlockType::BlockType() : timestamp(0.0), state(UNSET), count(0), data() {
+BlockType::BlockType() : timestamp(0.0), state(UNSET), count(0), data(), numEvents(0), events() {
 
   for (uint32_t i = 0; i < CFG::MAX_BLOCKSIZE; i++) {
     data[i] = DataType();
@@ -81,9 +81,10 @@ BlockType::BlockType() : timestamp(0.0), state(UNSET), count(0), data() {
 }
 
 void BlockType::clear() {
+  timestamp = 0.0;
+  state = UNSET;
   count = 0;
   numEvents = 0;
-  state = UNSET;
 }
 
 bool BlockType::tryAddEvent(const EventKind kind, double stateTime) {

@@ -21,7 +21,7 @@ void C3Pot::update() {
   for (int i = HISTORY_SIZE - 1; i > 0; --i) history[i] = history[i - 1];
   history[0] = state;
 
-  readSensor();  zone = _checkZone();
+  readSensor();
 
   switch (phase) {
     case Phase::SEARCH: findSignal(); break;

@@ -8,20 +8,20 @@ public:
     inline static constexpr bool TESTMODE = false;  // if true, call the _Callback(BlockType) by default, for debugging
 
     // hardware timing constants (in microseconds / hertz)
-    inline static constexpr uint32_t STATE_DURATION_uS       =  3'000;  // time for each state. loop will be slightly longer than this
+    inline static constexpr double STATE_DURATION_uS       =  3'000;  // time for each state. loop will be slightly longer than this
 
-    inline static constexpr uint32_t HEAD_SETTLE_TIME_uS     =      0;  // delay between Head change and first A2D read
+    inline static constexpr double HEAD_SETTLE_TIME_uS     =     60;  // delay between Head change and first A2D read
     
-    inline static constexpr uint32_t POT_UPDATE_OFFSET_uS    =      0;  // A2D -> Potentiometer update offset, minimizes interference
+    inline static constexpr double POT_UPDATE_OFFSET_uS    =      0;  // A2D -> Potentiometer update offset, minimizes interference
 
     
     // A2D configuration
-    inline static constexpr bool     A2D_USE_CONTINUOUS_MODE =  false;  // use continuous A2D mode; needs dataready
-    inline static constexpr uint32_t A2D_SAMPLING_SPEED_Hz   =  8'000;  // A2D sampling speed set in CONFIG1 register
+    inline static constexpr bool   A2D_USE_CONTINUOUS_MODE =  false;  // use continuous A2D mode; else triggered mode with interrupts
+    inline static constexpr double A2D_SAMPLING_SPEED_Hz   =  8'000;  // A2D sampling speed set in CONFIG1 register
 
-    inline static constexpr uint32_t A2D_READING_PERIOD_uS   =    350;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
+    inline static constexpr double A2D_READING_PERIOD_uS   =    300;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
  
-    inline static constexpr uint32_t A2D_QUIET_PERIOD_uS     =      0;  // experimental quiet time befor reading
+    inline static constexpr double A2D_QUIET_PERIOD_uS     =      0;  // experimental quiet time befor reading
 
 
     // program constants

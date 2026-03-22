@@ -53,13 +53,14 @@ public:
     return false;
   }
 
-   inline void wait() const { if (_period == 0) return;
+   inline uint32_t wait() const { if (_period == 0) return 0;
 
     while (static_cast<int32_t>(ARM_DWT_CYCCNT - _nextMarker) < 0)
       yield();
 
     _lastMarker = _nextMarker;
     if (_isPeriodic) _nextMarker += _period;
+    return _lastMarker;
   }
 
   inline void forceNow() const {

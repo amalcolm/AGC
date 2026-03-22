@@ -76,7 +76,7 @@ void Hardware::update() {
 //    if (Timer.getStateTime() > STATE_DURATION * 3/4) { yield(); return; } // timer not ready yet
 
   TC_Update.increment();
-if (A2D.poll() == false) { yield(); return; }
+  if (A2D.poll() == false) { yield(); return; }
   
   if (S.setTimer == false) { // if we have a new A2D reading and haven't set the timer for this update cycle
       lastMark = Timer.getConnectTime();
