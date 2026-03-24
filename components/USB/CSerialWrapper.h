@@ -37,6 +37,10 @@ class CSerialWrapper {
     void write(float data);
     void write(double number);
     void write(uint8_t* pData, uint32_t dataLen);
+
+    
+    static void SendCrashReport(CrashReportClass& pReport);
+    
   private:
     ModeType m_Mode = ModeType::UNSET;
    

@@ -50,8 +50,6 @@ class CUSB : public CSerialWrapper {
       }
     }
 
-    static void SendCrashReport(CrashReportClass& pReport);
-
   private:
     void do_read();
    
