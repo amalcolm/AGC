@@ -1,4 +1,4 @@
-#include "CUSB.h"
+#include "CSerialWrapper.h"
 #include "PinHelpers.h"
 #include <String.h>  // Usually already available in Teensy core
 
@@ -26,7 +26,7 @@ private:
   String &out;
 };
 
-void CUSB::SendCrashReport(CrashReportClass& pReport)
+void CSerialWrapper::SendCrashReport(CrashReportClass& pReport)
 {
   Serial.begin(115200);
   for (int i = 0; i < 50 && !Serial; ++i) delay(10); 

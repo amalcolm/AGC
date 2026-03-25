@@ -43,7 +43,6 @@ class CUSB : public CSerialWrapper {
       m_telemetryBuffer.clear();
     }
 
-    static void SendCrashReport(CrashReportClass& pReport);
 
   private:
     void do_read();
