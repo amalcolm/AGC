@@ -172,7 +172,7 @@ void CSerialWrapper::printf(const char *pFMT, ...) {
 void CSerialWrapper::writeHandshakeResponse() {
   char buffer[128];
 
-  snprintf(buffer, sizeof(buffer)-1, "<DEVICE_VERSION=%s:MAX_BLOCKSIZE=%lu:STATE_DURATION_uS=%lu\n",
+  snprintf(buffer, sizeof(buffer)-1, "<DEVICE_VERSION=%s:MAX_BLOCKSIZE=%lu:STATE_DURATION_uS=%lf\n",
     CFG::DEVICE_VERSION,
     CFG::MAX_BLOCKSIZE,
     CFG::STATE_DURATION_uS

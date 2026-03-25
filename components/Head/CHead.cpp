@@ -31,7 +31,7 @@ void CHead::waitForReady() const {
 
 StateType CHead::setNextState() {
   Timer.markStateChange(); // inform timer of state change for stateTime tracking
-
+  
   const bool reset = (m_sequencePosition == -1) || Pins::flashReset;
   if (reset) Pins::flashReset = false; // only use FlashReset once, and set it at start
   
@@ -54,7 +54,7 @@ StateType CHead::setNextState() {
 
   getHWforState().set();            // Apply hardware settings (digipots) for new state
 
-   return m_State;
+  return m_State;
 }
 
 void CHead::clear() {

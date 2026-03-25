@@ -1,5 +1,5 @@
 #pragma once
-#include "RunningAverage.h"
+#include "CRunningAverage.h"
 #include <utility>
 #include <deque>
 
@@ -30,7 +30,7 @@ public:
 
   inline void writeCurrentToPot() { _writeToPot(_currentLevel); }
   
-  RunningAverageMinMax<uint16_t>& getRunningAverage() { return _runningAverage; }
+  CRunningAverageMinMax<uint16_t>& getRunningAverage() { return _runningAverage; }
 
 
 protected:
@@ -54,7 +54,7 @@ protected:
 
   bool _inverted = false;
   bool _invertedSensor = false;
-  RunningAverageMinMax<uint16_t> _runningAverage;
+  CRunningAverageMinMax<uint16_t> _runningAverage;
 
 private:
   void _writeToPot(int value);

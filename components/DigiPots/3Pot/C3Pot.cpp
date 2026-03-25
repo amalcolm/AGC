@@ -4,8 +4,10 @@
 #include "CUSB.h"
 #include "CBuffer.h"
 #include <tuple>
+#include "CMasterTimer.h"
+
 C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin) 
-      : CDigiPot(csPinMid, sensorPin, 2)  // pas CSmid to CAutoPot constructor
+      : CDigiPot(csPinMid, sensorPin, 4)  // pas CSmid to CAutoPot constructor
       , top(csPinTop), bot(csPinBot)
       , mid(static_cast<CDigiPot&>(*this)) {
 
@@ -17,6 +19,8 @@ C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin)
 
 
 void C3Pot::update() {
+
+
 
   for (int i = HISTORY_SIZE - 1; i > 0; --i) history[i] = history[i - 1];
   history[0] = state;

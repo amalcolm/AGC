@@ -36,33 +36,15 @@ void Hardware::begin() {
 CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
 CTeleValue   TV_maxDur(TeleGroup::HARDWARE, 3);
-double _maxHWdur = 0.0;
+CRunningAverage<double> _raUpdateDurations;
 
-struct S_Type  { bool setTimer = false; int numUpdates = 0;
-  void reset() {      setTimer = false;     numUpdates = 0; } // reset state
-    
-  
-  void CalcNumUpdates() {
-    static const double STATE_DURATION     =  CFG::STATE_DURATION_uS    / 1'000'000.0; // convert to seconds
-    static const double POT_OFFSET_DURATION = CFG::POT_UPDATE_OFFSET_uS / 1'000'000.0;
-
-    double remainingInState = STATE_DURATION - Timer.getStateTime();
-    double remainingToNextA2D = Timer.A2D.getRemaining_S();
-    double usable = std::min(remainingInState, remainingToNextA2D) - POT_OFFSET_DURATION;
-    if (usable <= 0)  { numUpdates = 0; return; } // We don't have any time left before the next A2D read
-
-    if (_maxHWdur == 0) 
-      numUpdates = 1; // we have no data on update duration, default to 1
-    else
-      numUpdates = (int)floor(usable / _maxHWdur); // Calculate how many updates we could fit in the remaining time based on average duration
-  }
-} S;  // S == instance of StateType
+ bool setTimer = false; 
 
   static double STATE_DURATION = CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
 
 bool Hardware::canUpdate() {
 
-  return (Timer.getStateTime() + Timer.getMaxPollDuration() < STATE_DURATION);
+  return (Timer.getStateTime() + A2D.getPollDuration() < STATE_DURATION);
 }
 
 double lastMark = 0.0;
@@ -70,29 +52,31 @@ void Hardware::update() {
 
   TP_Update.measure();
   TC_Update.increment();
-  TV_maxDur.set(_maxHWdur * 1'000'000.0); // in microseconds
+  TV_maxDur.set(_raUpdateDurations.getAverage() * 1'000'000.0); // in microseconds
 
-    if (Timer.getStateTime() > STATE_DURATION * 3/4) { yield(); return; } // timer not ready yet
 
   if (A2D.poll() == false) { yield(); return; }
 
-  if (S.setTimer == false) { // if we have a new A2D reading and haven't set the timer for this update cycle
+  if (setTimer == false) { // if we have a new A2D reading and haven't set the timer for this update cycle
       lastMark = Timer.getConnectTime();
       Timer.HW.reset();
-      S.setTimer = true;
-      S.CalcNumUpdates();
+      setTimer = true;
   }
 
-  S.numUpdates = 1;
-  while (S.numUpdates-- > 0) {
-  
+  double stateTime = Timer.getStateTime();
+
+  bool tryHWupdate = (stateTime + A2D.getPollDuration() < STATE_DURATION);
+
+  if (stateTime < 0.5 * STATE_DURATION || tryHWupdate) { 
+
     double updateStart = Timer.getStateTime();
         getHWforState().update();  // update digital pots based on current state
     double updateEnd = Timer.getStateTime();
-  
-    _maxHWdur = std::max(_maxHWdur, updateEnd - updateStart);
+
+    _raUpdateDurations.add(updateEnd - updateStart);
+
   }
 
-  S.reset(); // reset for next cycle
+  setTimer = false; // reset for next cycle
 
 }

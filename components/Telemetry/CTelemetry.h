@@ -53,6 +53,8 @@ protected:
 public:
 
     void reset();
+    virtual void  abort() {}
+
     void writeSerial(bool includeFrameMarkers = true);
 
     

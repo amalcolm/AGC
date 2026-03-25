@@ -33,33 +33,48 @@ public:
   inline double getMilliseconds(uint32_t mark) const { return static_cast<int32_t>(mark - _lastMarker) * CTimerBase::getMillisecondsPerTick(); }
   inline double getMicroseconds(uint32_t mark) const { return static_cast<int32_t>(mark - _lastMarker) * CTimerBase::getMicrosecondsPerTick(); }
 
+  inline void updateMarkers(uint32_t now) const {
+    if (_period == 0 || _isPeriodic == false) {
+      _lastMarker = _nextMarker;
+      return;
+    }
+
+  do {
+    _nextMarker += _period;
+  }
+  while (static_cast<int32_t>(now - _nextMarker) >= 0);
+  
+    _lastMarker = _nextMarker - _period;
+  }
+
   inline bool passed() const {
     uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return true;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
-    if (diff <= 0) return false;
+    if (diff < 0) return false;
 
-    _lastMarker = _nextMarker;
-    if (_isPeriodic) _nextMarker += _period;
+    updateMarkers(now);
     return true;
   }
 
   inline bool waiting() const {
     uint32_t now = ARM_DWT_CYCCNT;  if (_period == 0) return false;
     int32_t diff = static_cast<int32_t>(now - _nextMarker);
-    if (diff <= 0) return true;
+    if (diff < 0) return true;
 
-    _lastMarker = _nextMarker;
-    if (_isPeriodic) _nextMarker += _period;
+    updateMarkers(now);
     return false;
   }
 
-   inline void wait() const { if (_period == 0) return;
+   inline uint32_t wait() const { if (_period == 0) return ARM_DWT_CYCCNT;
 
-    while (static_cast<int32_t>(ARM_DWT_CYCCNT - _nextMarker) < 0)
-      yield();
-
-    _lastMarker = _nextMarker;
-    if (_isPeriodic) _nextMarker += _period;
+    uint32_t now;
+    do {
+      now = ARM_DWT_CYCCNT;
+    }
+    while (static_cast<int32_t>(now - _nextMarker) < 0);
+    
+    updateMarkers(now);
+    return now;
   }
 
   inline void forceNow() const {
@@ -95,10 +110,9 @@ public:
 
   inline virtual void sync() const { sync(ARM_DWT_CYCCNT); }
 
-  inline void sync(uint32_t now) const {
-    _nextMarker = now - ((now - _lastMarker) % _period);
-    _lastMarker = _nextMarker - _period;
-  }
+  inline void sync(uint32_t now) const { if (_period == 0) return;
+    _lastMarker = now - ((now - _lastMarker) % _period);
+    _nextMarker = _lastMarker + _period;  }
 
   inline void syncTo(const C32bitTimer& other) const {
     _lastMarker = other.getLastMarker();

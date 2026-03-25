@@ -49,7 +49,7 @@ void mcp_initialize() {
     mcp.pinMode(i, OUTPUT);
     mcp.digitalWrite(i, LOW);
   }
-//  Wire.setClock(400000);
+  Wire.setClock(400000);
 
   mcpInitialized = true;  
 }
