@@ -1,5 +1,5 @@
 #pragma once
-#include "RunningAverage.h"
+#include "CRunningAverage.h"
 #include <utility>
 #include <deque>
 
@@ -28,15 +28,15 @@ public:
   inline int lastSensorValue() const { return _lastSensorValue; }
   inline int getSensorPin()    const { return _sensorPin;       }
 
-  inline void writeCurrentToPot() { _writeToPot(_currentLevel); }
+  inline virtual void writeCurrentToPot() { _writeToPot(_currentLevel); }
   
-  RunningAverageMinMax<uint16_t>& getRunningAverage() { return _runningAverage; }
+  CRunningAverageMinMax<uint16_t>& getRunningAverage() { return _runningAverage; }
 
 
 protected:
 
   inline void _setLevel(int newLevel) {
-    _currentLevel = std::clamp(     newLevel         , POT_MIN, POT_MAX); 
+    _currentLevel = std::clamp(newLevel              , POT_MIN, POT_MAX); 
     _writeToPot(_currentLevel);
   };
 
@@ -46,7 +46,7 @@ protected:
   };
 
 
-  Zone   _setZone();
+  Zone   _updateZone();
 
 
   int _csPin; 
@@ -57,7 +57,7 @@ protected:
 
   bool _inverted = false;
   bool _invertedSensor = false;
-  RunningAverageMinMax<uint16_t> _runningAverage;
+  CRunningAverageMinMax<uint16_t> _runningAverage;
 
 private:
   void _writeToPot(int value);

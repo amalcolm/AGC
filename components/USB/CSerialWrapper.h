@@ -25,6 +25,8 @@ class CSerialWrapper {
     inline ModeType getMode() { return m_Mode; }
            ModeType setMode(ModeType mode);
 
+    inline bool isHandshakeComplete() const { return m_handshakeComplete; }
+    
     void doHandshake();
     void writeHandshakeResponse();
 

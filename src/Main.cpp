@@ -38,8 +38,6 @@ void loop() {
     Hardware::update();             //   Update hardware components
 
   CTelemetry::logAll();             // Log all counter telemetry
-
-  
  
   activityLED.toggle();             // Indicate activity on LED
 }

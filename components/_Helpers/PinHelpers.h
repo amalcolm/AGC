@@ -66,7 +66,7 @@ protected:
   uint8_t _pin = 255; // invalid pin number
 
   explicit Pins(std::initializer_list<uint8_t> pinPerHead ) {
-    if (CrashReport) CUSB::SendCrashReport(CrashReport);
+    if (CrashReport) CSerialWrapper::SendCrashReport(CrashReport);
 
     int iHead = 0;
 

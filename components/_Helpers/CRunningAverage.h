@@ -2,21 +2,27 @@
 
 #include <cstddef>
 #include <cstdint>   // For uint16_t and uint32_t
+#include <type_traits>
 #include <vector>
 #include <deque>
 #include <utility> // pair
 
 template<typename T>
-class RunningAverage {
+class CRunningAverage {
 public:
-    explicit RunningAverage(size_t windowSize = 16) {
+    using SumType = std::conditional_t<std::is_floating_point_v<T>, T, uint32_t>;
+
+    explicit CRunningAverage(size_t windowSize = 16) {
         reset(windowSize); 
     }
 
     void reset(size_t windowSize) {
-    m_values.assign(windowSize > 0 ? windowSize : 1, 0);
-    m_sum = m_head = m_count = m_seq = 0;
-}
+        m_values.assign(windowSize > 0 ? windowSize : 1, 0);
+        m_sum = 0;
+        m_head = 0;
+        m_count = 0;
+        m_seq = 0;
+    }
 
 
     void add(T value) {
@@ -33,32 +39,33 @@ public:
         m_seq++;
     }
 
-    float    getAverage() const { return m_count ? float(m_sum) / m_count : 0.0f; }
+    double   getAverage() const { return m_count ? static_cast<double>(m_sum) / m_count : 0.0; }
     size_t   getCount()   const { return m_count; }
     bool     isFull()     const { return m_count == m_values.size(); }
 
 protected:
     std::vector<T> m_values;
-    uint32_t m_sum{}, m_count{};
+    SumType  m_sum{};
+    uint32_t m_count{};
     size_t   m_head{};
     size_t   m_seq{}; // monotonically increasing
 
 };
 
 template<typename T>
-class RunningAverageMinMax : public RunningAverage<T> {
+class CRunningAverageMinMax : public CRunningAverage<T> {
 public:
-    explicit RunningAverageMinMax(size_t windowSize = 16) : RunningAverage<T>(windowSize) {
+    explicit CRunningAverageMinMax(size_t windowSize = 16) : CRunningAverage<T>(windowSize) {
        m_minq.clear(); m_maxq.clear();
     }
 
     void reset(size_t windowSize) {
-        RunningAverage<T>::reset(windowSize); 
+        CRunningAverage<T>::reset(windowSize); 
         m_minq.clear(); m_maxq.clear();
     }
     
     void add(T value) {
-        RunningAverage<T>::add(value);
+        CRunningAverage<T>::add(value);
         const size_t W = this->m_values.size();
   
         // Min deque: pop larger tails, then push

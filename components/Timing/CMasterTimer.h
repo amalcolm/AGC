@@ -8,8 +8,6 @@ class CMasterTimer : public CTimer {
 private:
   inline static uint64_t s_connectTime = 0;
 
-  double m_maxPollDuration = 0.0;
-
 public:
   const C32bitTimer state = C32bitTimer::From_uS(CFG::STATE_DURATION_uS     ).setPeriodic(true);
   
@@ -33,7 +31,6 @@ public:
   bool addEvent(const enum EventKind kind, double time = -1.0);
 
 
-  inline void   updateMaxPollDuration(double duration) { if (duration > m_maxPollDuration) m_maxPollDuration = duration; }
-  inline double    getMaxPollDuration() const          { return m_maxPollDuration; }
-
 };
+
+extern CMasterTimer Timer;

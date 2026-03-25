@@ -39,10 +39,11 @@ public:
       return;
     }
 
+  do {
     _nextMarker += _period;
-    while (static_cast<int32_t>(now - _nextMarker) >= 0)
-      _nextMarker += _period;
-
+  }
+  while (static_cast<int32_t>(now - _nextMarker) >= 0);
+  
     _lastMarker = _nextMarker - _period;
   }
 

@@ -2,7 +2,7 @@
 #include "CUSB.h"
 
 void C3Pot::fineTuning() {
-  static constexpr int SENSOR_DEADBAND = 16;
+  static constexpr int SENSOR_DEADBAND = 100;
   static constexpr int SENSOR_LOW      = CAutoPot::SENSOR_MIDPOINT - SENSOR_DEADBAND/2;
   static constexpr int SENSOR_HIGH     = CAutoPot::SENSOR_MIDPOINT + SENSOR_DEADBAND/2;
 
@@ -12,7 +12,7 @@ void C3Pot::fineTuning() {
   static constexpr int WIPER_HIGH = 255 - WIPER_LOW;
 
 
-  if (zone != Zone::inZone) { phase = Phase::SEARCH; return; }
+  if (zone != Zone::inZone) { inZone = false; phase = Phase::SEARCH; return; }
 
   int direction = 0;
   int wiperLevel = mid.getLevel();

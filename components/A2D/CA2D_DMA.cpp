@@ -13,16 +13,9 @@ void CA2D::init_DMA() {
   s_spiEvent.attach(onSpiDmaComplete);
 }
 
-DataType CA2D::getData() {
-  static bool lastBadHeader = false;
-  static bool lastIsZero = false;
+DataType CA2D::readADS1299(DataType &data) {
 
   if (s_dmaActive) return DataType(DIRTY);
-
-  DataType data(Head.getState());  // sets timestamp and stateTime
-
-  data.timestamp = Timer.getConnectTime();
-  data.stateTime = Timer.getStateTime();
 
   s_dmaActive = true;
 
@@ -49,7 +42,7 @@ DataType CA2D::getData() {
   Timer.addEvent(EventKind::SPI_DMA_COMPLETE);
 
   bool badHeader = (m_frBuffer[0] & 0xF0) != 0xC0; // status[0] header nibble must be 0xC
-  bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); //  “all zero” sample
+//  bool isZero = (m_frBuffer[3] == 0 && m_frBuffer[4] == 0 && m_frBuffer[5] == 0); //  “all zero” sample
 
  //  if (badHeader != lastBadHeader) LED.write(15, lastBadHeader = badHeader);
  //  if (isZero    != lastIsZero   ) LED.write(14, lastIsZero    = isZero   );

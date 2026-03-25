@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include "DataTypes.h"
 #include "C32bitTimer.h"
-
+#include "CRunningAverage.h"
 class CA2D {
   public:
     enum ModeType { UNSET, CONTINUOUS, TRIGGERED };
@@ -28,7 +28,6 @@ class CA2D {
 
     bool      poll();
 
-    DataType  getData();
 
     void      waitForNextDataReady();
 
@@ -40,9 +39,11 @@ class CA2D {
     inline ModeType  getMode()               const { return m_mode;       }    
     
     inline bool tryAddEvent(const enum EventKind kind, double time = -1.0) { return m_pBlockToFill->tryAddEvent(kind, time); }
+    inline double getPollDuration() const { return m_raPollDuration.getAverage(); }
 
   private:
     void      configure_ADS1299();
+    DataType  readADS1299(DataType &data);
     void      init_DMA();
 
     ModeType            m_mode       = ModeType::UNSET;
@@ -69,8 +70,7 @@ class CA2D {
     BlockType* volatile m_pBlockToSend;
 
     void SPIwrite(std::initializer_list<uint8_t> data);
- 
-  public:
+    CRunningAverage<double> m_raPollDuration;
 }; 
 
     // buffers for DMA SPI transfers - must be 32-byte aligned for cache management on Teensy 4.x

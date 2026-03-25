@@ -79,14 +79,19 @@ bool CA2D::poll() {
   bool result = true;
 
   if (m_ReadState != ReadState::IDLE) {
-     DataType data = getData();
+     DataType data(Head.getState());  // sets timestamp and stateTime
+     if (CFG::ADS1299_USE_24BIT)
+        readADS1299(data);
+      else
+        setDebugData(data);
+
      if (m_mode == ModeType::CONTINUOUS) data.stateTime = m_dataStateTime;
      m_pBlockToFill->tryAdd(data);
      result = data.state != DIRTY;
   }
 
   double end = Timer.getStateTime();
-  Timer.updateMaxPollDuration(end - start);
+  m_raPollDuration.add(end - start);
 
   Timer.addEvent(EventKind::A2D_READ_START   , start);
   Timer.addEvent(EventKind::A2D_READ_COMPLETE, end  );  
@@ -106,7 +111,7 @@ void CA2D::setDebugData(DataType& data) {
     ((TIA.mid.getLevel() & 0xFFu) << 24) |
     ((TIA.top.getLevel() & 0xFFu) << 16) |
     ((TIA.bot.getLevel() & 0xFFu) <<  8) |
-    ((++sequenceNumber)     & 0xFFu);
+    ((++sequenceNumber)  & 0xFFu);
 
 uint32_t lo32 =
     ((offsetPot2.getLevel() & 0xFFu) << 24) |
@@ -115,9 +120,7 @@ uint32_t lo32 =
 
   data.hardwareState = (uint64_t(hi32) << 32) | uint64_t(lo32);
 
-  data.sensorState =
-    (   TIA.mid.lastSensorValue() << 16) |
-    (offsetPot2.lastSensorValue()      );
+  data.sensorState = (TIA.lastSensorValue() << 16) | offsetPot2.lastSensorValue();
 }
 
 

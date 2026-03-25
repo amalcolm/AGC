@@ -66,19 +66,7 @@ void DataType::fillFromHardware(struct HWforState& HW) {
 
 
 
-BlockType::BlockType() : timestamp(0.0), state(UNSET), count(0), data(), numEvents(0), events() {
-
-  for (uint32_t i = 0; i < CFG::MAX_BLOCKSIZE; i++) {
-    data[i] = DataType();
-  }
-
-  if (Ready && CFG::TESTMODE && A2D.getMode() == CA2D::ModeType::TRIGGERED) {
-    data[0] = A2D.getData();
-    timestamp = Timer.getConnectTime();
-    count = 1;
-  }
-
-}
+BlockType::BlockType() : timestamp(0.0), state(UNSET), count(0), data(), numEvents(0), events() {}
 
 void BlockType::clear() {
   timestamp = 0.0;
