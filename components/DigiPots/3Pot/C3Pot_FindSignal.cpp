@@ -5,22 +5,21 @@
 
 void C3Pot::findSignal()
 {
+  static constexpr int MAX_ITERATIONS = 100;
   top.setLevel(DIGIPOT_MAX_FOR_PHOTODIODE);
   bot.setLevel(CAutoPot::POT_MIN);
   mid.setLevel(CAutoPot::POT_MIDPOINT);
 
+  delayMicroseconds(10);
 
   bool signalFound = false;
 
-  int initialHILO = 0; // -1 for low, +1 for high, 0 for unknown
+  int initialHILO = readSensor() < CAutoPot::SENSOR_MIDPOINT ? -1 : +1;
   int HILO = 0;
-  int dataNum = 0;
 
-  while (top.getLevel() - bot.getLevel() > GAP_NORMAL && dataNum < CFG::MAX_BLOCKSIZE) {
+  for (int i = 0; top.getLevel() - bot.getLevel() > GAP_NORMAL && i < MAX_ITERATIONS; i++) {
 
-    readSensor();
-    
-    HILO = (lastSensorValue() < CAutoPot::SENSOR_MIDPOINT) ? -1 : +1;  if (initialHILO == 0) initialHILO = HILO;
+    HILO = (readSensor() < CAutoPot::SENSOR_MIDPOINT) ? -1 : +1;
 
     switch (signalFound)
     {
@@ -51,18 +50,17 @@ void C3Pot::findSignal()
     }
 
     delayMicroseconds(5); // signalFound ? 500 : 50 );
-    dataNum++;
   }
 
-  initialHILO = 0;
+  initialHILO = readSensor() < CAutoPot::SENSOR_MIDPOINT ? -1 : +1;
   double lastDelta = 0, delta = 0;
   
-  while (true) {
+  for (int i = 0; i < MAX_ITERATIONS; i++) { 
     lastDelta = delta;
     readSensor();
     
     delta = abs(lastSensorValue() - CAutoPot::SENSOR_MIDPOINT);
-    HILO = (lastSensorValue() < CAutoPot::SENSOR_MIDPOINT) ? -1 : +1;  if (initialHILO == 0) initialHILO = HILO;
+    HILO = (lastSensorValue() < CAutoPot::SENSOR_MIDPOINT) ? -1 : +1;
 
     if (HILO != initialHILO)
       break;
