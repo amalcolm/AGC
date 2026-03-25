@@ -28,7 +28,7 @@ public:
   inline int lastSensorValue() const { return _lastSensorValue; }
   inline int getSensorPin()    const { return _sensorPin;       }
 
-  inline void writeCurrentToPot() { _writeToPot(_currentLevel); }
+  inline virtual void writeCurrentToPot() { _writeToPot(_currentLevel); }
   
   CRunningAverageMinMax<uint16_t>& getRunningAverage() { return _runningAverage; }
 
@@ -43,7 +43,7 @@ protected:
   inline void _offsetLevel(int offset) { _setLevel(_currentLevel + offset); }
 
 
-  Zone   _checkZone();
+  Zone   _updateZone();
 
 
   int _csPin; 

@@ -20,12 +20,10 @@ C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin)
 
 void C3Pot::update() {
 
-
-
   for (int i = HISTORY_SIZE - 1; i > 0; --i) history[i] = history[i - 1];
   history[0] = state;
 
-  readSensor();  zone = _checkZone();
+  readSensor(); _updateZone();
 
   switch (phase) {
     case Phase::SEARCH: findSignal(); break;

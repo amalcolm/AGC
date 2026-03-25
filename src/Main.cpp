@@ -14,7 +14,7 @@ void setup() {
   
   Head.setSequence( {
 //  Head.RED8, Head.IR8             // States defined in CHead.h, alse includes ALL_ON / ALL_OFF
-//  zTest.FullTest,                 // Can use predefined sequences from ZTests.h
+//  zTest.FullTest,                 // Can use predefined states and sequences from ZTests.h
 //  Head.RED1 | Head.IR1,           // use OR ( | ) to combine LEDs
     
     zTest.AllReds, zTest.AllIRs
