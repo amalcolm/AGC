@@ -93,17 +93,3 @@ void CSerialWrapper::printf(const char *pFMT, ...) {
 }
 
 
- 
-#include "Config.h"
-
-void CSerialWrapper::writeHandshakeResponse() {
-  char buffer[128];
-
-  snprintf(buffer, sizeof(buffer)-1, "<DEVICE_VERSION=%s:MAX_BLOCKSIZE=%lu:STATE_DURATION_uS=%lf\n",
-    CFG::DEVICE_VERSION,
-    CFG::MAX_BLOCKSIZE,
-    CFG::STATE_DURATION_uS
-  );
-
-  Serial.write((uint8_t*)buffer, strlen(buffer));
-}

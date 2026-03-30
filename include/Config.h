@@ -28,7 +28,7 @@ public:
 
     // program constants
     inline static constexpr uint32_t MAX_BLOCKSIZE         =    164;  // max number of DataType entries in a BlockType
-    inline static constexpr uint32_t MAX_EVENTS_PER_BLOCK  =    800;  // max number of EventType entries in a BlockType
+    inline static constexpr uint32_t MAX_EVENTS_PER_BLOCK  =    400;  // max number of EventType entries in a BlockType
 
     
     inline static constexpr char DEVICE_VERSION[]  = "0.1.4+" BUILD_STR;  // this is a #define from the build system
