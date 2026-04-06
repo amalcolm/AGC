@@ -33,8 +33,8 @@ struct ChipSelectPins {
 };
 
 struct SensorPins {
-  static constexpr int  preGain = PIN_A1;
-  static constexpr int postGain = PIN_A0;
+  static constexpr int TIA   = PIN_A1;
+  static constexpr int Final = PIN_A0;
 };
 
 struct ButtonPins {

@@ -57,35 +57,34 @@ void CA2D::waitForNextDataReady() {
 
   poll();
 }
-
+  
 CTeleCounter TC_Poll{TeleGroup::A2D, 1};
-CTeleCounter TC_Read(TeleGroup::A2D, 2);
-CTeleTimer TT_PollWait(TeleGroup::A2D, 30);
+CTeleCounter TC_Read{TeleGroup::A2D, 2};
+
 bool CA2D::poll() {
   double start = Timer.getStateTime();
   TC_Poll.increment();
 
-  TT_PollWait.start();
   switch (m_mode) {
     case ModeType::CONTINUOUS: if (!m_dataReady       ) return false; else break;
-    case ModeType::TRIGGERED:  if (Timer.A2D.waiting()) return false; else break;
+    case ModeType::TRIGGERED : if (Timer.A2D.waiting()) return false; else break;
     default: return false;
   }
-  TT_PollWait.stop();
-  
+ 
+
   m_dataReady = false;  // reset flag
   TC_Read.increment();
   
   bool result = true;
 
   if (m_ReadState != ReadState::IDLE) {
-     DataType data(Head.getState());  // sets timestamp and stateTime
-     if (CFG::ADS1299_USE_24BIT)
-        readADS1299(data);
-      else
-        setDebugData(data);
-
-     if (m_mode == ModeType::CONTINUOUS) data.stateTime = m_dataStateTime;
+    DataType data(Head.getState());  // sets timestamp and stateTime
+    if (CFG::ADS1299_USE_24BIT)
+      readADS1299(data);
+    else
+      setDebugData(data);
+    
+    if (m_mode == ModeType::CONTINUOUS) data.stateTime = m_dataStateTime;
      m_pBlockToFill->tryAdd(data);
      result = data.state != DIRTY;
   }

@@ -37,40 +37,26 @@ void Hardware::begin() {
 
 CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
-CTeleValue   TV_maxDur(TeleGroup::HARDWARE, 3);
 CRunningAverage<double> _raUpdateDurations;
 
- bool setTimer = false; 
-
-static double STATE_DURATION = CFG::STATE_DURATION_uS / 1'000'000.0; // convert to seconds
+static double    STATE_DURATION = 1.0 * CFG::STATE_DURATION_uS     * 0.000'001; // convert to seconds
+static double A2D_POLL_DURATION = 20.0 * 0.000'001;
 
 bool Hardware::canUpdate() {
 
-  return (Timer.getStateTime() + A2D.getPollDuration() < STATE_DURATION);
+  return (Timer.getStateTime() + A2D_POLL_DURATION < STATE_DURATION );
 }
 
-double lastMark = 0.0;
 void Hardware::update() {
 
   TP_Update.measure();
   TC_Update.increment();
-  TV_maxDur.set(_raUpdateDurations.getAverage() * 1'000'000.0); // in microseconds
 
-
-  TC_Update.increment();
   if (A2D.poll() == false) { yield(); return; }
-
-  if (setTimer == false) { // if we have a new A2D reading and haven't set the timer for this update cycle
-      lastMark = Timer.getConnectTime();
-      Timer.HW.reset();
-      setTimer = true;
-  }
 
   double stateTime = Timer.getStateTime();
 
-  bool tryHWupdate = (stateTime + A2D.getPollDuration() < STATE_DURATION);
-
-  if (stateTime < 0.5 * STATE_DURATION || tryHWupdate) { 
+  if (stateTime + A2D_POLL_DURATION < STATE_DURATION) {
 
     double updateStart = Timer.getStateTime();
         getHWforState().update();  // update digital pots based on current state
@@ -80,6 +66,5 @@ void Hardware::update() {
 
   }
 
-  setTimer = false; // reset for next cycle
 
 }

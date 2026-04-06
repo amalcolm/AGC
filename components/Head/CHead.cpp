@@ -24,7 +24,7 @@ void CHead::waitForReady() const {
 
   A2D.setReadState(CA2D::ReadState::PREPARE);
  
-  while (Timer.A2D.waiting()) A2D.poll();
+  while (Timer.Head.waiting()) A2D.poll();
  
   A2D.setReadState(CA2D::ReadState::READ); // clear dataReady to ensure fresh read on next A2D read
  }

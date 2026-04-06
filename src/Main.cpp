@@ -4,7 +4,7 @@
 #include "CHead.h"
 #include "CUSB.h"
 #include "Config.h"
-
+#include "CTelemetry.h"
 
 void setup() {
   activityLED.set();
@@ -17,7 +17,7 @@ void setup() {
 //  zTest.FullTest,                 // Can use predefined sequences from ZTests.h
 //  Head.RED1 | Head.IR1,           // use OR ( | ) to combine LEDs
     
-    Head.RED8, Head.IR8,
+    Head.ALL_OFF
 });
 
 
@@ -26,6 +26,8 @@ void setup() {
 }
 
 
+CTeleValue TV_HeadWait(TeleGroup::HEAD, 1); 
+
 void loop() {
 
   Head.setNextState();              // Set the LEDs for the next state
@@ -33,6 +35,7 @@ void loop() {
   USB.update();                     // Output previous block, and give time for system to settle
 
   Head.waitForReady();              // Wait until Head is ready AND sets A2D to start reading
+  TV_HeadWait.set(Timer.getStateTime() * 1'000'000.0);
 
   while (Hardware::canUpdate())     // Loop until state duration has elapsed
     Hardware::update();             //   Update hardware components

@@ -19,7 +19,7 @@ void CMasterTimer::syncAndChangeState() {
 
   TV_startTime.set(CTimerBase::ticksToMicroseconds(HEAD_DELAY_TICKS));
 
-    HW.resetAt(now +   HW_DELAY_TICKS);
+//  HW.resetAt(now +   HW_DELAY_TICKS);
   Head.resetAt(now + HEAD_DELAY_TICKS);
    A2D.resetAt(now + HEAD_DELAY_TICKS + 1000); 
 }

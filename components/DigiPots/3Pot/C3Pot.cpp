@@ -7,7 +7,7 @@
 #include "CMasterTimer.h"
 
 C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin) 
-      : CDigiPot(csPinMid, sensorPin, 4)  // pas CSmid to CAutoPot constructor
+      : CDigiPot(csPinMid, sensorPin, 1)  // pas CSmid to CAutoPot constructor
       , top(csPinTop), bot(csPinBot)
       , mid(static_cast<CDigiPot&>(*this)) {
 
