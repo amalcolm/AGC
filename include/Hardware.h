@@ -16,26 +16,22 @@ struct HWforState {
     HWforState(StateType state) : state(state) {}
 
     C3Pot         TIA{CS.TIA_TOP, CS.TIA_BOT, CS.TIA_MID, SP.TIA};
-    COffsetPot    offsetPot2{ CS.offset2, SP.Final ,  2, 400 };   // 280 normal
-    CGainPot      gainPot   { CS.gain   , SP.Final ,  2, 400 };   // 100 normal };
+    COpAmp        OpAmp{CS.offset2, CS.gain, SP.Final};
 
     bool begun = false;
     void begin() {
-      gainPot   .invert();
 
       TIA.begin();
+      OpAmp.begin();
 
-      offsetPot2.begin(128); 
-      gainPot   .begin(  0);
       
       begun = true;
     }
 
     // write current state of hardware instances to hardware devices
     void set() { if (!Ready) return; else if (!begun) begin(); // ensure begin is called before first use, but only once
-      TIA.writeCurrentToPot();
-      offsetPot2.writeCurrentToPot();
-      gainPot   .writeCurrentToPot();
+      TIA.set();
+      OpAmp.set();
     }
 
     // update hardware instances based on current sensor readings, and write to hardware if needed
@@ -45,10 +41,7 @@ struct HWforState {
       TIA.update();
 
       if (TIA.inZone)
-        offsetPot2.update();
-
-      if (offsetPot2.inZone)
-        gainPot.update();
+        OpAmp.update();
 
       Timer.addEvent(EventKind::HW_UPDATE_COMPLETE);
     }

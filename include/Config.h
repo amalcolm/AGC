@@ -21,7 +21,7 @@ public:
     inline static constexpr bool   A2D_USE_CONTINUOUS_MODE =  false;  // use continuous A2D mode; else triggered mode with interrupts
     inline static constexpr double A2D_SAMPLING_SPEED_Hz   = 16'000;  // A2D sampling speed set in CONFIG1 register
 
-    inline static constexpr double A2D_READING_PERIOD_uS   =    200;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
+    inline static constexpr double A2D_READING_PERIOD_uS   =     80;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
  
 
     // program constants
@@ -29,7 +29,7 @@ public:
     inline static constexpr uint32_t MAX_EVENTS_PER_BLOCK  =    400;  // max number of EventType entries in a BlockType
 
     
-    inline static constexpr char DEVICE_VERSION[]  = "0.1.4+" BUILD_STR;  // this is a #define from the build system
+    inline static constexpr char DEVICE_VERSION[]  = "0.1.5+" BUILD_STR;  // this is a #define from the build system
     inline static constexpr char DEVICE_NAME[]     = "fNIRS (Teensy 4.1)";
     inline static           char HOST_VERSION[16]  = "[unknown]";
 

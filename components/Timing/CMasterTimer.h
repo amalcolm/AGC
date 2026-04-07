@@ -30,6 +30,8 @@ public:
 
   bool addEvent(const enum EventKind kind, double time = -1.0);
 
+  bool sampleReady = false;
+  
 
 };
 

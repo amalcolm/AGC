@@ -44,7 +44,7 @@ class C3Pot : public CDigiPot {
     void findSignal(); 
     void fineTuning();
 
-    inline virtual void writeCurrentToPot() override {
+    inline void set() {
       top.writeCurrentToPot();
       bot.writeCurrentToPot();
       CDigiPot::writeCurrentToPot();

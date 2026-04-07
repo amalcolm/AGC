@@ -54,6 +54,8 @@ void Hardware::update() {
 
   if (A2D.poll() == false) { yield(); return; }
 
+  if (Timer.sampleReady) return;
+
   double stateTime = Timer.getStateTime();
 
   if (stateTime + A2D_POLL_DURATION < STATE_DURATION) {

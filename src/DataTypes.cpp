@@ -56,11 +56,11 @@ void DataType::fillFromHardware(struct HWforState& HW) {
     (uint64_t(HW.TIA.top.getLevel() & 0xFFu) << 48) |
     (uint64_t(HW.TIA.bot.getLevel() & 0xFFu) << 40) |
     (uint64_t(++seq)                         << 32) |
-    (uint64_t(HW.offsetPot2.getLevel() & 0xFFu) << 24) |
-    (uint64_t(HW.gainPot   .getLevel() & 0xFFu) << 16) | 
+    (uint64_t(HW.OpAmp.offsetPot.getLevel() & 0xFFu) << 24) |
+    (uint64_t(HW.OpAmp.gainPot  .getLevel() & 0xFFu) << 16) | 
     (0xFFFFu);
 
-  sensorState = (uint32_t(HW.TIA.lastSensorValue()) << 16) | uint32_t(HW.offsetPot2.lastSensorValue());
+  sensorState = (uint32_t(HW.TIA.lastSensorValue()) << 16) | uint32_t(HW.OpAmp.offsetPot.lastSensorValue());
   memset(&channels[0], 0, CHANNELS_BYTESIZE);
 }
 

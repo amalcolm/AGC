@@ -60,7 +60,7 @@ uint16_t CAutoPot::readSensor() {  if (_sensorPin < 0) return 0; // No sensor pi
   return static_cast<uint16_t>(_lastSensorValue);
 }
 
-void CAutoPot::_writeToPot(int value) {
+void CAutoPot::_writeToPot(int value) { if (_csPin < 0) return;
   static const SPISettings settings{8'000'000, MSBFIRST, SPI_MODE0};
 
   if (value < 0 || value > 255) return;

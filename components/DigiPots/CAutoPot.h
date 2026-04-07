@@ -107,7 +107,8 @@ private:
 
 };
 
-#include "3Pot/C3Pot.h"
+#include "1. TIA/C3Pot.h"
+#include "2. OpAmp/COpAmp.h"
 
 static_assert(std::is_copy_constructible_v<COffsetPot>);
 static_assert(std::is_copy_constructible_v<CGainPot  >);

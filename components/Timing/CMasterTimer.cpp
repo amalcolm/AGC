@@ -22,6 +22,8 @@ void CMasterTimer::syncAndChangeState() {
 //  HW.resetAt(now +   HW_DELAY_TICKS);
   Head.resetAt(now + HEAD_DELAY_TICKS);
    A2D.resetAt(now + HEAD_DELAY_TICKS + 1000); 
+
+  sampleReady = false;
 }
 
 bool CMasterTimer::addEvent(const enum EventKind kind, double stateTime) {

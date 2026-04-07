@@ -104,7 +104,7 @@ bool CA2D::poll() {
 void CA2D::setDebugData(DataType& data) {
   static uint8_t sequenceNumber = 0;
  
-  auto& [state, TIA, offsetPot2, gainPot, _] = getHWforState(data);
+  auto& [state, TIA, opAmp, _] = getHWforState(data);
   
   uint32_t hi32 =
     ((TIA.mid.getLevel() & 0xFFu) << 24) |
@@ -113,13 +113,18 @@ void CA2D::setDebugData(DataType& data) {
     ((++sequenceNumber)  & 0xFFu);
 
 uint32_t lo32 =
-    ((offsetPot2.getLevel() & 0xFFu) << 24) |
-    ((gainPot   .getLevel() & 0xFFu) << 16) |
+    ((opAmp.offsetPot.getLevel() & 0xFFu) << 24) |
+    ((opAmp.gainPot  .getLevel() & 0xFFu) << 16) |
     0xFFFFu;
 
   data.hardwareState = (uint64_t(hi32) << 32) | uint64_t(lo32);
 
-  data.sensorState = (TIA.lastSensorValue() << 16) | offsetPot2.lastSensorValue();
+  data.sensorState = (TIA.lastSensorValue() << 16);
+  
+  if (Timer.sampleReady) 
+    data.sensorState |= opAmp.lastSensorValue();
+  else
+    data.sensorState |= opAmp.offsetPot.lastSensorValue();
 }
 
 
