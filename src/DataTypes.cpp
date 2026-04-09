@@ -60,7 +60,7 @@ void DataType::fillFromHardware(struct HWforState& HW) {
     (uint64_t(HW.OpAmp.gainPot  .getLevel() & 0xFFu) << 16) | 
     (0xFFFFu);
 
-  sensorState = (uint32_t(HW.TIA.lastSensorValue()) << 16) | uint32_t(HW.OpAmp.offsetPot.lastSensorValue());
+  sensorState = (uint32_t(HW.TIA.lastSensorValue()) << 16) | uint32_t(HW.OpAmp.lastSensorValue());
   memset(&channels[0], 0, CHANNELS_BYTESIZE);
 }
 

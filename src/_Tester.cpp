@@ -6,8 +6,6 @@
 #include "Config.h"
 #include "Helpers.h"
 
-HWforState* HW;
-
 void _setup() {
   activityLED.set();
 
@@ -15,7 +13,7 @@ void _setup() {
 
   Ready = true;
 
-  HW = &getHWforState(Head.RED1);
+  HW = getHWforState(Head.RED1);
 
   activityLED.clear();
 }

@@ -51,7 +51,8 @@ StateType CHead::setNextState() {
 
   LED.writeState(newState);
 
-  getHWforState().set();            // Apply hardware settings (digipots) for new state
+  HW = getHWforState();
+  HW->set();            // Apply hardware settings (digipots) for new state
 
   return m_State;
 }

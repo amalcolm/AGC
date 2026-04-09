@@ -28,6 +28,25 @@ void    CAutoPot::reset(int level) { _setLevel(level);                   }
 void    CAutoPot::invert()         { _inverted       = !_inverted;       }
 void    CAutoPot::invertSensor()   { _invertedSensor = !_invertedSensor; }
 
+void CAutoPot::_setLevel(int newLevel) { 
+  newLevel = std::clamp(newLevel, POT_MIN, POT_MAX);
+  if (newLevel == _currentLevel) return; 
+
+  if (HW) HW->offsetsChanged = true;
+  _currentLevel = newLevel;
+  _writeToPot(_currentLevel);
+};
+
+void CAutoPot::_offsetLevel(int offset) {
+  int newLevel = std::clamp(_currentLevel + offset, POT_MIN, POT_MAX);
+  if (newLevel == _currentLevel) return;
+
+  if (HW) HW->offsetsChanged = true;
+  _currentLevel = newLevel;
+  _writeToPot(_currentLevel);
+};
+
+
 CAutoPot::Zone CAutoPot::_updateZone() {
  static constexpr int       DEADZONE = 64;
 

@@ -15,6 +15,8 @@
 #include <Wire.h>
 #include <Adafruit_MCP23X17.h>
 
+HWforState* HW = nullptr;
+
 Adafruit_MCP23X17 mcp;  // must be declared first due to LEDpins dependency
 bool mcpInitialized = false;
 
@@ -115,27 +117,27 @@ void Pins::flash(int numFlashes) {
 // Gets a object containing hardware instances corresponding to the given state, creating it if needed.
 // =====================================================================================================
 
-HWforState& getHWforState(StateType state) {
+HWforState* getHWforState(StateType state) {
   static std::deque<HWforState> stateHWs;
 
   if (state == DIRTY) state = Head.getState();
   
   for (auto& hw : stateHWs)
       if (hw.state == state)
-       return hw;
+       return &hw;
   
   stateHWs.emplace_back(state);
   if (Ready)
     stateHWs.back().begin();
 
-  return stateHWs.back();
+  return &stateHWs.back();
 }
 
-HWforState& getHWforState(BlockType* block) {
+HWforState* getHWforState(BlockType* block) {
   return getHWforState(block ? block->state : DIRTY);
 }
 
-HWforState& getHWforState(DataType& data) {
+HWforState* getHWforState(DataType& data) {
   return getHWforState(data.state);
 }
 

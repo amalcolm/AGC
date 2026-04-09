@@ -35,19 +35,9 @@ public:
 
 protected:
 
-  inline void _setLevel(int newLevel) {
-    _currentLevel = std::clamp(newLevel              , POT_MIN, POT_MAX); 
-    _writeToPot(_currentLevel);
-  };
-
-  inline void _offsetLevel(int offset) { 
-    _currentLevel = std::clamp(_currentLevel + offset, POT_MIN, POT_MAX);
-    _writeToPot(_currentLevel);
-  };
-
-
-  Zone   _updateZone();
-
+  void _setLevel(int newLevel);
+  void _offsetLevel(int offset);
+  Zone _updateZone();
 
   int _csPin; 
   int _sensorPin;

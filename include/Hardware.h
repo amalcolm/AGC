@@ -18,13 +18,14 @@ struct HWforState {
     C3Pot         TIA{CS.TIA_TOP, CS.TIA_BOT, CS.TIA_MID, SP.TIA};
     COpAmp        OpAmp{CS.offset2, CS.gain, SP.Final};
 
+    bool offsetsChanged = true;
+
     bool begun = false;
     void begin() {
 
       TIA.begin();
       OpAmp.begin();
 
-      
       begun = true;
     }
 
@@ -47,6 +48,8 @@ struct HWforState {
     }
 
 };
+
+extern HWforState* HW;
 
 struct Hardware {
   inline static SPISettings SPIsettings{4800000, MSBFIRST, SPI_MODE1};

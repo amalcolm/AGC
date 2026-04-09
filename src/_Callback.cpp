@@ -12,7 +12,7 @@ void _Callback(BlockType* block) {  if (!CFG::TESTMODE || block == nullptr || bl
   if (A2D.outputDebugBlock) return;   // If so, skip rest of function
 
   // get hardware for the block's state
-  auto& [state, TIA, opAmp, _] = getHWforState(block);
+  auto& [state, TIA, opAmp, _, __] = *getHWforState(block);
 
   // get the last data point in the block
   DataType& data = block->data[block->count - 1];  

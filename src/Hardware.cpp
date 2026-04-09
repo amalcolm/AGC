@@ -61,7 +61,7 @@ void Hardware::update() {
   if (stateTime + A2D_POLL_DURATION < STATE_DURATION) {
 
     double updateStart = Timer.getStateTime();
-        getHWforState().update();  // update digital pots based on current state
+        HW->update();  // update digital pots based on current state
     double updateEnd = Timer.getStateTime();
 
     _raUpdateDurations.add(updateEnd - updateStart);
