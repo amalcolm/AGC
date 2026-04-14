@@ -14,6 +14,6 @@ public:
 
   void set();
 
-  void filterSensor(int numSamples, float t);
-  float _lastV = -1.0f;
+  void filterSensor(int numSamples, double t);
+  double _lastV = -1.0;
 };

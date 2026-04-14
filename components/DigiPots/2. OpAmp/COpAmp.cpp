@@ -36,17 +36,17 @@ void COpAmp::update() {
 
   if (HW && HW->offsetsChanged) {
      HW->offsetsChanged = false;
-    _lastV = static_cast<float>(analogRead(getSensorPin()));
+    _lastV = static_cast<double>(analogRead(getSensorPin()));
   }
 
 
   if (gainPot.inZone) {
 
-    if (Timer.getStateTime() > 0.001f) {
-      filterSensor(SAMPLES_TO_AVERAGE, 0.002f);
+    if (Timer.getStateTime() > 0.001) {
+      filterSensor(SAMPLES_TO_AVERAGE, 0.002);
       Timer.sampleReady = true;
     } else {
-      filterSensor(1, 0.01f);
+      filterSensor(1, 0.01);
     }
 
   }
@@ -60,14 +60,14 @@ void COpAmp::update() {
   }
 }
 
-void COpAmp::filterSensor(int numSamples, float t) {
-  float tInv = 1.0f - t;
+void COpAmp::filterSensor(int numSamples, double t) {
+  double tInv = 1.0 - t;
   int sensor = getSensorPin();
 
-  float v = _lastV;
+  double v = _lastV;
 
   for (int i = 0; i < numSamples; ++i)
-    v = t * static_cast<float>(analogRead(sensor)) + tInv * v;
+    v = t * static_cast<double>(analogRead(sensor)) + tInv * v;
 
   _lastV = v;
   _lastSensorValue = static_cast<int>(v);

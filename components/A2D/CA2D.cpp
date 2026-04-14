@@ -121,7 +121,11 @@ uint32_t lo32 =
 
   data.sensorState = (TIA.lastSensorValue() << 16);
   
+
+  if (Timer.sampleReady)
     data.sensorState |= opAmp.lastSensorValue();
+  else
+    data.sensorState |= opAmp.gainPot.lastSensorValue();
 }
 
 

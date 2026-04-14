@@ -2,7 +2,7 @@
 #include "CUSB.h"
 
 void C3Pot::fineTuning() {
-  static constexpr int SENSOR_DEADBAND = 100;
+  static constexpr int SENSOR_DEADBAND = 8;
   static constexpr int SENSOR_LOW      = CAutoPot::SENSOR_MIDPOINT - SENSOR_DEADBAND/2;
   static constexpr int SENSOR_HIGH     = CAutoPot::SENSOR_MIDPOINT + SENSOR_DEADBAND/2;
 
