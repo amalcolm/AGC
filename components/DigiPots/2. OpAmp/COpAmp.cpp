@@ -5,7 +5,7 @@
 constexpr int OFFSET_WINDOW_SIZE = 400; // 280 normal
 constexpr int   GAIN_WINDOW_SIZE = 400; // 100 normal
 
-constexpr int SAMPLES_TO_AVERAGE = 52;
+constexpr int SAMPLES_TO_AVERAGE = 50;
 
 COpAmp::COpAmp(int csPinOffset, int csPinGain, int sensorPin)
 : CAutoPot(-1, sensorPin, SAMPLES_TO_AVERAGE)

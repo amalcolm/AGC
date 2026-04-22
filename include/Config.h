@@ -10,7 +10,7 @@ public:
     inline static constexpr bool ADS1299_USE_24BIT = false; // if false, use 10-bit mode TEENSY 4.1 sensors
 
     // hardware timing constants (in microseconds / hertz)
-    inline static constexpr double STATE_DURATION_uS       =  200'000;  // time for each state. loop will be slightly longer than this
+    inline static constexpr double STATE_DURATION_uS       =  2'000;  // time for each state. loop will be slightly longer than this
 
     inline static constexpr double HEAD_SETTLE_TIME_uS     =    220;  // delay between Head change and first A2D read
     
@@ -21,7 +21,7 @@ public:
     inline static constexpr bool   A2D_USE_CONTINUOUS_MODE =  false;  // use continuous A2D mode; else triggered mode with interrupts
     inline static constexpr double A2D_SAMPLING_SPEED_Hz   = 16'000;  // A2D sampling speed set in CONFIG1 register
 
-    inline static constexpr double A2D_READING_PERIOD_uS   =     80;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
+    inline static constexpr double A2D_READING_PERIOD_uS   =    100;  // A2D reading speed. Can differ from the CONFIG1 sampling speed
  
 
     // program constants

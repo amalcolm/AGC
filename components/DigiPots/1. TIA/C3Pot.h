@@ -6,7 +6,7 @@ class C3Pot : public CDigiPot {
   public:
     enum class Phase { SEARCH = 0, NORMAL = 1, placeholder = 255} phase = Phase::placeholder;
 
-    static constexpr int DIGIPOT_MAX_FOR_PHOTODIODE = 48; // Photodiode has max of 0.6v whereas pots have max of 3.3v, hence max for top is (CAutoPot::POT_MAX * 0.6 / 3.3); around 48;
+    static constexpr int DIGIPOT_MAX_FOR_PHOTODIODE = 255; // Photodiode has max of 0.6v whereas pots have max of 3.3v, hence max for top is (CAutoPot::POT_MAX * 0.6 / 3.3); around 48;
 
     static constexpr int HISTORY_SIZE = 4;
     static constexpr int GAP_NORMAL   = 2;

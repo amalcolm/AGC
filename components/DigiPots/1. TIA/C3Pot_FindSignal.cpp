@@ -5,7 +5,7 @@
 
 void C3Pot::findSignal()
 {
-  static constexpr int MAX_ITERATIONS = 100;
+  static constexpr int MAX_ITERATIONS = 300;
   top.setLevel(DIGIPOT_MAX_FOR_PHOTODIODE);
   bot.setLevel(CAutoPot::POT_MIN);
   mid.setLevel(CAutoPot::POT_MIDPOINT);
@@ -77,4 +77,6 @@ void C3Pot::findSignal()
   }
 
   phase = Phase::NORMAL;
+
+  USB.printf("Signal found %d. Sensor value: %d\n", signalFound, readSensor());
 }

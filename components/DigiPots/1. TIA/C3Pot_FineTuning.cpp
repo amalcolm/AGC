@@ -6,7 +6,7 @@ void C3Pot::fineTuning() {
   static constexpr int SENSOR_LOW      = CAutoPot::SENSOR_MIDPOINT - SENSOR_DEADBAND/2;
   static constexpr int SENSOR_HIGH     = CAutoPot::SENSOR_MIDPOINT + SENSOR_DEADBAND/2;
 
-  static constexpr int MID_STEP = 150;
+  static constexpr int MID_STEP   = 150;
 
   static constexpr int WIPER_LOW  = (CAutoPot::POT_MIDPOINT - MID_STEP/2) / 2;
   static constexpr int WIPER_HIGH = 255 - WIPER_LOW;
