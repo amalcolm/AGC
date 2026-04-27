@@ -1,25 +1,29 @@
-#include "C3Pot.h"
+#include "CStage1.h"
 #include "DataTypes.h"
 #include "Hardware.h"
 #include "CUSB.h"
 
-void C3Pot::findSignal()
+const int midLevel = 127;
+
+void CStage1::findSignal()
 {
-  static constexpr int MAX_ITERATIONS = 300;
+  static constexpr int MAX_ITERATIONS = 400;
   top.setLevel(DIGIPOT_MAX_FOR_PHOTODIODE);
   bot.setLevel(CAutoPot::POT_MIN);
-  mid.setLevel(CAutoPot::POT_MIDPOINT);
+  mid.setLevel(midLevel);
 
   delayMicroseconds(10);
 
+  while (!Serial) { delay(100); } // wait for serial connection to be established before printing debug info
+
   bool signalFound = false;
 
-  int initialHILO = readSensor() < CAutoPot::SENSOR_MIDPOINT ? -1 : +1;
+  int initialHILO = readSensor() < midLevel ? -1 : +1;
   int HILO = 0;
 
   for (int i = 0; top.getLevel() - bot.getLevel() > GAP_NORMAL && i < MAX_ITERATIONS; i++) {
 
-    HILO = (readSensor() < CAutoPot::SENSOR_MIDPOINT) ? -1 : +1;
+    HILO = (readSensor() < midLevel) ? -1 : +1;
 
     switch (signalFound)
     {
@@ -38,9 +42,10 @@ void C3Pot::findSignal()
           case +1: bot.offsetLevel(+1); break;
         }
 
-        if (mid.getLevel() != CAutoPot::POT_MIDPOINT) {
 
-          int delta = mid.getLevel() - CAutoPot::POT_MIDPOINT;
+        if (mid.getLevel() != midLevel) {
+
+          int delta = mid.getLevel() - midLevel;
           int sign = (delta > 0) - (delta < 0);
           delta = sign * std::clamp(abs(delta) * 1/4, 1, 3);
 
@@ -52,15 +57,15 @@ void C3Pot::findSignal()
     delayMicroseconds(5); // signalFound ? 500 : 50 );
   }
 
-  initialHILO = readSensor() < CAutoPot::SENSOR_MIDPOINT ? -1 : +1;
+  initialHILO = readSensor() < midLevel ? -1 : +1;
   double lastDelta = 0, delta = 0;
   
   for (int i = 0; i < MAX_ITERATIONS; i++) { 
     lastDelta = delta;
     readSensor();
     
-    delta = abs(lastSensorValue() - CAutoPot::SENSOR_MIDPOINT);
-    HILO = (lastSensorValue() < CAutoPot::SENSOR_MIDPOINT) ? -1 : +1;
+    delta = abs(lastSensorValue() - midLevel);
+    HILO = (lastSensorValue() < midLevel) ? -1 : +1;
 
     if (HILO != initialHILO)
       break;
@@ -77,6 +82,4 @@ void C3Pot::findSignal()
   }
 
   phase = Phase::NORMAL;
-
-  USB.printf("Signal found %d. Sensor value: %d\n", signalFound, readSensor());
 }

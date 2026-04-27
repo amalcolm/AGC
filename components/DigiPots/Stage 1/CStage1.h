@@ -1,7 +1,7 @@
 #pragma once
 #include "CAutoPot.h"
 
-class C3Pot : public CDigiPot {
+class CStage1 : public CDigiPot {
 
   public:
     enum class Phase { SEARCH = 0, NORMAL = 1, placeholder = 255} phase = Phase::placeholder;
@@ -11,7 +11,7 @@ class C3Pot : public CDigiPot {
     static constexpr int HISTORY_SIZE = 4;
     static constexpr int GAP_NORMAL   = 2;
 
-    C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin);
+    CStage1(int csPinTop, int csPinBot, int csPinMid, int sensorPin);
 
     CDigiPot  top;
     CDigiPot  bot;

@@ -22,19 +22,19 @@ extern class  CUSB              USB;
 
 
 struct ChipSelectPins {
-  static constexpr int TIA_TOP = 17;
-  static constexpr int TIA_BOT = 16;
-  static constexpr int TIA_MID = 23;
+  static constexpr int Stage1_TOP = 17;
+  static constexpr int Stage1_BOT = 16;
+  static constexpr int Stage1_MID = 23;
 
-  static constexpr int offset2 = 21;
-  static constexpr int gain    = 22;
+  static constexpr int offset2    = 21;
+  static constexpr int gain       = 22;
   
-  static constexpr int A2D     = 20;
+  static constexpr int A2D        = 20;
 };
 
 struct SensorPins {
-  static constexpr int TIA   = PIN_A1;
-  static constexpr int Final = PIN_A0;
+  static constexpr int Stage1 = PIN_A1;
+  static constexpr int Final  = PIN_A0;
 };
 
 struct ButtonPins {

@@ -9,21 +9,47 @@
 #include "CHead.h"
 #include "Config.h"
 
+
 struct HWforState {
   public:
+
+    struct DBG {
+      int started = false;
+      bool holdEnabled = false;
+      double markTime = 0;
+
+      bool toggle = false;
+
+      void run(struct HWforState* hw) {
+
+        double now = Timer.getConnectTime();
+        started = now > 5.0;
+        holdEnabled = now > 10;
+
+
+        if (started) {
+          if (now - markTime > 1.0) {
+            markTime = now;
+            toggle = !toggle;
+            hw->OpAmp.offsetPot.offsetLevel(toggle ? +1 : -1);
+          }
+        }
+      }
+
+    } dbg;
     StateType state;
     
     HWforState(StateType state) : state(state) {}
 
-    C3Pot         TIA{CS.TIA_TOP, CS.TIA_BOT, CS.TIA_MID, SP.TIA};
-    COpAmp        OpAmp{CS.offset2, CS.gain, SP.Final};
+    CStage1         Stage1{CS.Stage1_TOP, CS.Stage1_BOT, CS.Stage1_MID, SP.Stage1};
+    CStage2        OpAmp{CS.offset2, CS.gain, SP.Final};
 
     bool offsetsChanged = true;
 
     bool begun = false;
     void begin() {
 
-      TIA.begin();
+      Stage1.begin();
       OpAmp.begin();
 
       begun = true;
@@ -31,7 +57,7 @@ struct HWforState {
 
     // write current state of hardware instances to hardware devices
     void set() { if (!Ready) return; else if (!begun) begin(); // ensure begin is called before first use, but only once
-      TIA.set();
+      Stage1.set();
       OpAmp.set();
     }
 
@@ -39,11 +65,27 @@ struct HWforState {
     void update() { if (!Ready) return; else if (!begun) begin();
 
       Timer.addEvent(EventKind::HW_UPDATE_START);
-      TIA.update();
+      if (dbg.holdEnabled == false)
+      {
+        Stage1.update();
 
-      if (TIA.inZone)
-        OpAmp.update();
+        if (Stage1.inZone)
+          OpAmp.update();
+        else
+          OpAmp.inZone = false;
+          
+      } else {
+        Timer.sampleReady = false;
+        Stage1.readSensor();
+        OpAmp.readSensor();
+      }
+    
 
+
+      
+      if (OpAmp.inZone)
+        dbg.run(this);
+      
       Timer.addEvent(EventKind::HW_UPDATE_COMPLETE);
     }
 

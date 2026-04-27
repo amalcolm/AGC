@@ -52,15 +52,15 @@ void DataType::fillFromHardware(struct HWforState& HW) {
   stateTime = Timer.getStateTime();
 
   hardwareState =
-    (uint64_t(HW.TIA.mid.getLevel() & 0xFFu) << 56) |
-    (uint64_t(HW.TIA.top.getLevel() & 0xFFu) << 48) |
-    (uint64_t(HW.TIA.bot.getLevel() & 0xFFu) << 40) |
+    (uint64_t(HW.Stage1.mid.getLevel() & 0xFFu) << 56) |
+    (uint64_t(HW.Stage1.top.getLevel() & 0xFFu) << 48) |
+    (uint64_t(HW.Stage1.bot.getLevel() & 0xFFu) << 40) |
     (uint64_t(++seq)                         << 32) |
     (uint64_t(HW.OpAmp.offsetPot.getLevel() & 0xFFu) << 24) |
     (uint64_t(HW.OpAmp.gainPot  .getLevel() & 0xFFu) << 16) | 
     (0xFFFFu);
 
-  sensorState = (uint32_t(HW.TIA.lastSensorValue()) << 16) | uint32_t(HW.OpAmp.lastSensorValue());
+  sensorState = (uint32_t(HW.Stage1.lastSensorValue()) << 16) | uint32_t(HW.OpAmp.lastSensorValue());
   memset(&channels[0], 0, CHANNELS_BYTESIZE);
 }
 

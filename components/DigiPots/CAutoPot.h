@@ -73,7 +73,7 @@ public:
 };
 // =================================================================
 
-class COffsetPot : public CAutoPot {
+class COffsetPot : public CDigiPot {
 public:
   COffsetPot(int csPin, int sensorPin, int samples, int windowSize);
   COffsetPot& operator=(const COffsetPot&) = default;
@@ -85,7 +85,7 @@ private:
 };
 
 // =================================================================
-class CGainPot : public CAutoPot {
+class CGainPot : public CDigiPot {
 public:
   CGainPot(int csPin, int sensorPin, int samples, int windowSize);
   CGainPot& operator=(const CGainPot&) = default;
@@ -97,8 +97,8 @@ private:
 
 };
 
-#include "1. TIA/C3Pot.h"
-#include "2. OpAmp/COpAmp.h"
+#include "Stage 1/CStage1.h"
+#include "Stage 2/CStage2.h"
 
 static_assert(std::is_copy_constructible_v<COffsetPot>);
 static_assert(std::is_copy_constructible_v<CGainPot  >);

@@ -1,10 +1,10 @@
 #pragma once
 #include "CAutoPot.h"
 
-class COpAmp : public CAutoPot {
+class CStage2 : public CAutoPot {
 public:
-  COpAmp(int csPinOffset, int csPinGain, int sensorPin);
-  COpAmp& operator=(const COpAmp&) = default;
+  CStage2(int csPinOffset, int csPinGain, int sensorPin);
+  CStage2& operator=(const CStage2&) = default;
 
   COffsetPot offsetPot;
   CGainPot   gainPot;
@@ -16,4 +16,7 @@ public:
 
   void filterSensor(int numSamples, double t);
   double _lastV = -1.0;
+
+private:
+  void _updateZone(bool readSensor = true);
 };

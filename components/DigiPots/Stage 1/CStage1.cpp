@@ -1,4 +1,4 @@
-#include "C3Pot.h"
+#include "CStage1.h"
 #include "CTelemetry.h"
 #include "C32bitTimer.h"
 #include "CUSB.h"
@@ -6,7 +6,7 @@
 #include <tuple>
 #include "CMasterTimer.h"
 
-C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin) 
+CStage1::CStage1(int csPinTop, int csPinBot, int csPinMid, int sensorPin) 
       : CDigiPot(csPinMid, sensorPin, 1)  // pas CSmid to CAutoPot constructor
       , top(csPinTop), bot(csPinBot)
       , mid(static_cast<CDigiPot&>(*this)) {
@@ -18,7 +18,7 @@ C3Pot::C3Pot(int csPinTop, int csPinBot, int csPinMid, int sensorPin)
 }
 
 
-void C3Pot::update() {
+void CStage1::update() {
 
   for (int i = HISTORY_SIZE - 1; i > 0; --i) history[i] = history[i - 1];
   history[0] = state;
@@ -39,7 +39,7 @@ void C3Pot::update() {
 
 };
 
-void C3Pot::printDebug(bool signalFound) {
+void CStage1::printDebug(bool signalFound) {
      int zoneValue = (zone == Zone::Low) ? 200 : (zone == Zone::High) ? 254 : 225;
  
     USB.printf("signal:%d\tzone:%d\tsensor:%d\ttop:%d\tbot:%d\tmid:%d\tmin:0\tmax:256\n",

@@ -1,4 +1,4 @@
-#include "COpAmp.h"
+#include "CStage2.h"
 #include "Arduino.h"
 #include "Hardware.h"
 
@@ -7,30 +7,37 @@ constexpr int   GAIN_WINDOW_SIZE = 400; // 100 normal
 
 constexpr int SAMPLES_TO_AVERAGE = 50;
 
-COpAmp::COpAmp(int csPinOffset, int csPinGain, int sensorPin)
+CStage2::CStage2(int csPinOffset, int csPinGain, int sensorPin)
 : CAutoPot(-1, sensorPin, SAMPLES_TO_AVERAGE)
 , offsetPot(csPinOffset, sensorPin, 1, OFFSET_WINDOW_SIZE)
 , gainPot  (csPinGain  , sensorPin, 1,   GAIN_WINDOW_SIZE) {}
 
-void COpAmp::begin() {
+void CStage2::begin() {
   gainPot  .invert();
 
   offsetPot.begin(128); 
     gainPot.begin(  0);
 }
 
-void COpAmp::set() {
+void CStage2::set() {
   offsetPot.writeCurrentToPot();
     gainPot.writeCurrentToPot();
 }
 
 
-void COpAmp::update() {
+
+void CStage2::update() {
 
   offsetPot.update();   
 
-  if (offsetPot.inZone)
-    gainPot.update();
+  if (offsetPot.inZone == false) {
+    inZone = false;
+    _updateZone();
+    return;
+  }
+
+  gainPot.update();
+  inZone = gainPot.inZone;
 
   if (Timer.sampleReady) return;
 
@@ -39,28 +46,22 @@ void COpAmp::update() {
     _lastV = static_cast<double>(analogRead(getSensorPin()));
   }
 
+  if (inZone == false) {
+    _updateZone();
+    return;
+  }
 
-  if (gainPot.inZone) {
-
+  
     if (Timer.getStateTime() > 0.001) {
       filterSensor(SAMPLES_TO_AVERAGE, 0.002);
       Timer.sampleReady = true;
     } else {
       filterSensor(1, 0.01);
     }
-
-  }
-  else
-  {
-    inZone = false;
-    if (analogRead(getSensorPin()) > CAutoPot::SENSOR_MIDPOINT)
-      zone = Zone::High;
-    else
-      zone = Zone::Low;
-  }
+  
 }
 
-void COpAmp::filterSensor(int numSamples, double t) {
+void CStage2::filterSensor(int numSamples, double t) {
   double tInv = 1.0 - t;
   int sensor = getSensorPin();
 
@@ -72,5 +73,16 @@ void COpAmp::filterSensor(int numSamples, double t) {
   _lastV = v;
   _lastSensorValue = static_cast<int>(v);
 
-  _updateZone();
+  _updateZone(false);
+}
+
+
+
+void CStage2::_updateZone(bool readSensor) {
+  int sensor  = readSensor ? analogRead(getSensorPin()) : lastSensorValue();
+
+  if (sensor < CAutoPot::SENSOR_MIDPOINT)
+    zone = Zone::Low;
+  else
+    zone = Zone::High;
 }

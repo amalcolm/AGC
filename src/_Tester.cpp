@@ -24,7 +24,7 @@ void _loop() {
 
 
 
-  HW->TIA.printDebug(true);
+  HW->Stage1.printDebug(true);
   HW->update();
   delay(1000);
   activityLED.toggle();             // Indicate activity on LED
