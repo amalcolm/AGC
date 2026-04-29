@@ -1,5 +1,7 @@
 #pragma once
 #include "CAutoPot.h"
+#include "COffsetPot.h"
+#include "CGainPot.h"
 
 class CStage2 : public CAutoPot {
 public:

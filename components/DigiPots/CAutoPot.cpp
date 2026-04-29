@@ -24,7 +24,13 @@ void CAutoPot::begin(int initialLevel) {
   reset(initialLevel);
 }
 
-void    CAutoPot::reset(int level) { _setLevel(level);                   }
+void    CAutoPot::reset(int level) {
+  _setLevel(level);
+  _runningAverage.reset(SENSOR_MIDPOINT); 
+  delayMicroseconds(10);
+  readSensor();
+}
+
 void    CAutoPot::invert()         { _inverted       = !_inverted;       }
 void    CAutoPot::invertSensor()   { _invertedSensor = !_invertedSensor; }
 
@@ -63,16 +69,28 @@ CAutoPot::Zone CAutoPot::_updateZone() {
  return zone;
 }
 
-uint16_t CAutoPot::readSensor() {  if (_sensorPin < 0) return 0; // No sensor pin defined
-  int totalValue = 0;
-  for (int i = 0; i < _samplesToAverage; i++)
-      totalValue += analogRead(_sensorPin);
+uint16_t CAutoPot::readSensor(int samplesToAverage) {  if (_sensorPin < 0) return 0; // No sensor pin defined
+  
+  if (samplesToAverage <= 0) // use default if not specified
+   samplesToAverage = _samplesToAverage;
 
-  if (_invertedSensor)
-      totalValue = (_samplesToAverage * 1023) - totalValue;
+  if (samplesToAverage <= 1) {
+    int rawValue = analogRead(_sensorPin);
 
-  _lastSensorValue = totalValue / _samplesToAverage;
-  _runningAverage.add(_lastSensorValue);
+    _lastSensorValue = _invertedSensor ? 1023 - rawValue : rawValue;
+  }
+  else
+  {
+    int totalValue = 0;
+    for (int i = 0; i < samplesToAverage; i++)
+        totalValue += analogRead(_sensorPin);
+
+    if (_invertedSensor)
+        totalValue = (samplesToAverage * 1023) - totalValue;
+
+    _lastSensorValue = totalValue / samplesToAverage;
+    _runningAverage.add(_lastSensorValue);
+  }
 
   _updateZone();
 

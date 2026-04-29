@@ -94,9 +94,10 @@ void CTelemetry::_register(CTelemetry* tele) {
 
 
 void CTelemetry::logAll() {
-  if (USB.isHandshakeComplete()) 
+  bool output = USB.isHandshakeComplete();
+
     for (CTelemetry* telemetry : getAllTelemetries()) {
-        telemetry->value = telemetry->getValue();
-        telemetry->writeSerial(true);
+      telemetry->value = telemetry->getValue();
+      if (output) telemetry->writeSerial(true);
     }
 }

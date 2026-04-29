@@ -12,7 +12,7 @@ void CUSB::do_read() {
     return;
   }
 
-  uint32_t nBytesToRead = std::min(nAvailable, static_cast<uint32_t>(m_byteBuffer.available()));
+  uint32_t nBytesToRead = std::min(nAvailable, static_cast<uint32_t>(m_byteBuffer.numFree()));
 
   size_t numRead = 0;
   while (numRead < nBytesToRead) {
@@ -22,9 +22,9 @@ void CUSB::do_read() {
     size_t nBytes = min(nChunk, nBytesToRead - numRead);
 
     int readBytes = Serial.readBytes(reinterpret_cast<char*>(pBuffer), nBytes);
-    m_byteBuffer.commitWrite(readBytes);
+    if (readBytes <= 0) break;  // no more data available or error
 
-//    if (readBytes < nBytes) break;  // issues on the serial port
+    m_byteBuffer.commitWrite(readBytes);
 
     numRead += readBytes;
   }

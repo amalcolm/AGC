@@ -15,23 +15,45 @@ struct HWforState {
 
     struct DBG {
       int started = false;
-      bool holdEnabled = false;
+      bool settling = false;
+      bool holdStage1 = false;
+      bool holdStage2 = false;
       double markTime = 0;
 
       bool toggle = false;
 
       void run(struct HWforState* hw) {
 
-        double now = Timer.getConnectTime();
-        started = now > 5.0;
-        holdEnabled = now > 10;
+        started |= hw->Stage1.inZone;
 
+        if (!started) return;
+        
+        double now = Timer.getConnectTime();
+        bool justStarted = !started && now > 5.0;
+        started = now > 5.0;
+        holdStage1 = now > 10;
+        holdStage2 = holdStage1;
+
+        if (justStarted)
+        {
+          hw->Stage1.top.offsetLevel(+1);
+          hw->Stage1.bot.offsetLevel(+ 1);
+          delayMicroseconds(10);
+        }
 
         if (started) {
           if (now - markTime > 1.0) {
             markTime = now;
             toggle = !toggle;
-            hw->OpAmp.offsetPot.offsetLevel(toggle ? +1 : -1);
+
+            if (toggle) {
+              hw->Stage1.top.offsetLevel(+1);
+              hw->Stage1.bot.offsetLevel(+1);
+            } else {
+              hw->Stage1.top.offsetLevel(-1);
+              hw->Stage1.bot.offsetLevel(-1);
+            }
+//            hw->Stage1.mid.offsetLevel(toggle ? +24 : -24);
           }
         }
       }
@@ -41,7 +63,7 @@ struct HWforState {
     
     HWforState(StateType state) : state(state) {}
 
-    CStage1         Stage1{CS.Stage1_TOP, CS.Stage1_BOT, CS.Stage1_MID, SP.Stage1};
+    CStage1        Stage1{CS.Stage1_TOP, CS.Stage1_BOT, CS.Stage1_MID, SP.Stage1};
     CStage2        OpAmp{CS.offset2, CS.gain, SP.Final};
 
     bool offsetsChanged = true;
@@ -65,26 +87,20 @@ struct HWforState {
     void update() { if (!Ready) return; else if (!begun) begin();
 
       Timer.addEvent(EventKind::HW_UPDATE_START);
-      if (dbg.holdEnabled == false)
-      {
+      if (dbg.holdStage1)
+        Stage1.readSensor();
+      else
         Stage1.update();
 
-        if (Stage1.inZone)
-          OpAmp.update();
+      if (Stage1.inZone == false)
+        OpAmp.inZone = false;
+      else
+        if (dbg.holdStage2)
+          OpAmp.readSensor();
         else
-          OpAmp.inZone = false;
-          
-      } else {
-        Timer.sampleReady = false;
-        Stage1.readSensor();
-        OpAmp.readSensor();
-      }
-    
-
-
-      
-      if (OpAmp.inZone)
-        dbg.run(this);
+          OpAmp.update();
+            
+      dbg.run(this);
       
       Timer.addEvent(EventKind::HW_UPDATE_COMPLETE);
     }

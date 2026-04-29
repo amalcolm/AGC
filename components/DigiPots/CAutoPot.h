@@ -22,7 +22,7 @@ public:
   void invertSensor();
   virtual void update() = 0; // must be overridden
 
-  uint16_t   readSensor();
+  uint16_t   readSensor(int samplesToAverage = -1);
 
   inline int getLevel()        const { return _currentLevel;    }
   inline int lastSensorValue() const { return _lastSensorValue; }
@@ -59,48 +59,12 @@ public:
   CDigiPot(int csPin) : CAutoPot(csPin, -1, 1) {}
   CDigiPot(int csPin, int sensorPin, int samplesToAverage) : CAutoPot(csPin, sensorPin, samplesToAverage) {}
   CDigiPot& operator=(const CDigiPot&) = default;
-  void update() override { } // no update needed but override is
-                             // required to be non-abstract
-  void setLevel(int level) { _setLevel(level); }
+  void update() override { } // no update needed but override is required to be non-abstract
+  void setLevel(int level) { _setLevel(level); }              // expose set and offset level
   void offsetLevel(int offset) { _offsetLevel(offset); }
-  uint16_t readAverage(int samples = -1) { if (samples == -1) return readSensor(); 
-    int oldSamplesToAverage = _samplesToAverage;
-    _samplesToAverage = samples;
-    uint16_t average = readSensor();
-    _samplesToAverage = oldSamplesToAverage;
-    return average;
-  }
 };
 // =================================================================
 
-class COffsetPot : public CDigiPot {
-public:
-  COffsetPot(int csPin, int sensorPin, int samples, int windowSize);
-  COffsetPot& operator=(const COffsetPot&) = default;
-  void update() override;
-
-private:
-  int _lowThreshold;
-  int _highThreshold;
-};
-
-// =================================================================
-class CGainPot : public CDigiPot {
-public:
-  CGainPot(int csPin, int sensorPin, int samples, int windowSize);
-  CGainPot& operator=(const CGainPot&) = default;
-  void update() override;
-
-private:
-  int _lowThreshold;
-  int _highThreshold;
-
-};
 
 #include "Stage 1/CStage1.h"
 #include "Stage 2/CStage2.h"
-
-static_assert(std::is_copy_constructible_v<COffsetPot>);
-static_assert(std::is_copy_constructible_v<CGainPot  >);
-static_assert(std::is_copy_assignable_v<COffsetPot>);
-static_assert(std::is_copy_assignable_v<CGainPot  >);

@@ -25,7 +25,7 @@ void CSerialWrapper::update() {
   if (m_Mode != ModeType::UNSET && !connected) {
     m_Mode = ModeType::UNSET;
     m_handshakeComplete = false;
-    Pins::flash(3);
+    Pins::flash(1);
     return;
   }
 

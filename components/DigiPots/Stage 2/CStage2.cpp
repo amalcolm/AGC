@@ -9,8 +9,8 @@ constexpr int SAMPLES_TO_AVERAGE = 50;
 
 CStage2::CStage2(int csPinOffset, int csPinGain, int sensorPin)
 : CAutoPot(-1, sensorPin, SAMPLES_TO_AVERAGE)
-, offsetPot(csPinOffset, sensorPin, 1, OFFSET_WINDOW_SIZE)
-, gainPot  (csPinGain  , sensorPin, 1,   GAIN_WINDOW_SIZE) {}
+, offsetPot(csPinOffset, sensorPin, OFFSET_WINDOW_SIZE)
+, gainPot  (csPinGain  , sensorPin,   GAIN_WINDOW_SIZE) {}
 
 void CStage2::begin() {
   gainPot  .invert();

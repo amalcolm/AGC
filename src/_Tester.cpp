@@ -22,8 +22,6 @@ void _setup() {
 void _loop() {
   while (!Serial) yield(); // wait for Serial to be ready before outputting debug info
 
-
-
   HW->Stage1.printDebug(true);
   HW->update();
   delay(1000);

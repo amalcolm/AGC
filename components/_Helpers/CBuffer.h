@@ -25,14 +25,14 @@ struct CBufferType {
 
     bool isEmpty() const { return writeIndex == readIndex; }
     bool isFull()  const { return ((writeIndex + 1) % size) == readIndex; }
-    size_t available() const {
+    size_t numStored() const {
       if (writeIndex >= readIndex)
         return writeIndex - readIndex;
       else
         return size - (readIndex - writeIndex);
     }
 
-    size_t free() const { return capacity() - available(); }
+    size_t numFree() const { return capacity() - numStored(); }
 
     bool write(const T& item) {
       const size_t wi = writeIndex;  // make atomic (single CPU operation), so should be ISR safe
@@ -80,7 +80,7 @@ struct CBufferType {
     }
 
 
-    bool commitWrite(size_t n) { if (n == 0) return true; else if (n > available()) return false;
+    bool commitWrite(size_t n) { if (n == 0) return true; else if (n > numFree()) return false;
   
       writeIndex = (writeIndex + n) % size;
       return true;

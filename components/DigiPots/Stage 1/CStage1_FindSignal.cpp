@@ -3,7 +3,7 @@
 #include "Hardware.h"
 #include "CUSB.h"
 
-const int midLevel = 127;
+const int midLevel = 512;
 
 void CStage1::findSignal()
 {
@@ -14,7 +14,22 @@ void CStage1::findSignal()
 
   delayMicroseconds(10);
 
-  while (!Serial) { delay(100); } // wait for serial connection to be established before printing debug info
+  int wiper = mid.getLevel();
+  int Wtop = 255, Wbot = 0;
+
+  while (Wtop - Wbot > GAP_NORMAL*2) {
+    if (readSensor() < midLevel) {
+      Wbot = wiper;
+      wiper = (wiper + Wtop) / 2;
+    } else {
+      Wtop = wiper;
+      wiper = (wiper + Wbot) / 2;
+    }
+    mid.setLevel(wiper);
+    delayMicroseconds(10);
+  }
+
+
 
   bool signalFound = false;
 
