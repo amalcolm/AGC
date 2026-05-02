@@ -16,7 +16,7 @@ class CGainPot : public CDigiPot {
     
     void update() override {
       readSensor();
-    
+      
       bool boostSignal = (_lastSensorValue >= _lowThreshold && _lastSensorValue <= _highThreshold);
 
       if (zone != Zone::inZone) _offsetLevel(-1);
@@ -29,4 +29,4 @@ class CGainPot : public CDigiPot {
 
 
 static_assert(std::is_copy_constructible_v<CGainPot  >);
-static_assert(std::is_copy_assignable_v<CGainPot  >);
+static_assert(std::is_copy_assignable_v   <CGainPot  >);

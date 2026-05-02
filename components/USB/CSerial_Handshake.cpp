@@ -61,7 +61,7 @@ void CSerialWrapper::doHandshake() {
   }
 
 
-  if (m_handshakeComplete && !CFG::TESTMODE)
+  if (m_handshakeComplete)
     setMode(ModeType::BLOCKDATA);
   else
     setMode(ModeType::TEXT);
@@ -71,7 +71,7 @@ void CSerialWrapper::doHandshake() {
     outcome = std::string("Handshake complete. ")
             +   "Host: "   + std::string(CFG::HOST_VERSION) 
             + ", Device: " + std::string(CFG::DEVICE_NAME) + " v" + std::string(CFG::DEVICE_VERSION)
-            + (CFG::TESTMODE ? " Serial set to TEXT (by TESTMODE)" : " Binary BLOCKMODE active") + "\n";
+            + " Binary BLOCKMODE active\n";
   else
     outcome = "Handshake failed. Defaulting to TEXT mode.\n";
   
@@ -83,7 +83,6 @@ void CSerialWrapper::doHandshake() {
   while (Serial.available() > 0) Serial.read(); // flush input buffer
   Timer.setConnectTime();
 
-//  activityLED.clear();
 }
 
 
@@ -92,9 +91,8 @@ void CSerialWrapper::writeHandshakeResponse() {
   static char buffer[320];
 
   snprintf(buffer, sizeof(buffer)-1,
-   "<DEVICE_VERSION=%s::STATE_DURATION_uS=%lf::HEAD_SETTLE_TIME_uS=%lf::POT_UPDATE_OFFSET_uS=%lf::A2D_SAMPLING_SPEED_Hz=%lf::A2D_READING_PERIOD_uS=%lf::MAX_BLOCKSIZE=%lu::MAX_EVENTS_PER_BLOCK=%lu\n",
-    CFG::DEVICE_VERSION,
-                   CFG::STATE_DURATION_uS,CFG::HEAD_SETTLE_TIME_uS,CFG::POT_UPDATE_OFFSET_uS,CFG::A2D_SAMPLING_SPEED_Hz,CFG::A2D_READING_PERIOD_uS,CFG::MAX_BLOCKSIZE,CFG::MAX_EVENTS_PER_BLOCK      );
+     "<STATE_DURATION_uS=%lf::HEAD_SETTLE_TIME_uS=%lf::POT_UPDATE_OFFSET_uS=%lf::A2D_SAMPLING_SPEED_Hz=%lf::A2D_READING_PERIOD_uS=%lf::MAX_BLOCKSIZE=%lu::MAX_EVENTS_PER_BLOCK=%lu::DEVICE_VERSION=%s\n",
+  CFG::STATE_DURATION_uS,CFG::HEAD_SETTLE_TIME_uS,CFG::POT_UPDATE_OFFSET_uS,CFG::A2D_SAMPLING_SPEED_Hz,CFG::A2D_READING_PERIOD_uS,CFG::MAX_BLOCKSIZE,CFG::MAX_EVENTS_PER_BLOCK,CFG::DEVICE_VERSION     );
 
   Serial.write((uint8_t*)buffer, strlen(buffer));
 }

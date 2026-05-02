@@ -1,7 +1,7 @@
 #include "CStage2.h"
 #include "Arduino.h"
-#include "Hardware.h"
-
+#include "HWforState.h"
+#include "CMasterTimer.h"
 constexpr int OFFSET_WINDOW_SIZE = 400; // 280 normal
 constexpr int   GAIN_WINDOW_SIZE = 400; // 100 normal
 
@@ -27,6 +27,11 @@ void CStage2::set() {
 
 
 void CStage2::update() {
+  if (HW->flags.holdStage2) {
+    _lastSensorValue = gainPot.readSensor();
+    _updateZone(false);
+    return;
+  }
 
   offsetPot.update();   
 
@@ -41,8 +46,8 @@ void CStage2::update() {
 
   if (Timer.sampleReady) return;
 
-  if (HW && HW->offsetsChanged) {
-     HW->offsetsChanged = false;
+  if (HW && HW->flags.offsetsChanged) {
+     HW->flags.offsetsChanged = false;
     _lastV = static_cast<double>(analogRead(getSensorPin()));
   }
 

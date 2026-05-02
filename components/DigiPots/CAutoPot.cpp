@@ -1,7 +1,7 @@
 #include "CAutoPot.h"
 #include "Arduino.h"
 #include "SPI.h"
-#include "Hardware.h"
+#include "HWforState.h"
 #include "Setup.h"
 
 static std::array<int, 48> _potValueCache = {-2};
@@ -38,7 +38,7 @@ void CAutoPot::_setLevel(int newLevel) {
   newLevel = std::clamp(newLevel, POT_MIN, POT_MAX);
   if (newLevel == _currentLevel) return; 
 
-  if (HW) HW->offsetsChanged = true;
+  if (HW) HW->flags.offsetsChanged = true;
   _currentLevel = newLevel;
   _writeToPot(_currentLevel);
 };
@@ -47,7 +47,7 @@ void CAutoPot::_offsetLevel(int offset) {
   int newLevel = std::clamp(_currentLevel + offset, POT_MIN, POT_MAX);
   if (newLevel == _currentLevel) return;
 
-  if (HW) HW->offsetsChanged = true;
+  if (HW) HW->flags.offsetsChanged = true;
   _currentLevel = newLevel;
   _writeToPot(_currentLevel);
 };
@@ -71,6 +71,8 @@ CAutoPot::Zone CAutoPot::_updateZone() {
 
 uint16_t CAutoPot::readSensor(int samplesToAverage) {  if (_sensorPin < 0) return 0; // No sensor pin defined
   
+  analogRead(_sensorPin); // discard first reading as it can be inaccurate right after writing to pot
+
   if (samplesToAverage <= 0) // use default if not specified
    samplesToAverage = _samplesToAverage;
 
@@ -100,6 +102,7 @@ uint16_t CAutoPot::readSensor(int samplesToAverage) {  if (_sensorPin < 0) retur
 void CAutoPot::_writeToPot(int value) { if (_csPin < 0) return;
   static const SPISettings settings{8'000'000, MSBFIRST, SPI_MODE0};
 
+
   if (value < 0 || value > 255) return;
   
   if (_potValueCache[_csPin] == value) return; // No change — avoid redundant SPI write
@@ -121,4 +124,4 @@ void CAutoPot::_writeToPot(int value) { if (_csPin < 0) return;
       delayMicroseconds(2);
   }
   SPI.endTransaction();
-}
+} 

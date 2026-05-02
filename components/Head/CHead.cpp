@@ -2,7 +2,7 @@
 #include "core_pins.h"
 #include "CHead.h"
 #include "CA2D.h"
-#include "Hardware.h"
+#include "HWforState.h"
 #include "Helpers.h"
 #include "Setup.h"
 #include "DataTypes.h"

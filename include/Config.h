@@ -4,8 +4,6 @@
 
 class CFG {
 public:
-    // debugging option
-    inline static constexpr bool TESTMODE = false;  // if true, call the _Callback(BlockType) by default, for debugging
 
     inline static constexpr bool ADS1299_USE_24BIT = false; // if false, use 10-bit mode TEENSY 4.1 sensors
 

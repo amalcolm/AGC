@@ -49,10 +49,12 @@ void CUSB::do_write_Block() {
 }
 
 
-// if in TEXT mode, process the buffered BlockType via callback
+// if in TEXT mode, output the debugSerial of block
 void CUSB::do_write_Text() {
   if (m_pBlock == NULL) return;
-  A2D.makeCallback(m_pBlock);
+    m_pBlock->debugSerial();
+
+  m_pBlock = NULL;
 }
 
 

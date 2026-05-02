@@ -1,5 +1,6 @@
 #include "Setup.h"
 #include "Hardware.h"
+#include "HWforState.h"
 #include "CMasterTimer.h"
 #include "CHead.h"
 #include "CUSB.h"

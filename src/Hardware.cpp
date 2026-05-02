@@ -1,5 +1,6 @@
 #include "Setup.h"
 #include "Hardware.h"
+#include "HWforState.h"
 #include "Helpers.h"
 #include "CUSB.h"
 #include "CAutoPot.h"
@@ -30,7 +31,6 @@ void Hardware::begin() {
     while (A2D.poll() == false)
       delayMicroseconds(5);
     
-    A2D.setCallback(_Callback);
 
     Timer.restart();
 }
@@ -39,8 +39,8 @@ CTeleCounter TC_Update{TeleGroup::HARDWARE, 1};
 CTelePeriod  TP_Update{TeleGroup::HARDWARE, 2};
 CRunningAverage<double> _raUpdateDurations;
 
-static double    STATE_DURATION = 1.0 * CFG::STATE_DURATION_uS     * 0.000'001; // convert to seconds
-static double A2D_POLL_DURATION = 20.0 * 0.000'001;
+static double    STATE_DURATION = 1.0 * CFG::STATE_DURATION_uS   * 0.000'001; // convert to seconds
+static double A2D_POLL_DURATION = 1.5 * CFG::A2D_READING_PERIOD_uS * 0.000'001; // convert to seconds
 
 bool Hardware::canUpdate() {
 

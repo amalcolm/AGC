@@ -5,7 +5,6 @@
 #include "CMasterTimer.h"
 #include <string>
 
-void _Callback(BlockType* block);  // forward declaration of _Callback.cpp
 
 extern bool Ready;                 // set to true once setup() is complete 
 
@@ -45,3 +44,5 @@ struct ButtonPins {
   }
 };
 extern OutputPin activityLED;  // set in Helpers.cpp (4)
+
+

@@ -5,7 +5,7 @@
 #include "CUSB.h"
 #include "CHead.h"
 #include "Config.h"
-#include "Hardware.h"
+#include "HWforState.h"
 
 static constexpr uint32_t CHANNELS_BYTESIZE = NUM_CHANNELS * sizeof(int);
 

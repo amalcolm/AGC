@@ -67,5 +67,3 @@ struct BlockType {
 
 
 
-typedef void (*CallbackType)(BlockType*);
-

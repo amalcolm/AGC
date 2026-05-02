@@ -7,7 +7,7 @@ void CStage1::fineTuning() {
   static constexpr int SENSOR_LOW      = CAutoPot::SENSOR_MIDPOINT - SENSOR_DEADBAND/2;
   static constexpr int SENSOR_HIGH     = CAutoPot::SENSOR_MIDPOINT + SENSOR_DEADBAND/2;
 
-  static constexpr int MID_STEP   = 50;  // ******* THIS NEEDS CALIBRATING ********
+  static constexpr int MID_STEP   = 107;  // ******* THIS NEEDS CALIBRATING ********
 
   static constexpr int WIPER_LOW  = (CAutoPot::POT_MIDPOINT - MID_STEP/2) / 2;
   static constexpr int WIPER_HIGH = 255 - WIPER_LOW;

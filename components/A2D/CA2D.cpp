@@ -2,7 +2,7 @@
 #include "Setup.h"
 #include "CHead.h"
 #include "Helpers.h"
-#include "Hardware.h"
+#include "HWforState.h"
 #include "CA2DTimer.h"
 #include "Config.h"
 
@@ -104,7 +104,7 @@ bool CA2D::poll() {
 void CA2D::setDebugData(DataType& data) {
   static uint8_t sequenceNumber = 0;
  
-  auto& [dbg, state, Stage1, opAmp, _, __] = *getHWforState(data);
+  auto& [flags, state, Stage1, opAmp] = *getHWforState(data);
   
   uint32_t hi32 =
     ((Stage1.mid.getLevel() & 0xFFu) << 24) |
@@ -122,7 +122,7 @@ uint32_t lo32 =
   data.sensorState = (Stage1.lastSensorValue() << 16);
   
 
-  if (Timer.sampleReady)
+  if (Timer.sampleReady || flags.holdStage2)
     data.sensorState |= opAmp.lastSensorValue();
   else
     data.sensorState |= opAmp.gainPot.lastSensorValue();
@@ -183,6 +183,4 @@ void CA2D::swapBlocks(StateType state) {
   m_pBlockToFill->timestamp = Timer.getConnectTime();
 
   USB.buffer(m_pBlockToSend); // qaueue the block we just filled to be sent over USB
-
-  if (m_fnCallback) m_fnCallback(m_pBlockToSend);   // if the callback is set, call it with the filled block (for testing/debugging)
 }

@@ -28,6 +28,9 @@ class CStage1 : public CDigiPot {
     } state{};
 
     State history[HISTORY_SIZE]{}; // history[0] = newest
+    void clearHistory();
+    void storeOldState();
+    void setState();
     
     void begin(int initialLevel = 128) {
       top.invert();

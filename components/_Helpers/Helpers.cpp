@@ -8,7 +8,7 @@
 #include "CMasterTimer.h"
 #include "CUSB.h"
 #include "Setup.h"
-#include "Hardware.h"
+#include "HWforState.h"
 #include "Helpers.h"
 #include "PinHelpers.h"
 

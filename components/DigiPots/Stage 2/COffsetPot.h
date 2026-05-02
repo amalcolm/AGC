@@ -13,6 +13,7 @@ class COffsetPot : public CDigiPot {
       ,  _lowThreshold(SENSOR_MIDPOINT - windowSize)
       , _highThreshold(SENSOR_MIDPOINT + windowSize) {}
 
+
     void update() override {
       auto val =  readSensor();
 
@@ -28,4 +29,4 @@ class COffsetPot : public CDigiPot {
 
 
 static_assert(std::is_copy_constructible_v<COffsetPot>);
-static_assert(std::is_copy_assignable_v<COffsetPot>);
+static_assert(std::is_copy_assignable_v   <COffsetPot>);

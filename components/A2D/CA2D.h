@@ -23,8 +23,6 @@ class CA2D {
     CA2D();
   
     void      begin();
-    void      setCallback(CallbackType callback) { m_fnCallback = callback; }
-    void      makeCallback(BlockType* pBlock)    { if (m_fnCallback) m_fnCallback(pBlock); }
 
     bool      poll();
 
@@ -47,7 +45,6 @@ class CA2D {
     void      init_DMA();
 
     ModeType            m_mode       = ModeType::UNSET;
-    CallbackType        m_fnCallback = NULL;
     ReadState           m_ReadState  = ReadState::PREPARE;
 
     static void ISR_Data();
